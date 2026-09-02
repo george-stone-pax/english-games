@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>DecaLex - Mobile Edition</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;600&display=swap" rel="stylesheet">
+    
+    <!-- Подключение внешнего файла стилей -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="h-[100dvh] w-screen flex flex-col items-center relative bg-[url('https://www.transparenttextures.com/patterns/dark-matter.png')]">
+
+    <!-- 
+    ========================================================================
+    [ВСТАВКА АУДИО ИЗ GITHUB PAGES]
+    Здесь находятся аудиофайлы для игры: фоновая музыка, звуки правильного 
+    и неправильного ответов.
+    ========================================================================
+    -->
+    <audio id="bg-music" loop>
+        <source src="https://george-stone-pax.github.io/my-game-assets/Aylex%20-%20Back%20To%20Life%20(freetouse.com).mp3" type="audio/mpeg">
+    </audio>
+    <audio id="sound-correct">
+        <source src="https://george-stone-pax.github.io/my-game-assets/rightanswer-95219.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="sound-wrong">
+        <source src="https://george-stone-pax.github.io/my-game-assets/dodgeball.mp3" type="audio/mpeg">
+    </audio>
+
+    <!-- Фоновые пятна -->
+    <div class="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none z-0">
+        <div class="absolute top-[-10%] left-[-10%] w-[300px] h-[300px] bg-blue-600 rounded-full blur-[100px] opacity-20"></div>
+        <div class="absolute bottom-[-10%] right-[-10%] w-[300px] h-[300px] bg-purple-600 rounded-full blur-[100px] opacity-20"></div>
+    </div>
+
+    <!-- MAIN APP CONTAINER -->
+    <div id="app" class="z-10 w-full h-full flex flex-col p-2 md:p-6 max-w-5xl mx-auto">
+        
+        <!-- HEADER -->
+        <header class="text-center shrink-0 py-2 relative z-20 flex justify-center items-center">
+            <h1 class="font-tech text-4xl md:text-6xl font-black text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-purple-500 neon-text-blue tracking-widest uppercase">
+                Deca<span class="text-white">Lex</span>
+            </h1>
+            <!-- Кнопка настроек -->
+            <button id="settings-btn" class="absolute right-2 text-2xl opacity-70 hover:opacity-100 transition-opacity active:scale-95" title="Настройки">
+                ⚙️
+            </button>
+        </header>
+
+        <!-- МЕНЮ НАСТРОЕК (Модальное окно) -->
+        <div id="settings-modal" class="hidden absolute inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-md p-4">
+            <div class="w-full max-w-sm bg-slate-900 border border-slate-700 rounded-2xl p-6 text-white shadow-2xl neon-box">
+                <h2 class="font-tech text-3xl text-cyan-400 mb-6 text-center neon-text-blue">Настройки</h2>
+                
+                <div class="space-y-5 font-bold">
+                    <!-- Полноэкранный режим -->
+                    <div class="flex justify-between items-center">
+                        <label class="text-slate-300">На весь экран</label>
+                        <button id="fullscreen-toggle" class="bg-slate-700 hover:bg-slate-600 px-4 py-2 rounded-lg text-sm transition-colors active:scale-95">
+                            Включить
+                        </button>
+                    </div>
+
+                    <!-- Таймер -->
+                    <div class="flex justify-between items-center">
+                        <label class="text-slate-300" for="timer-select">Время игры</label>
+                        <select id="timer-select" class="bg-slate-800 border border-slate-600 rounded-lg px-3 py-2 text-cyan-400 font-tech focus:outline-none">
+                            <option value="30">30 сек</option>
+                            <option value="60">60 сек</option>
+                            <option value="90" selected>90 сек</option>
+                            <option value="120">120 сек</option>
+                        </select>
+                    </div>
+
+                    <!-- Количество букв -->
+                    <div class="flex justify-between items-center">
+                        <label class="text-slate-300" for="letter-count-select">Количество букв</label>
+                        <select id="letter-count-select" class="bg-slate-800 border border-slate-600 rounded-lg px-3 py-2 text-cyan-400 font-tech focus:outline-none">
+                            <option value="8">8</option>
+                            <option value="10" selected>10</option>
+                            <option value="12">12</option>
+                            <option value="15">15</option>
+                        </select>
+                    </div>
+
+                    <!-- Громкость -->
+                    <div class="pt-2 border-t border-slate-700">
+                        <div class="flex justify-between items-center mb-2">
+                            <label class="text-slate-300">Громкость</label>
+                            <span id="volume-display" class="text-cyan-400 font-tech">50%</span>
+                        </div>
+                        <input type="range" id="volume-slider" min="0" max="1" step="0.05" value="0.5" class="w-full accent-cyan-500 h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer">
+                    </div>
+                </div>
+
+                <button id="close-settings-btn" class="mt-8 w-full py-3 bg-gradient-to-r from-cyan-700 to-blue-700 rounded-lg font-tech uppercase font-bold text-white shadow-lg transition-all active:scale-95">
+                    Сохранить и закрыть
+                </button>
+            </div>
+        </div>
+
+        <!-- SCREEN 1: SELECTION -->
+        <div id="selection-screen" class="flex-1 flex flex-col items-center overflow-hidden bg-black/40 backdrop-blur-md border border-slate-800 rounded-xl p-4 neon-box">
+            
+            <div class="text-center mb-4">
+                <p class="text-slate-400 text-sm md:text-lg">Выберите <span class="text-cyan-400 font-bold"><span id="target-count-display">10</span> букв</span></p>
+                
+                <div class="mt-2 inline-flex items-center bg-slate-900/80 rounded-full px-4 py-1 border border-slate-700 transition-colors" id="counter-container">
+                    <span id="counter" class="text-2xl font-tech font-bold text-cyan-400">0</span>
+                    <span class="text-slate-500 mx-1">/</span>
+                    <span class="text-slate-400 text-lg" id="total-count-ui">10</span>
+                </div>
+                
+                <div id="vowel-warning" class="opacity-0 transition-opacity duration-300 mt-1 text-pink-500 text-xs font-bold h-4">
+                    ! Возьмите гласные (A, E, I, O, U)
+                </div>
+            </div>
+
+            <!-- Сетка алфавита -->
+            <div class="flex-1 w-full overflow-y-auto min-h-0 flex flex-col items-center justify-start pb-4 custom-scrollbar">
+                <div id="alphabet-grid" class="grid grid-cols-5 sm:grid-cols-7 md:grid-cols-9 gap-2 w-full max-w-lg">
+                    <!-- JS generated -->
+                </div>
+            </div>
+
+            <div class="mt-2 w-full max-w-lg">
+                <button id="start-btn" disabled class="w-full font-tech uppercase py-4 bg-gradient-to-r from-cyan-700 to-blue-700 rounded-lg text-white font-bold tracking-widest disabled:opacity-30 disabled:cursor-not-allowed shadow-lg transition-all active:scale-95">
+                    Старт
+                </button>
+            </div>
+        </div>
+
+        <!-- SCREEN 2: GAMEPLAY -->
+        <div id="game-screen" class="hidden flex-col h-full min-h-0 gap-2">
+            
+            <!-- ВЕРХНЯЯ ПАНЕЛЬ -->
+            <div class="flex flex-col md:flex-row gap-2 shrink-0 h-[30%] md:h-auto min-h-[140px]">
+                
+                <!-- Таймер и счет -->
+                <div class="flex-1 flex md:flex-col justify-between items-center bg-slate-900/60 border border-slate-700 p-3 rounded-xl">
+                    <div class="text-center">
+                        <div class="text-[10px] text-slate-500 uppercase">Время</div>
+                        <div id="timer" class="font-tech text-3xl text-pink-500 font-bold">90</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-[10px] text-slate-500 uppercase">Очки</div>
+                        <div id="score" class="font-tech text-4xl text-cyan-400 font-bold neon-text-blue">0</div>
+                    </div>
+                </div>
+
+                <!-- История слов -->
+                <div class="flex-[2] bg-black/40 border border-slate-800 rounded-xl p-2 flex flex-col overflow-hidden relative">
+                     <div class="text-[10px] text-slate-500 uppercase text-center border-b border-slate-800 mb-1 pb-1">Журнал (<span id="words-count-badge">0</span>)</div>
+                     <div id="word-history" class="flex-1 overflow-y-auto space-y-1 pr-1 text-sm custom-scrollbar">
+                         <div class="text-slate-600 text-center text-xs mt-4">Ждем первое слово...</div>
+                     </div>
+                </div>
+            </div>
+
+            <!-- НИЖНЯЯ ПАНЕЛЬ: ВВОД И КЛАВИАТУРА -->
+            <div class="flex-1 flex flex-col bg-slate-900/60 border border-slate-700 rounded-xl p-2 md:p-6 relative overflow-hidden justify-end">
+                
+                <div class="flex-1 flex flex-col items-center justify-center relative min-h-[80px]">
+                    <div class="w-full relative">
+                        <input type="text" id="word-input" readonly
+                            class="w-full bg-transparent border-none text-white font-tech text-5xl md:text-7xl text-center focus:outline-none placeholder-slate-800 uppercase tracking-widest"
+                            placeholder="____">
+                        <div id="message-area" class="h-5 text-center text-xs md:text-sm font-bold text-slate-400 mt-2 transition-opacity opacity-0"></div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3 mb-3 px-1 md:px-0">
+                    <button id="clear-btn" class="py-2 bg-slate-800 rounded text-slate-400 text-xs font-bold uppercase tracking-wider border border-slate-700 active:bg-slate-700">
+                        Сброс (ESC)
+                    </button>
+                    <button id="submit-btn" class="py-2 bg-cyan-700 rounded text-white text-xs font-bold uppercase tracking-wider border border-cyan-500 active:bg-cyan-600 shadow-[0_0_10px_rgba(6,182,212,0.3)]">
+                        Ввод (ENTER)
+                    </button>
+                </div>
+
+                <!-- КЛАВИАТУРА (СЕТКА ДИНАМИЧНАЯ) -->
+                <div id="deck-container" class="grid gap-2 md:gap-4 w-full justify-center">
+                    <!-- Буквы будут сгенерированы в JS -->
+                </div>
+            </div>
+        </div>
+
+        <!-- SCREEN 3: GAME OVER -->
+        <div id="game-over-screen" class="hidden absolute inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-md p-4">
+            <div class="w-full max-w-md bg-slate-900 border border-slate-700 rounded-2xl p-6 text-center shadow-2xl neon-box">
+                <h2 class="font-tech text-4xl text-white mb-2 neon-text-pink">ФИНАЛ</h2>
+                
+                <div class="grid grid-cols-2 gap-4 my-8">
+                    <div class="bg-slate-800 p-4 rounded-lg">
+                        <div class="text-slate-500 text-[10px] uppercase">Слов</div>
+                        <div id="final-count" class="text-2xl font-bold text-white">0</div>
+                    </div>
+                    <div class="bg-slate-800 p-4 rounded-lg border border-cyan-900">
+                        <div class="text-slate-500 text-[10px] uppercase">Счет</div>
+                        <div id="final-score" class="text-3xl font-tech text-cyan-400">0</div>
+                    </div>
+                </div>
+
+                <button onclick="location.reload()" class="w-full py-4 bg-white text-black font-bold font-tech uppercase rounded-lg hover:bg-cyan-100 active:scale-95 transition-transform shadow-lg">
+                    Играть снова
+                </button>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Подключение внешнего файла скриптов -->
+    <script src="script.js"></script>
+</body>
+</html>
