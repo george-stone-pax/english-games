@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Time Traveler 3.0 - Ultimate Edition</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    animation: {
+                        'spin-slow': 'spin 8s linear infinite',
+                        'bounce-slight': 'bounce 2s infinite',
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="icon" type="image/png" href="../logo.png?v=2">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script> <link rel="stylesheet" href="style.css">
+</head>
+<body id="app-body" class="bg-slate-50 font-sans text-slate-800 min-h-screen pb-32 transition-colors duration-700 relative overflow-x-hidden">
+
+    <div id="bg-canvas" class="fixed inset-0 z-[-1] pointer-events-none opacity-40 transition-opacity duration-1000"></div>
+
+    <header class="max-w-7xl mx-auto p-4 sticky top-0 z-30">
+        <div id="header-container" class="bg-white/80 backdrop-blur-md p-4 rounded-2xl shadow-lg border border-white/50 flex justify-between items-center transition-all duration-500">
+            <div class="flex items-center gap-4">
+                <div class="w-12 h-12 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-500 flex items-center justify-center shadow-inner">
+                    <i class="fa-solid fa-clock-rotate-left text-white text-xl animate-spin-slow"></i>
+                </div>
+                <div>
+                    <h1 id="game-title" class="text-xl md:text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-indigo-700 to-purple-700 transition-all duration-500">
+                        The Time Traveler
+                    </h1>
+                    <p class="text-xs md:text-sm text-slate-500 font-medium tracking-wide" id="active-modes-count">Loading modes...</p>
+                </div>
+            </div>
+            <div class="flex gap-3">
+                <button onclick="game.toggleSettings()" class="w-10 h-10 flex items-center justify-center bg-slate-100/50 hover:bg-slate-200 rounded-xl text-slate-600 transition-all hover:scale-110 hover:shadow-md cursor-pointer" title="Настройки">
+                    <i class="fa-solid fa-gear text-lg"></i>
+                </button>
+                <button onclick="game.resetGame()" class="w-10 h-10 flex items-center justify-center bg-slate-100/50 hover:bg-slate-200 rounded-xl text-slate-600 transition-all hover:scale-110 hover:shadow-md cursor-pointer" title="Сбросить игру">
+                    <i class="fa-solid fa-rotate-right text-lg"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto p-4 mt-4">
+        <div id="game-board" class="transition-all duration-500 perspective-1000">
+            </div>
+    </main>
+
+    <div id="modal-overlay" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm hidden opacity-0 transition-opacity duration-300">
+        
+        <div id="modal-content" class="bg-white/95 backdrop-blur-xl rounded-3xl shadow-2xl max-w-lg w-full p-8 relative overflow-hidden transform scale-95 transition-transform duration-300 mx-4 max-h-[90vh] overflow-y-auto border border-white">
+            
+            <div id="modal-stripe" class="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-indigo-500 to-purple-500 transition-all duration-500"></div>
+            
+            <button onclick="game.hideModal()" id="modal-close-btn" class="absolute top-5 right-5 text-slate-400 hover:text-slate-700 hidden z-50 p-2 transition-colors">
+                <i class="fa-solid fa-xmark text-2xl"></i>
+            </button>
+
+            <div id="view-special" class="hidden text-center py-10">
+                <div id="special-emoji" class="text-7xl mb-6 inline-block transform transition-transform"></div>
+                <h2 id="special-title" class="text-3xl font-extrabold mb-3 text-slate-800 tracking-tight"></h2>
+                <p class="text-slate-500 font-medium uppercase tracking-widest text-sm">Temporal Shift in progress...</p>
+            </div>
+
+            <div id="view-task" class="hidden">
+                <h2 class="text-3xl font-extrabold text-center mt-2 mb-8 text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600">Make a Sentence!</h2>
+                
+                <div class="flex flex-col gap-5 mb-8">
+                    <div class="flex justify-center items-center gap-5">
+                        <div id="pronoun-card" class="flex flex-col items-center justify-center p-5 bg-gradient-to-b from-indigo-50 to-white rounded-2xl border border-indigo-100 min-w-[110px] shadow-sm transform transition-transform hover:scale-105">
+                             <span class="text-[10px] text-indigo-400 uppercase font-black tracking-wider mb-1">Subject</span>
+                             <span id="task-pronoun" class="text-4xl font-extrabold text-indigo-900">I</span>
+                        </div>
+                        
+                        <div class="text-2xl text-slate-300 font-black">+</div>
+
+                        <div class="flex flex-col items-center p-5 bg-gradient-to-b from-slate-50 to-white rounded-2xl border border-slate-100 min-w-[140px] shadow-sm transform transition-transform hover:scale-105">
+                            <span id="task-emoji" class="text-5xl mb-3"></span>
+                            <span id="task-verb" class="font-bold text-center text-base leading-tight text-slate-700"></span>
+                        </div>
+                    </div>
+                    
+                    <div class="text-center text-2xl text-slate-300 font-black">+</div>
+                    
+                    <div class="flex justify-center relative perspective-1000">
+                        <div id="time-card" class="flex flex-col items-center justify-center px-8 py-5 rounded-2xl border-4 min-w-[200px] bg-white shadow-xl transform transition-all duration-300 preserve-3d">
+                            <span id="time-label" class="font-extrabold text-xl md:text-2xl whitespace-nowrap text-center">...</span>
+                            <span id="time-hint" class="text-xs uppercase tracking-widest opacity-80 mt-2 font-bold"></span>
+                            <span id="time-spinner-text" class="text-xs opacity-70 mt-2 hidden absolute bottom-2">syncing timeline...</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-slate-100/50 rounded-2xl p-6 mb-8 min-h-[100px] flex items-center justify-center text-center relative border border-slate-200/50 backdrop-blur-sm">
+                    <div id="answer-waiting" class="text-slate-500 font-medium">
+                        <i class="fa-solid fa-circle-notch animate-spin mr-3 text-indigo-500 hidden" id="loading-icon"></i>
+                        <span id="waiting-text" class="text-lg">Say the sentence out loud...</span>
+                    </div>
+                    <div id="answer-revealed" class="hidden w-full animate-fade-in-up">
+                        <p class="text-slate-400 text-xs mb-2 uppercase font-bold tracking-widest">Correct formulation:</p>
+                        <p class="text-xl md:text-2xl font-black text-slate-800 break-words leading-tight">
+                            "<span id="answer-full-text" class="text-indigo-600 underline decoration-wavy decoration-indigo-300 decoration-2 underline-offset-4"></span>."
+                        </p>
+                    </div>
+                </div>
+
+                <div class="flex gap-4">
+                    <button id="btn-show-answer" onclick="game.showAnswer()" class="w-full bg-slate-800 text-white font-extrabold py-4 px-6 rounded-2xl hover:bg-slate-700 hover:shadow-lg hover:shadow-slate-300 transition-all flex items-center justify-center gap-3 transform hover:-translate-y-1">
+                        <i class="fa-regular fa-eye text-xl"></i> Reveal Answer
+                    </button>
+                    
+                    <div id="grading-buttons" class="gap-4 w-full hidden">
+                        <button onclick="game.handleIncorrect()" class="flex-1 bg-rose-100 text-rose-700 border-2 border-rose-200 font-extrabold py-4 px-4 rounded-2xl hover:bg-rose-200 hover:shadow-lg hover:shadow-rose-100 transition-all flex items-center justify-center gap-2 transform hover:-translate-y-1">
+                            <i class="fa-solid fa-xmark text-xl"></i> Incorrect
+                        </button>
+                        <button onclick="game.handleCorrect()" class="flex-1 bg-emerald-500 text-white font-extrabold py-4 px-4 rounded-2xl hover:bg-emerald-600 hover:shadow-xl hover:shadow-emerald-200 transition-all flex items-center justify-center gap-2 transform hover:-translate-y-1">
+                            <i class="fa-solid fa-check text-xl"></i> Correct!
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="view-win" class="hidden text-center py-6">
+                <div class="text-7xl mb-6 relative inline-block">
+                    🏆
+                    <div class="absolute inset-0 bg-yellow-400 blur-3xl opacity-20 -z-10 rounded-full"></div>
+                </div>
+                <h2 class="text-4xl font-black text-slate-800 mb-2">Game Over!</h2>
+                <p class="text-lg text-slate-500 mb-8 font-medium">
+                    <span id="winner-name" class="font-bold px-3 py-1.5 rounded-lg text-white shadow-sm inline-block transform hover:scale-105 transition-transform"></span> wins the timeline!
+                </p>
+                
+                <div class="bg-gradient-to-br from-slate-50 to-slate-100 rounded-3xl p-6 mb-8 border border-slate-200 shadow-inner">
+                    <div class="flex justify-around items-center mb-4">
+                         <div class="text-center">
+                            <div class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Correct</div>
+                            <div id="score-correct" class="text-3xl font-black text-emerald-500">0</div>
+                         </div>
+                         <div class="text-center px-4 border-x border-slate-200">
+                            <div class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Total</div>
+                            <div id="score-total" class="text-3xl font-black text-slate-700">0</div>
+                         </div>
+                         <div class="text-center">
+                            <div class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Accuracy</div>
+                            <div id="score-percent" class="text-3xl font-black text-indigo-500">0%</div>
+                         </div>
+                    </div>
+                    <div class="border-t border-slate-200/60 pt-4 mt-2 bg-white/50 rounded-xl py-3">
+                        <p class="text-xs font-bold text-slate-500 uppercase tracking-widest">Final Grade</p>
+                        <div id="final-grade" class="text-6xl font-black text-indigo-600 mt-2 drop-shadow-sm">5</div>
+                    </div>
+                </div>
+
+                <div class="space-y-4">
+                    <button onclick="game.toggleCriteria()" class="w-full bg-slate-100 text-slate-600 font-bold py-3 rounded-2xl hover:bg-slate-200 transition-colors text-sm flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-list-check"></i> View Grading Criteria
+                    </button>
+                    <button onclick="game.resetGame()" class="w-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-black py-4 rounded-2xl shadow-xl shadow-indigo-200 hover:shadow-2xl hover:shadow-indigo-300 transition-all transform hover:-translate-y-1">
+                        Play Again
+                    </button>
+                </div>
+            </div>
+
+            <div id="view-criteria" class="hidden">
+                <div class="flex items-center gap-3 mb-6">
+                    <button onclick="game.showWin(true)" class="text-slate-400 hover:text-indigo-600 transition-colors p-2">
+                        <i class="fa-solid fa-arrow-left text-xl"></i>
+                    </button>
+                    <h2 class="text-2xl font-extrabold text-slate-800">Grading Criteria</h2>
+                </div>
+                
+                <div class="overflow-hidden rounded-2xl border border-slate-200 shadow-sm">
+                    <table class="w-full text-sm text-left text-slate-600">
+                        <thead class="text-xs text-slate-500 uppercase bg-slate-50 font-black tracking-wider">
+                            <tr>
+                                <th class="px-6 py-4">Grade</th>
+                                <th class="px-6 py-4">Accuracy Range</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white">
+                            <tr class="border-b border-slate-100 hover:bg-slate-50 transition-colors">
+                                <td class="px-6 py-4 text-xl font-black text-emerald-500 flex items-center gap-2"><i class="fa-solid fa-star text-sm text-yellow-400"></i> 5</td>
+                                <td class="px-6 py-4 font-bold text-slate-700">100% – 85%</td>
+                            </tr>
+                            <tr class="border-b border-slate-100 hover:bg-slate-50 transition-colors">
+                                <td class="px-6 py-4 text-xl font-black text-blue-500">4</td>
+                                <td class="px-6 py-4 font-bold text-slate-700">84% – 70%</td>
+                            </tr>
+                            <tr class="border-b border-slate-100 hover:bg-slate-50 transition-colors">
+                                <td class="px-6 py-4 text-xl font-black text-amber-500">3</td>
+                                <td class="px-6 py-4 font-bold text-slate-700">69% – 50%</td>
+                            </tr>
+                            <tr class="hover:bg-slate-50 transition-colors">
+                                <td class="px-6 py-4 text-xl font-black text-rose-500">2</td>
+                                <td class="px-6 py-4 font-bold text-slate-700">Below 50%</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div id="view-settings" class="hidden">
+                <h2 class="text-3xl font-extrabold text-slate-800 mb-8 flex items-center gap-3">
+                    <i class="fa-solid fa-gear text-indigo-500"></i> Settings
+                </h2>
+                
+                <div class="mb-8">
+                    <h3 class="text-xs font-black text-slate-400 uppercase tracking-widest mb-4">Select Map Type</h3>
+                    <div class="grid grid-cols-2 gap-4">
+                        <button onclick="game.setMap('standard')" id="btn-map-standard" class="relative overflow-hidden p-4 rounded-2xl border-2 transition-all font-bold flex flex-col items-center gap-3 bg-white hover:shadow-md group">
+                            <div class="absolute inset-0 bg-indigo-50 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                            <span class="text-4xl relative z-10 group-hover:scale-110 transition-transform">🏫</span>
+                            <span class="relative z-10 text-slate-700 group-hover:text-indigo-700">Standard</span>
+                        </button>
+                        <button onclick="game.setMap('golden')" id="btn-map-golden" class="relative overflow-hidden p-4 rounded-2xl border-2 transition-all font-bold flex flex-col items-center gap-3 bg-white hover:shadow-md group">
+                            <div class="absolute inset-0 bg-yellow-50 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                            <span class="text-4xl relative z-10 group-hover:scale-110 transition-transform">👑</span>
+                            <span class="relative z-10 text-slate-700 group-hover:text-yellow-700">Golden</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="mb-8 p-6 bg-slate-50 rounded-2xl border border-slate-200">
+                    <div class="flex justify-between items-center mb-4">
+                        <label class="text-sm font-black text-slate-700 flex items-center gap-2">
+                            <i class="fa-solid fa-music text-indigo-500"></i> BGM Volume
+                        </label>
+                        <span id="vol-display" class="bg-indigo-100 text-indigo-700 px-3 py-1 rounded-lg text-xs font-bold">30%</span>
+                    </div>
+                    <input type="range" id="volume-slider" min="0" max="100" value="30" class="w-full h-3 bg-slate-200 rounded-full appearance-none cursor-pointer accent-indigo-600 hover:accent-indigo-500 transition-all">
+                </div>
+
+                <div class="mb-8">
+                    <h3 class="text-xs font-black text-slate-400 uppercase tracking-widest mb-4">Active Tenses</h3>
+                    <div class="space-y-3 max-h-[220px] overflow-y-auto pr-2 custom-scrollbar" id="tenses-list">
+                        </div>
+                </div>
+
+                <div class="mt-8">
+                     <button onclick="game.saveSettings()" class="w-full bg-slate-800 text-white font-black py-4 rounded-2xl shadow-lg hover:bg-slate-700 hover:shadow-xl transition-all transform hover:-translate-y-1">
+                        Save & Close
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <div id="controls-bar" class="fixed bottom-0 left-0 w-full bg-white/90 backdrop-blur-lg border-t border-slate-200 p-4 shadow-[0_-10px_20px_-10px_rgba(0,0,0,0.1)] z-40 transition-colors duration-500">
+        <div class="max-w-7xl mx-auto flex items-center justify-between px-4">
+            
+            <div class="flex items-center gap-4">
+                <div class="relative">
+                    <div id="current-player-avatar" class="w-14 h-14 rounded-2xl flex items-center justify-center text-2xl shadow-inner text-white transition-all duration-500 transform hover:scale-105 z-10 relative">
+                        </div>
+                    <div class="absolute inset-0 bg-current blur-md opacity-40 rounded-2xl -z-10 animate-pulse"></div>
+                </div>
+                <div>
+                    <p class="text-[10px] text-slate-400 uppercase font-black tracking-widest mb-0.5">Active Turn</p>
+                    <p id="current-player-name" class="font-extrabold text-slate-800 text-lg">...</p>
+                </div>
+            </div>
+
+            <div class="flex gap-6 items-center">
+                <div id="dice-display" class="hidden w-14 h-14 bg-white border-2 border-slate-300 rounded-2xl flex items-center justify-center text-3xl font-black shadow-lg text-slate-700 transition-all transform perspective-1000">
+                    <span id="dice-value"></span>
+                </div>
+
+                <button id="btn-roll" onclick="game.rollDice()" class="h-14 px-8 rounded-2xl font-black text-white shadow-xl transition-all flex items-center gap-3 bg-indigo-600 hover:bg-indigo-500 hover:shadow-indigo-500/50 hover:-translate-y-1 active:translate-y-0 active:shadow-md text-lg">
+                    <span>Roll Dice</span> <i class="fa-solid fa-dice text-2xl"></i>
+                </button>
+            </div>
+
+        </div>
+    </div>
+
+    <div id="audio-container" class="hidden">
+        <audio id="audio-bg-1" preload="auto" loop>
+            <source src="https://george-stone-pax.github.io/my-game-assets/Aylex%20-%20Back%20To%20Life%20(freetouse.com).mp3" type="audio/mpeg">
+        </audio>
+        <audio id="audio-bg-2" preload="auto" loop>
+            <source src="https://george-stone-pax.github.io/my-game-assets/Aylex%20-%20Adrenaline%20Drive%20(freetouse.com).mp3" type="audio/mpeg">
+        </audio>
+        <audio id="audio-bg-3" preload="auto" loop>
+            <source src="https://george-stone-pax.github.io/my-game-assets/Aylex%20-%20Off%20Road%20(freetouse.com).mp3" type="audio/mpeg">
+        </audio>
+        
+        <audio id="audio-bg-4" preload="auto" loop><source src="https://george-stone-pax.github.io/gamesnew/My_music1.mp3" type="audio/mpeg"></audio>
+        <audio id="audio-bg-5" preload="auto" loop><source src="https://george-stone-pax.github.io/gamesnew/My_music2.mp3" type="audio/mpeg"></audio>
+        <audio id="audio-bg-6" preload="auto" loop><source src="https://george-stone-pax.github.io/gamesnew/My_music3.mp3" type="audio/mpeg"></audio>
+        <audio id="audio-bg-7" preload="auto" loop><source src="https://george-stone-pax.github.io/gamesnew/My_music4.mp3" type="audio/mpeg"></audio>
+        <audio id="audio-bg-8" preload="auto" loop><source src="https://george-stone-pax.github.io/gamesnew/My_music5.mp3" type="audio/mpeg"></audio>
+        <audio id="audio-bg-9" preload="auto" loop><source src="https://george-stone-pax.github.io/gamesnew/My_music6.mp3" type="audio/mpeg"></audio>
+        <audio id="audio-bg-10" preload="auto" loop><source src="https://george-stone-pax.github.io/gamesnew/My_music7.mp3" type="audio/mpeg"></audio>
+
+        <audio id="audio-correct" preload="auto">
+            <source src="https://george-stone-pax.github.io/my-game-assets/rightanswer-95219.mp3" type="audio/mpeg">
+        </audio>
+        <audio id="audio-wrong" preload="auto">
+            <source src="https://george-stone-pax.github.io/my-game-assets/dodgeball.mp3" type="audio/mpeg">
+        </audio>
+    </div>
+
+    <script src="script.js" defer></script>
+</body>
+</html>

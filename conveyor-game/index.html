@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D Конструктор Предложений: Past Simple</title>
+    <link rel="stylesheet" href="style.css">
+     <link rel="icon" type="image/png" href="../logo.png?v=2">
+<body>
+
+    <!-- UI Слои поверх 3D сцены -->
+    <div id="ui-layer">
+        <div id="info-container">
+            <div id="question-counter">Question: 1 / 10</div>
+            <div id="sentence-prompt">Соберите вопросительное предложение:</div>
+            <div id="message"></div>
+        </div>
+
+        <div id="controls-wrapper">
+            <div id="controls">
+                <button id="fullscreen-btn">Войти в полный экран</button>
+                <!-- Кнопка удержания для движения назад -->
+                <button id="back-button">Назад</button>
+                <button id="check-button">Проверить</button>
+                <button id="next-button" style="display: none;">Дальше</button>
+            </div>
+            
+            <!-- Панель управления громкостью -->
+            <div id="audio-controls">
+                <label for="volume-slider">🎵 Громкость:</label>
+                <input type="range" id="volume-slider" min="0" max="1" step="0.05" value="0.3">
+            </div>
+        </div>
+        
+        <!-- Экран завершения игры -->
+        <div id="end-screen">
+            <h1 id="end-title">Congratulations!</h1>
+            <p>You have successfully completed all 10 questions!</p>
+            <button id="restart-button">Play Again</button>
+        </div>
+    </div>
+
+    <!-- Контейнер для Three.js -->
+    <div id="canvas-container"></div>
+
+    <!-- Фоновая музыка -->
+    <audio id="bg-music" src="https://george-stone-pax.github.io/my-game-assets/Aylex%20-%20Back%20To%20Life%20(freetouse.com).mp3" loop></audio>
+    
+    <!-- Звуки правильного/неправильного ответа -->
+    <audio id="sound-right" src="https://george-stone-pax.github.io/my-game-assets/rightanswer-95219.mp3"></audio>
+    <audio id="sound-wrong" src="https://george-stone-pax.github.io/my-game-assets/dodgeball.mp3"></audio>
+
+    <!-- Подключение Three.js -->
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://cdn.jsdelivr.net/npm/three@0.164.1/build/three.module.js",
+                "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.164.1/examples/jsm/"
+            }
+        }
+    </script>
+    
+    <!-- Подключение логики игры -->
+    <script type="module" src="script.js"></script>
+</body>
+</html>
+

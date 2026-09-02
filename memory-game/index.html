@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Flip Memory Game - English Words</title>
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#333333">
+
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" type="image/png" href="../logo.png?v=2">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    
+    <style>
+      /* Сетка меню уровней */
+      .levels .grades-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        grid-template-rows: repeat(3, 1fr);
+        height: 100%;
+        width: 100%;
+      }
+      .levels .grades-grid a {
+        line-height: normal;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        font-size: 14px;
+        margin: 0;
+        border: 1px solid rgba(255,255,255,0.05);
+      }
+      
+      /* Поле ввода своих слов */
+      .custom-words textarea {
+        width: 90%;
+        border-radius: 5px;
+        padding: 5px;
+        margin-top: 5px;
+        font-size: 12px;
+        color: #000;
+        resize: none;
+      }
+    </style>
+</head>
+<body>
+
+<div class="game-controls">
+    <button id="fullscreen-btn" title="На весь экран">⛶</button>
+    <div class="volume-control">
+        <label for="volume-slider">🔈</label>
+        <input type="range" id="volume-slider" min="0" max="1" step="0.1" value="0.5">
+    </div>
+</div>
+
+<div id="evaluation-screen" class="hidden">
+    <div class="modal-content">
+        <h2>Отличная работа! 🎉</h2>
+        <p>Вы успешно нашли все пары слов. Продолжайте в том же духе!</p>
+        <button id="btn-restart">Выбрать другой уровень</button>
+    </div>
+</div>
+
+<audio id="audio-wrong" src="https://george-stone-pax.github.io/my-game-assets/dodgeball.mp3"></audio>
+<audio id="audio-right" src="https://george-stone-pax.github.io/my-game-assets/rightanswer-95219.mp3"></audio>
+<audio id="audio-bg" src="https://george-stone-pax.github.io/my-game-assets/Aylex%20-%20Off%20Road%20(freetouse.com).mp3" loop></audio>
+
+<div id="g" data-mobile-max-words="9" data-mobile-cols="3"></div>
+    
+<div class="logo">
+  <p class="info">Click the P to select your grade or L for custom words.</p>
+  
+  <div class="card left">
+    <div class="flipper">
+      <div class="f c1">F</div>
+      <div class="b contentbox" id="stats">
+        <div class="padded">
+          <h2>Figures</h2>
+          Looks like you haven't FLIPped yet.
+          <a href="javascript:;" class="playnow">Play now</a>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="card left">
+    <div class="flipper">
+      <div class="f c2">L</div>
+      <div class="b contentbox custom-words">
+        <div class="padded">
+          <h2 style="margin: 10px 0;">Свои слова</h2>
+          <p style="margin: 5px 0;">Введи пары (cat - кот):</p>
+          <textarea id="custom-words-input" placeholder="cat - кот&#10;dog - собака" rows="5"></textarea>
+          <a href="javascript:;" id="btn-play-custom" class="play-custom" style="position: relative; margin-top: 10px; bottom: auto;">Играть</a>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="card left">
+    <div class="flipper">
+      <div class="f c3">I</div>
+      <div class="b contentbox instructions">
+        <div class="padded">
+          <h2>Как играть?</h2>
+          <p>Найди пару: английское слово и его перевод.</p>
+          <p>Нажмите [p] для паузы, или [ESC] для выхода в меню.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="card">
+    <div class="flipper">
+      <div class="f c4">P</div>
+      <div class="b contentbox levels">
+        <div class="grades-grid">
+            <a href="javascript:;" data-level="1" class="play">1<br>класс</a>
+            <a href="javascript:;" data-level="2" class="play">2<br>класс</a>
+            <a href="javascript:;" data-level="3" class="play">3<br>класс</a>
+            <a href="javascript:;" data-level="4" class="play">4<br>класс</a>
+            <a href="javascript:;" data-level="5" class="play">5<br>класс</a>
+            <a href="javascript:;" data-level="6" class="play">6<br>класс</a>
+            <a href="javascript:;" data-level="7" class="play">7<br>класс</a>
+            <a href="javascript:;" data-level="8" class="play">8<br>класс</a>
+            <a href="javascript:;" data-level="9" class="play">9<br>класс</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <p class="info">В каждом уровне случайно генерируются слова из базы.</p>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>

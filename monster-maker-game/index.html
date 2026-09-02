@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <!-- УБРАЛИ maximum-scale=1.0, user-scalable=no для возможности зума двумя пальцами -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monster Maker - Create Your Monster</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" type="image/png" href="../logo.png?v=2">
+</head>
+<body class="min-h-screen flex flex-col bg-[#f0fdf4]">
+    
+    <audio id="bg-music" loop>
+        <source src="https://george-stone-pax.github.io/my-game-assets/Aylex%20-%20Adrenaline%20Drive%20(freetouse.com).mp3" type="audio/mpeg">
+    </audio>
+    <audio id="correct-sound">
+        <source src="https://george-stone-pax.github.io/my-game-assets/rightanswer-95219.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="wrong-sound">
+        <source src="https://george-stone-pax.github.io/my-game-assets/dodgeball.mp3" type="audio/mpeg">
+    </audio>
+
+    <header class="w-full bg-white shadow-sm p-3 flex flex-wrap justify-between items-center z-20 border-b-2 border-green-200 sticky top-0">
+        <div class="flex items-center gap-2 mb-2 sm:mb-0">
+            <h1 class="text-xl md:text-3xl font-bold text-green-600 drop-shadow-sm">
+                <i class="fas fa-ghost mr-2 text-purple-500"></i>Monster Maker
+            </h1>
+        </div>
+        
+        <div class="flex items-center gap-2 md:gap-3 bg-green-50 p-2 rounded-full border border-green-100 shadow-inner">
+            <button id="music-toggle" class="text-green-600 hover:text-green-800 transition px-2" title="Вкл/Выкл Музыку">
+                <i class="fas fa-music"></i>
+            </button>
+            <i class="fas fa-volume-down text-green-400 text-sm md:text-base"></i>
+            <input type="range" id="volume-slider" min="0" max="1" step="0.1" value="0.3" class="w-16 md:w-32 cursor-pointer accent-green-500">
+            <i class="fas fa-volume-up text-green-400 text-sm md:text-base"></i>
+        </div>
+    </header>
+
+    <div class="flex flex-col lg:flex-row flex-grow w-full">
+        
+        <div class="w-full lg:w-1/2 bg-gray-50 flex flex-col relative order-1 lg:order-2 border-b-4 lg:border-b-0 lg:border-l-4 border-green-200 shadow-md lg:shadow-none z-10">
+            
+            <div class="bg-white p-3 shadow-md flex flex-wrap items-center justify-center sm:justify-between gap-3 z-10">
+                <div class="flex items-center gap-3">
+                    <div class="flex items-center justify-center bg-gray-100 p-1.5 rounded-lg border border-gray-200 shadow-sm">
+                        <input type="color" id="color-picker" value="#000000" class="w-8 h-8 rounded cursor-pointer border-none bg-transparent">
+                    </div>
+                    
+                    <div class="flex gap-1.5 ml-1 flex-wrap">
+                        <button class="color-swatch w-7 h-7 rounded-full bg-red-500 hover:scale-110 shadow-sm transition" data-color="#ef4444"></button>
+                        <button class="color-swatch w-7 h-7 rounded-full bg-green-500 hover:scale-110 shadow-sm transition" data-color="#22c55e"></button>
+                        <button class="color-swatch w-7 h-7 rounded-full bg-blue-500 hover:scale-110 shadow-sm transition" data-color="#3b82f6"></button>
+                        <button class="color-swatch w-7 h-7 rounded-full bg-yellow-400 hover:scale-110 shadow-sm transition" data-color="#facc15"></button>
+                        <button class="color-swatch w-7 h-7 rounded-full bg-purple-500 hover:scale-110 shadow-sm transition" data-color="#a855f7"></button>
+                        <button class="color-swatch w-7 h-7 rounded-full bg-[#78350f] hover:scale-110 shadow-sm transition" data-color="#78350f" title="Brown"></button>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-2 bg-gray-100 px-3 py-1.5 rounded-lg border border-gray-200 shadow-sm">
+                    <i class="fas fa-paint-brush text-purple-400"></i>
+                    <input type="range" id="brush-size" min="1" max="30" value="5" class="w-20 md:w-24 accent-purple-500 cursor-pointer">
+                </div>
+
+                <div class="flex gap-2">
+                    <!-- НОВАЯ КНОПКА: Отменить действие (Undo) -->
+                    <button id="undo-btn" class="p-2.5 bg-blue-100 text-blue-600 rounded-lg hover:bg-blue-200 shadow-sm transition disabled:opacity-50 disabled:cursor-not-allowed" title="Отменить (Undo)">
+                        <i class="fas fa-undo"></i>
+                    </button>
+                    <button id="eraser-btn" class="p-2.5 bg-gray-200 rounded-lg hover:bg-gray-300 text-gray-700 shadow-sm transition" title="Ластик">
+                        <i class="fas fa-eraser"></i>
+                    </button>
+                    <button id="clear-canvas-btn" class="p-2.5 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 shadow-sm transition" title="Очистить холст">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                    <button id="save-canvas-btn" class="p-2.5 bg-green-100 text-green-700 rounded-lg hover:bg-green-200 shadow-sm transition font-bold" title="Скачать шедевр">
+                        <i class="fas fa-download"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="flex-grow min-h-[50vh] lg:min-h-0 relative bg-white m-3 sm:m-4 rounded-2xl shadow-xl overflow-hidden touch-none border-2 border-gray-200" id="canvas-container">
+                <canvas id="drawing-canvas" class="w-full h-full block"></canvas>
+                
+                <div id="canvas-placeholder" class="absolute inset-0 flex items-center justify-center pointer-events-none transition-opacity duration-300">
+                    <div class="text-center text-gray-300 opacity-40">
+                        <i class="fas fa-pencil-ruler text-5xl md:text-6xl mb-4"></i>
+                        <h2 class="text-2xl md:text-3xl font-bold">Draw here!</h2>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="w-full lg:w-1/2 p-3 sm:p-4 flex flex-col order-2 lg:order-1 bg-white z-0">
+            
+            <div class="flex flex-col items-center justify-center mb-6 bg-gradient-to-br from-green-50 to-emerald-100 p-4 md:p-6 rounded-3xl shadow-inner border border-green-200">
+                <div id="dice-container" class="text-6xl md:text-8xl text-purple-600 mb-4 transition-transform drop-shadow-lg">
+                    <i class="fas fa-dice-d6"></i>
+                </div>
+                
+                <div class="flex flex-wrap justify-center gap-3">
+                    <button id="roll-btn" class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-6 md:px-8 rounded-full text-lg md:text-xl shadow-lg transform active:scale-95 transition-all">
+                        ROLL DICE! 🎲
+                    </button>
+                    <button id="reset-game-btn" class="bg-gray-400 hover:bg-gray-500 text-white font-bold py-3 px-4 rounded-full shadow-md transform active:scale-95 transition-all" title="Начать заново">
+                        <i class="fas fa-redo"></i>
+                    </button>
+                </div>
+                
+                <p id="instruction-text" class="mt-4 text-lg md:text-xl font-bold text-center text-gray-700 h-8">
+                    Press ROLL to start!
+                </p>
+            </div>
+
+            <div class="flex-grow flex flex-col">
+                <h3 class="font-bold text-gray-700 mb-2 text-lg"><i class="fas fa-th-list mr-2 text-green-500"></i>Parts Table:</h3>
+                
+                <div class="parts-grid overflow-x-auto border-2 border-green-100 rounded-2xl shadow-sm bg-white pb-2">
+                    <table class="w-full text-center border-collapse min-w-[500px]">
+                        <thead class="bg-green-100 text-green-900 shadow-sm z-10">
+                            <tr>
+                                <th class="p-2 sm:p-3 border-b-2 border-green-200">#</th>
+                                <th class="p-2 sm:p-3 border-b-2 border-green-200">Eyes 👀</th>
+                                <th class="p-2 sm:p-3 border-b-2 border-green-200">Mouth 👄</th>
+                                <th class="p-2 sm:p-3 border-b-2 border-green-200">Nose 👃</th>
+                                <th class="p-2 sm:p-3 border-b-2 border-green-200">Ears 👂</th>
+                                <th class="p-2 sm:p-3 border-b-2 border-green-200">Arms 💪</th>
+                                <th class="p-2 sm:p-3 border-b-2 border-green-200">Legs 🦵</th>
+                            </tr>
+                        </thead>
+                        <tbody id="grid-body" class="text-xs sm:text-sm">
+                            <!-- Generated by JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    
+    <script src="script.js"></script>
+</body>
+</html>
