@@ -357,50 +357,6 @@ if (prevBtn && nextBtn) {
 // =========================================
 const modalOverlay = document.getElementById('booking-modal');
 const closeModalBtn = document.getElementById('close-modal-btn');
-const planSelect = document.getElementById('plan');
-
-const formActionBtn = document.getElementById('format-btn'); 
-const toggleCheckbox = document.getElementById('checkbox'); 
-
-function openModal() {
-    if (toggleCheckbox.checked) {
-        planSelect.value = "Индивидуально";
-    } else {
-        planSelect.value = "Мини-группа";
-    }
-    modalOverlay.classList.add('active');
-    document.body.style.overflow = 'hidden';
-}
-
-function closeModal() {
-    modalOverlay.classList.remove('active');
-    document.body.style.overflow = '';
-}
-
-if (formActionBtn) {
-    formActionBtn.addEventListener('click', function(e) {
-        e.preventDefault();
-        openModal();
-    });
-}
-
-if (closeModalBtn) {
-    closeModalBtn.addEventListener('click', closeModal);
-}
-
-if (modalOverlay) {
-    modalOverlay.addEventListener('click', function(e) {
-        if (e.target === modalOverlay) {
-            closeModal();
-        }
-    });
-}
-
-// =========================================
-// ЛОГИКА МОДАЛЬНОГО ОКНА И ОТПРАВКА В TELEGRAM
-// =========================================
-const modalOverlay = document.getElementById('booking-modal');
-const closeModalBtn = document.getElementById('close-modal-btn');
 const formActionBtn = document.getElementById('format-btn'); 
 const toggleCheckbox = document.getElementById('checkbox'); 
 
