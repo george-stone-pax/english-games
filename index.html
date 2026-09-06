@@ -395,5 +395,46 @@
     
     <!-- Файл с нашей логикой анимации -->
     <script src="script.js"></script>
+    <!-- ========================================================================= -->
+    <!-- МОДАЛЬНОЕ ОКНО ДЛЯ ЗАПИСИ (ФОРМА ТЕЛЕГРАМ)                                -->
+    <!-- ========================================================================= -->
+    <div id="booking-modal" class="modal-overlay">
+        <div class="modal-content">
+            <button class="modal-close-btn" id="close-modal-btn">&times;</button>
+            <h2 class="modal-title">Запись на обучение</h2>
+            <p class="modal-subtitle">Оставьте данные, и мы свяжемся с вами!</p>
+            
+            <!-- Форма без action и method, отправкой управляет JavaScript -->
+            <form id="booking-form">
+                <div class="form-group">
+                    <label for="name">Ваше имя *</label>
+                    <input type="text" id="name" name="name" required placeholder="Иван Иванов">
+                </div>
+                
+                <div class="form-group">
+                    <label for="contact">Телефон или Telegram *</label>
+                    <input type="text" id="contact" name="contact" required placeholder="+7 (999) 000-00-00 или @username">
+                </div>
+                
+                <div class="form-group">
+                    <label for="plan">Формат обучения</label>
+                    <select id="plan" name="plan">
+                        <option value="Мини-группа">Мини-группа</option>
+                        <option value="Индивидуально">Индивидуально</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="comment">Комментарий (необязательно)</label>
+                    <textarea id="comment" name="comment" placeholder="Ваш уровень, класс или пожелания"></textarea>
+                </div>
+                
+                <button type="submit" class="submit-btn" id="submit-btn">Отправить заявку</button>
+                
+                <!-- Место для сообщения об успехе или ошибке -->
+                <div id="form-status" class="form-status"></div>
+            </form>
+        </div>
+    </div>
 </body>
 </html>
