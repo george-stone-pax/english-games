@@ -1345,3 +1345,197 @@ nav {
         font-size: 24px;
     }
 }
+/* =========================================
+   СТИЛЬНЫЙ ТЕМНЫЙ ФУТЕР И КНОПКИ СВЯЗИ
+   ========================================= */
+.footer-section {
+    background: linear-gradient(135deg, #0b0d10 0%, #151821 100%);
+    color: #ffffff;
+    padding: 90px 20px 40px 20px;
+    position: relative;
+    z-index: 2;
+    margin-top: 60px;
+    border-top-left-radius: 36px;
+    border-top-right-radius: 36px;
+    box-shadow: 0 -20px 40px rgba(0, 0, 0, 0.2);
+}
+
+.footer-container {
+    max-width: 1100px;
+    margin: 0 auto;
+}
+
+.footer-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 40px;
+    margin-bottom: 60px;
+}
+
+.footer-heading {
+    font-size: 20px;
+    font-weight: 800;
+    letter-spacing: 0.8px;
+    margin-bottom: 25px;
+    color: #ffffff;
+    position: relative;
+}
+
+.footer-heading::after {
+    content: '';
+    position: absolute;
+    bottom: -8px;
+    left: 0;
+    width: 35px;
+    height: 3px;
+    background-color: var(--accent-color);
+    border-radius: 2px;
+}
+
+.footer-contact-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 15px;
+    margin-bottom: 20px;
+    font-size: 15px;
+    color: #d1d5db;
+}
+
+.footer-contact-item p {
+    margin: 0 0 4px 0;
+}
+
+.footer-contact-item h4 {
+    margin: 0 0 4px 0;
+    color: #ffffff;
+    font-size: 16px;
+}
+
+.footer-icon {
+    font-size: 20px;
+    flex-shrink: 0;
+}
+
+.footer-logo-block {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 35px;
+}
+
+.footer-logo {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    object-fit: cover;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+
+.footer-brand {
+    font-weight: 800;
+    font-size: 18px;
+    color: #fff;
+    letter-spacing: 0.5px;
+}
+
+.footer-schedule {
+    background: rgba(255, 255, 255, 0.03);
+    padding: 20px;
+    border-radius: 18px;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    backdrop-filter: blur(10px);
+}
+
+.footer-schedule h4 {
+    margin: 0 0 12px 0;
+    font-size: 15px;
+    font-weight: 700;
+    color: #fff;
+}
+
+.footer-schedule p {
+    margin: 8px 0;
+    font-size: 14px;
+    color: #9ca3af;
+    display: flex;
+    justify-content: space-between;
+}
+
+.footer-schedule span {
+    color: #fff;
+    font-weight: 600;
+}
+
+/* Блок трех стильных кнопок мессенджеров */
+.messenger-buttons-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.messenger-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 14px 20px;
+    border-radius: 14px;
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 14.5px;
+    color: #ffffff;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+}
+
+.messenger-btn:hover {
+    transform: translateY(-2px);
+    filter: brightness(1.1);
+}
+
+/* Брендовые градиенты для кнопок */
+.tg-btn {
+    background: linear-gradient(135deg, #2aabee, #229ed9);
+}
+
+.vk-btn {
+    background: linear-gradient(135deg, #0077ff, #0055cc);
+}
+
+.max-btn {
+    background: linear-gradient(135deg, #ff5e5e, #ff3333);
+}
+
+.footer-text-note {
+    font-size: 13.5px;
+    color: #9ca3af;
+    line-height: 1.5;
+    margin: 0;
+}
+
+.footer-bottom {
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    padding-top: 25px;
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    color: #6b7280;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.footer-bottom p {
+    margin: 0;
+}
+
+/* Адаптация под телефоны */
+@media (max-width: 768px) {
+    .footer-grid {
+        grid-template-columns: 1fr;
+        gap: 35px;
+    }
+    .footer-bottom {
+        flex-direction: column;
+        text-align: center;
+    }
+}

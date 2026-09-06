@@ -15,21 +15,26 @@ function getScrollAmount() {
 // Создаем медиа-правило GSAP
 let mm = gsap.matchMedia();
 
-// ДЕСКТОП: экраны шире 768px (Анимация скролла колесиком)
+// ДЕСТОП: экраны шире 768px (Анимация скролла колесиком)
 mm.add("(min-width: 769px)", () => {
   const tween = gsap.to(track, {
     x: getScrollAmount,
     ease: "none",
   });
 
-  ScrollTrigger.create({
+  const st = ScrollTrigger.create({
     trigger: container,
     start: "top top",
-    end: () => `+=${getScrollAmount() * -1}`,
+    end: () => `+=${Math.abs(getScrollAmount())}`,
     pin: true,
     animation: tween,
     scrub: 1,
     invalidateOnRefresh: true,
+  });
+
+  // Принудительно обновляем расчеты GSAP после загрузки всех картинок и шрифтов
+  window.addEventListener("load", () => {
+    ScrollTrigger.refresh();
   });
 });
 
@@ -355,131 +360,141 @@ if (prevBtn && nextBtn) {
 // =========================================
 // ЛОГИКА МОДАЛЬНОГО ОКНА И ОТПРАВКА В TELEGRAM
 // =========================================
-const modalOverlay = document.getElementById('booking-modal');
-const closeModalBtn = document.getElementById('close-modal-btn');
-const formActionBtn = document.getElementById('format-btn'); 
-const toggleCheckbox = document.getElementById('checkbox'); 
+const modalOverlay = document.getElementById("booking-modal");
+const closeModalBtn = document.getElementById("close-modal-btn");
+const formActionBtn = document.getElementById("format-btn");
+const toggleCheckbox = document.getElementById("checkbox");
 
 function openModal() {
-    // 1. Ищем поле plan непосредственно в момент нажатия на кнопку
-    const planSelect = document.getElementById('plan');
-    
-    // 2. Если поле найдено, меняем его значение
-    if (planSelect && toggleCheckbox) {
-        if (toggleCheckbox.checked) {
-            planSelect.value = "Индивидуально";
-        } else {
-            planSelect.value = "Мини-группа";
-        }
+  // 1. Ищем поле plan непосредственно в момент нажатия на кнопку
+  const planSelect = document.getElementById("plan");
+
+  // 2. Если поле найдено, меняем его значение
+  if (planSelect && toggleCheckbox) {
+    if (toggleCheckbox.checked) {
+      planSelect.value = "Индивидуально";
     } else {
-        console.warn("Поле с id='plan' не найдено на странице, но окно будет открыто.");
+      planSelect.value = "Мини-группа";
     }
-    
-    // 3. Открываем окно
-    if (modalOverlay) {
-        modalOverlay.classList.add('active');
-        document.body.style.overflow = 'hidden';
-    } else {
-        console.error("ОШИБКА: В HTML-файле отсутствует код модального окна (id='booking-modal').");
-    }
+  } else {
+    console.warn(
+      "Поле с id='plan' не найдено на странице, но окно будет открыто.",
+    );
+  }
+
+  // 3. Открываем окно
+  if (modalOverlay) {
+    modalOverlay.classList.add("active");
+    document.body.style.overflow = "hidden";
+  } else {
+    console.error(
+      "ОШИБКА: В HTML-файле отсутствует код модального окна (id='booking-modal').",
+    );
+  }
 }
 
 function closeModal() {
-    if (modalOverlay) {
-        modalOverlay.classList.remove('active');
-        document.body.style.overflow = '';
-    }
+  if (modalOverlay) {
+    modalOverlay.classList.remove("active");
+    document.body.style.overflow = "";
+  }
 }
 
 // Привязываем клик к кнопке "Записаться"
 if (formActionBtn) {
-    formActionBtn.addEventListener('click', function(e) {
-        e.preventDefault();
-        openModal();
-    });
+  formActionBtn.addEventListener("click", function (e) {
+    e.preventDefault();
+    openModal();
+  });
 }
 
 // Привязываем клик к крестику
 if (closeModalBtn) {
-    closeModalBtn.addEventListener('click', closeModal);
+  closeModalBtn.addEventListener("click", closeModal);
 }
 
 // Закрытие по клику на темный фон
 if (modalOverlay) {
-    modalOverlay.addEventListener('click', function(e) {
-        if (e.target === modalOverlay) {
-            closeModal();
-        }
-    });
+  modalOverlay.addEventListener("click", function (e) {
+    if (e.target === modalOverlay) {
+      closeModal();
+    }
+  });
 }
 // ОТПРАВКА ФОРМЫ В ТЕЛЕГРАМ
-const bookingForm = document.getElementById('booking-form');
-const submitBtn = document.getElementById('submit-btn');
-const formStatus = document.getElementById('form-status');
+const bookingForm = document.getElementById("booking-form");
+const submitBtn = document.getElementById("submit-btn");
+const formStatus = document.getElementById("form-status");
 
 if (bookingForm) {
-    bookingForm.addEventListener('submit', async function(e) {
-        e.preventDefault(); // Отменяем стандартную перезагрузку страницы
+  bookingForm.addEventListener("submit", async function (e) {
+    e.preventDefault(); // Отменяем стандартную перезагрузку страницы
 
-        // ==========================================
-        // ВСТАВЬ СЮДА СВОИ ДАННЫЕ ОТ БОТА
-        const BOT_TOKEN = '8884833424:AAEgjD6h03vfjYtXbUJVggonjxciyeKHyrk';
-        const CHAT_ID = '403340930'; 
-        // ==========================================
+    // ==========================================
+    // ВСТАВЬ СЮДА СВОИ ДАННЫЕ ОТ БОТА
+    const BOT_TOKEN = "8884833424:AAEgjD6h03vfjYtXbUJVggonjxciyeKHyrk";
+    const CHAT_ID = "403340930";
+    // ==========================================
 
-        // Визуальная индикация загрузки
-        const originalBtnText = submitBtn.textContent;
-        submitBtn.textContent = 'Отправка...';
-        submitBtn.disabled = true;
-        formStatus.className = 'form-status'; // Сброс классов
+    // Визуальная индикация загрузки
+    const originalBtnText = submitBtn.textContent;
+    submitBtn.textContent = "Отправка...";
+    submitBtn.disabled = true;
+    formStatus.className = "form-status"; // Сброс классов
 
-        // Собираем данные из полей
-        const formData = new FormData(this);
-        const name = formData.get('name');
-        const contact = formData.get('contact');
-        const plan = formData.get('plan');
-        const comment = formData.get('comment') || 'Не указан';
+    // Собираем данные из полей
+    const formData = new FormData(this);
+    const name = formData.get("name");
+    const contact = formData.get("contact");
+    const plan = formData.get("plan");
+    const comment = formData.get("comment") || "Не указан";
 
-        // Формируем текст сообщения для Телеграма
-        const messageText = `🔥 *Новая заявка с сайта!*\n\n` +
-                            `👤 *Имя:* ${name}\n` +
-                            `📞 *Связь:* ${contact}\n` +
-                            `📚 *Формат:* ${plan}\n` +
-                            `💬 *Комментарий:* ${comment}`;
+    // Формируем текст сообщения для Телеграма
+    const messageText =
+      `🔥 *Новая заявка с сайта!*\n\n` +
+      `👤 *Имя:* ${name}\n` +
+      `📞 *Связь:* ${contact}\n` +
+      `📚 *Формат:* ${plan}\n` +
+      `💬 *Комментарий:* ${comment}`;
 
-        try {
-            // Отправляем запрос к API Telegram
-            const response = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    chat_id: CHAT_ID,
-                    text: messageText,
-                    parse_mode: 'Markdown'
-                })
-            });
+    try {
+      // Отправляем запрос к API Telegram
+      const response = await fetch(
+        `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            chat_id: CHAT_ID,
+            text: messageText,
+            parse_mode: "Markdown",
+          }),
+        },
+      );
 
-            if (response.ok) {
-                formStatus.textContent = 'Заявка успешно отправлена! Мы скоро свяжемся с вами.';
-                formStatus.classList.add('success');
-                bookingForm.reset(); // Очищаем форму
+      if (response.ok) {
+        formStatus.textContent =
+          "Заявка успешно отправлена! Мы скоро свяжемся с вами.";
+        formStatus.classList.add("success");
+        bookingForm.reset(); // Очищаем форму
 
-                // Закрываем окно автоматически через 3 секунды
-                setTimeout(() => {
-                    closeModal();
-                    formStatus.classList.remove('success'); // Прячем сообщение для следующих открытий
-                }, 3000);
-            } else {
-                throw new Error('Ошибка сервера Telegram');
-            }
-        } catch (error) {
-            formStatus.textContent = 'Произошла ошибка при отправке. Пожалуйста, попробуйте позже.';
-            formStatus.classList.add('error');
-        } finally {
-            submitBtn.textContent = originalBtnText;
-            submitBtn.disabled = false;
-        }
-    });
+        // Закрываем окно автоматически через 3 секунды
+        setTimeout(() => {
+          closeModal();
+          formStatus.classList.remove("success"); // Прячем сообщение для следующих открытий
+        }, 3000);
+      } else {
+        throw new Error("Ошибка сервера Telegram");
+      }
+    } catch (error) {
+      formStatus.textContent =
+        "Произошла ошибка при отправке. Пожалуйста, попробуйте позже.";
+      formStatus.classList.add("error");
+    } finally {
+      submitBtn.textContent = originalBtnText;
+      submitBtn.disabled = false;
+    }
+  });
 }
