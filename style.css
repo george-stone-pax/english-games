@@ -69,7 +69,7 @@ nav {
     font-size: 22px;
     letter-spacing: 1px;
     color: #ffffff !important;
-    opacity: 1 !important;
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.6), 0 2px 4px rgba(0, 0, 0, 0.8);
 }
 
 .nav-links a {
