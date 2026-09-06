@@ -29,7 +29,7 @@ nav {
     justify-content: space-between;
     align-items: center;
     box-sizing: border-box;
-    z-index: 1000;
+    z-index: 9999;
 
     /* ========================================================================= */
     /* ВАЖНО: Вставка фонового паттерна из файла или GitHub Pages               */
@@ -65,12 +65,12 @@ nav {
 }
 
 .logo-text {
-    font-weight: 900 !important;
-    font-size: 22px !important;
+    font-weight: 800;
+    font-size: 22px;
     letter-spacing: 1px;
     color: #ffffff !important;
-    -webkit-text-fill-color: #ffffff !important;
-    filter: drop-shadow(0 0 2px rgba(0,0,0,0.9));
+    position: relative;
+    z-index: 10000;
 }
 
 .nav-links a {
