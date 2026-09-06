@@ -148,6 +148,8 @@ nav {
     display: flex;
     justify-content: center;
     align-items: center;
+    position: relative; /* Важно для z-index */
+    z-index: 2;        /* Поднимаем секцию выше фоновых blobs (у них z-index: 0) */
 }
 
 .comparison-container {
