@@ -402,9 +402,11 @@ nav {
 .gallery-container {
     position: relative;
     height: 100vh;
+    min-height: 600px; /* Добавь минимальную высоту */
     display: flex;
     align-items: center;
     overflow: hidden;
+    will-change: transform; /* Подсказка браузеру для ускорения */
 }
 
 .bg-huge-text {
@@ -600,7 +602,7 @@ nav {
 
 .blob {
     position: absolute;
-    filter: blur(40px);
+    /*filter: blur(40px);*/
     opacity: 0.65;
     will-change: transform, border-radius;
 }
@@ -1331,4 +1333,13 @@ nav {
     background-color: #ff4747;
     transform: translateY(-2px);
     box-shadow: 0 12px 25px rgba(255, 94, 94, 0.4);
+}
+
+@media (max-width: 768px) {
+    .modal-content {
+        padding: 30px 20px;
+    }
+    .modal-title {
+        font-size: 24px;
+    }
 }
