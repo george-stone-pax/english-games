@@ -68,8 +68,8 @@ nav {
     font-weight: 800;
     font-size: 22px;
     letter-spacing: 1px;
-    color: #ffffff !important; /* Принудительно белый цвет */
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    color: #ffffff !important;
+    opacity: 1 !important;
 }
 
 .nav-links a {
