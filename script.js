@@ -396,77 +396,63 @@ if (modalOverlay) {
     });
 }
 
-// ОТПРАВКА ФОРМЫ В ТЕЛЕГРАМ
-const bookingForm = document.getElementById('booking-form');
-const submitBtn = document.getElementById('submit-btn');
-const formStatus = document.getElementById('form-status');
+// =========================================
+// ЛОГИКА МОДАЛЬНОГО ОКНА И ОТПРАВКА В TELEGRAM
+// =========================================
+const modalOverlay = document.getElementById('booking-modal');
+const closeModalBtn = document.getElementById('close-modal-btn');
+const formActionBtn = document.getElementById('format-btn'); 
+const toggleCheckbox = document.getElementById('checkbox'); 
 
-if (bookingForm) {
-    bookingForm.addEventListener('submit', async function(e) {
-        e.preventDefault(); // Отменяем стандартную перезагрузку страницы
+function openModal() {
+    // 1. Ищем поле plan непосредственно в момент нажатия на кнопку
+    const planSelect = document.getElementById('plan');
+    
+    // 2. Если поле найдено, меняем его значение
+    if (planSelect && toggleCheckbox) {
+        if (toggleCheckbox.checked) {
+            planSelect.value = "Индивидуально";
+        } else {
+            planSelect.value = "Мини-группа";
+        }
+    } else {
+        console.warn("Поле с id='plan' не найдено на странице, но окно будет открыто.");
+    }
+    
+    // 3. Открываем окно
+    if (modalOverlay) {
+        modalOverlay.classList.add('active');
+        document.body.style.overflow = 'hidden';
+    } else {
+        console.error("ОШИБКА: В HTML-файле отсутствует код модального окна (id='booking-modal').");
+    }
+}
 
-        // ==========================================
-        // ВСТАВЬ СЮДА СВОИ ДАННЫЕ ОТ БОТА
-        const BOT_TOKEN = '8884833424:AAEgjD6h03vfjYtXbUJVggonjxciyeKHyrk';
-        const CHAT_ID = '403340930'; 
-        // ==========================================
+function closeModal() {
+    if (modalOverlay) {
+        modalOverlay.classList.remove('active');
+        document.body.style.overflow = '';
+    }
+}
 
-        // Визуальная индикация загрузки
-        const originalBtnText = submitBtn.textContent;
-        submitBtn.textContent = 'Отправка...';
-        submitBtn.disabled = true;
-        formStatus.className = 'form-status'; // Сброс классов
+// Привязываем клик к кнопке "Записаться"
+if (formActionBtn) {
+    formActionBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        openModal();
+    });
+}
 
-        // Собираем данные из полей
-        const formData = new FormData(this);
-        const name = formData.get('name');
-        const contact = formData.get('contact');
-        const plan = formData.get('plan');
-        const comment = formData.get('comment') || 'Не указан';
+// Привязываем клик к крестику
+if (closeModalBtn) {
+    closeModalBtn.addEventListener('click', closeModal);
+}
 
-        // Формируем текст сообщения для Телеграма
-        const messageText = `🔥 *Новая заявка с сайта!*\n\n` +
-                            `👤 *Имя:* ${name}\n` +
-                            `📞 *Связь:* ${contact}\n` +
-                            `📚 *Формат:* ${plan}\n` +
-                            `💬 *Комментарий:* ${comment}`;
-
-        try {
-            // Отправляем запрос к API Telegram
-            const response = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    chat_id: CHAT_ID,
-                    text: messageText,
-                    parse_mode: 'Markdown' // Позволяет использовать жирный шрифт (*) в сообщении
-                })
-            });
-
-            if (response.ok) {
-                // Успешная отправка
-                formStatus.textContent = 'Заявка успешно отправлена! Мы скоро свяжемся с вами.';
-                formStatus.classList.add('success');
-                bookingForm.reset(); // Очищаем форму
-
-                // Закрываем окно автоматически через 3 секунды
-                setTimeout(() => {
-                    closeModal();
-                    formStatus.classList.remove('success'); // Прячем сообщение для следующих открытий
-                }, 3000);
-            } else {
-                throw new Error('Ошибка сервера Telegram');
-            }
-        } catch (error) {
-            // Ошибка при отправке (нет интернета, неверный токен и т.д.)
-            formStatus.textContent = 'Произошла ошибка при отправке. Пожалуйста, попробуйте позже.';
-            formStatus.classList.add('error');
-        } finally {
-            // Возвращаем кнопку в исходное состояние
-            submitBtn.textContent = originalBtnText;
-            submitBtn.disabled = false;
+// Закрытие по клику на темный фон
+if (modalOverlay) {
+    modalOverlay.addEventListener('click', function(e) {
+        if (e.target === modalOverlay) {
+            closeModal();
         }
     });
 }
