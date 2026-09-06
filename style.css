@@ -68,7 +68,8 @@ nav {
     font-weight: 800;
     font-size: 22px;
     letter-spacing: 1px;
-    color: #ffffff;
+    color: #ffffff !important; /* Принудительно белый цвет */
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
 .nav-links a {
@@ -402,7 +403,7 @@ nav {
 .gallery-container {
     position: relative;
     height: 100vh;
-    min-height: 600px; /* Добавь минимальную высоту */
+    min-height: 550px; /* Добавь минимальную высоту */
     display: flex;
     align-items: center;
     overflow: hidden;
