@@ -407,8 +407,8 @@ if (bookingForm) {
 
         // ==========================================
         // ВСТАВЬ СЮДА СВОИ ДАННЫЕ ОТ БОТА
-        const BOT_TOKEN = 'ТВОЙ_ТОКЕН_ОТ_BOTFATHER';
-        const CHAT_ID = 'ТВОЙ_CHAT_ID'; 
+        const BOT_TOKEN = '8884833424:AAEgjD6h03vfjYtXbUJVggonjxciyeKHyrk';
+        const CHAT_ID = '403340930'; 
         // ==========================================
 
         // Визуальная индикация загрузки
