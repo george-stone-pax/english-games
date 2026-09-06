@@ -412,3 +412,74 @@ if (modalOverlay) {
         }
     });
 }
+// ОТПРАВКА ФОРМЫ В ТЕЛЕГРАМ
+const bookingForm = document.getElementById('booking-form');
+const submitBtn = document.getElementById('submit-btn');
+const formStatus = document.getElementById('form-status');
+
+if (bookingForm) {
+    bookingForm.addEventListener('submit', async function(e) {
+        e.preventDefault(); // Отменяем стандартную перезагрузку страницы
+
+        // ==========================================
+        // ВСТАВЬ СЮДА СВОИ ДАННЫЕ ОТ БОТА
+        const BOT_TOKEN = '8884833424:AAEgjD6h03vfjYtXbUJVggonjxciyeKHyrk';
+        const CHAT_ID = '403340930'; 
+        // ==========================================
+
+        // Визуальная индикация загрузки
+        const originalBtnText = submitBtn.textContent;
+        submitBtn.textContent = 'Отправка...';
+        submitBtn.disabled = true;
+        formStatus.className = 'form-status'; // Сброс классов
+
+        // Собираем данные из полей
+        const formData = new FormData(this);
+        const name = formData.get('name');
+        const contact = formData.get('contact');
+        const plan = formData.get('plan');
+        const comment = formData.get('comment') || 'Не указан';
+
+        // Формируем текст сообщения для Телеграма
+        const messageText = `🔥 *Новая заявка с сайта!*\n\n` +
+                            `👤 *Имя:* ${name}\n` +
+                            `📞 *Связь:* ${contact}\n` +
+                            `📚 *Формат:* ${plan}\n` +
+                            `💬 *Комментарий:* ${comment}`;
+
+        try {
+            // Отправляем запрос к API Telegram
+            const response = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    chat_id: CHAT_ID,
+                    text: messageText,
+                    parse_mode: 'Markdown'
+                })
+            });
+
+            if (response.ok) {
+                formStatus.textContent = 'Заявка успешно отправлена! Мы скоро свяжемся с вами.';
+                formStatus.classList.add('success');
+                bookingForm.reset(); // Очищаем форму
+
+                // Закрываем окно автоматически через 3 секунды
+                setTimeout(() => {
+                    closeModal();
+                    formStatus.classList.remove('success'); // Прячем сообщение для следующих открытий
+                }, 3000);
+            } else {
+                throw new Error('Ошибка сервера Telegram');
+            }
+        } catch (error) {
+            formStatus.textContent = 'Произошла ошибка при отправке. Пожалуйста, попробуйте позже.';
+            formStatus.classList.add('error');
+        } finally {
+            submitBtn.textContent = originalBtnText;
+            submitBtn.disabled = false;
+        }
+    });
+}
