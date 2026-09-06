@@ -69,8 +69,6 @@ nav {
     font-size: 22px;
     letter-spacing: 1px;
     color: #ffffff !important;
-    position: relative;
-    z-index: 10000;
 }
 
 .nav-links a {
