@@ -65,10 +65,12 @@ nav {
 }
 
 .logo-text {
-    font-weight: 800;
-    font-size: 22px;
+    font-weight: 900 !important;
+    font-size: 22px !important;
     letter-spacing: 1px;
     color: #ffffff !important;
+    -webkit-text-fill-color: #ffffff !important;
+    filter: drop-shadow(0 0 2px rgba(0,0,0,0.9));
 }
 
 .nav-links a {
