@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <!-- Мета-тег для правильного отображения и адаптации на мобильных устройствах -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Language Quest: Citadel of Words</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- Подключение необычных шрифтов для атмосферы цитадели -->
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Metamorphous&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- АУДИО ЭЛЕМЕНТЫ -->
+    <!-- Вставка аудио ссылок из GitHub Pages -->
+    <audio id="bg-music" loop>
+        <source src="https://george-stone-pax.github.io/my-game-assets/Aylex%20-%20Back%20To%20Life%20(freetouse.com).mp3" type="audio/mpeg">
+    </audio>
+    <audio id="sound-correct">
+        <source src="https://george-stone-pax.github.io/my-game-assets/rightanswer-95219.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="sound-wrong">
+        <source src="https://george-stone-pax.github.io/my-game-assets/dodgeball.mp3" type="audio/mpeg">
+    </audio>
+
+    <!-- ПАНЕЛЬ УПРАВЛЕНИЯ (Всегда поверх игры) -->
+    <div id="controls-panel">
+        <button id="fullscreen-btn" class="control-btn" title="Полноэкранный режим">⛶</button>
+        
+        <div class="volume-control">
+            <button id="mute-btn" class="control-btn" title="Включить/Выключить звук">🔊</button>
+            <!-- Ползунок для изменения уровня громкости в игре -->
+            <input type="range" id="volume-slider" min="0" max="1" step="0.01" value="0.5">
+        </div>
+    </div>
+
+    <!-- ГЛАВНЫЙ КОНТЕЙНЕР ПРИЛОЖЕНИЯ -->
+    <div id="app-container">
+        
+        <!-- ЭКРАН 1: ГЛАВНОЕ МЕНЮ -->
+        <section id="start-screen" class="screen active">
+            <div class="title-container">
+                <h1>Language Quest</h1>
+                <h2>Citadel of Words</h2>
+            </div>
+            <p class="lore-text">Расшифруйте древние скрижали, чтобы достичь Вершины Мудрости.</p>
+            <button id="start-btn" class="magic-btn">Войти в Цитадель</button>
+        </section>
+
+        <!-- ЭКРАН 2: ИГРОВОЙ ПРОЦЕСС -->
+        <section id="game-screen" class="screen hidden">
+            <header class="game-header">
+                <div class="level-indicator">
+                    <span id="current-hall">Зал 1: Вход (A1)</span>
+                </div>
+                <div class="stats">
+                    <div class="hp-bar" id="hp-container">
+                        <!-- Сердечки (жизни) будут добавляться через JS -->
+                        <span class="heart">❤️</span>
+                        <span class="heart">❤️</span>
+                        <span class="heart">❤️</span>
+                    </div>
+                    <div class="xp-counter">XP: <span id="xp-score">0</span></div>
+                    <div class="timer" id="timer-display">⏱ 15s</div>
+                </div>
+            </header>
+
+            <main class="quest-area">
+                <div class="context-box">
+                    <p id="question-context">Контекст вопроса...</p>
+                </div>
+                
+                <div class="question-box">
+                    <h3 id="question-text">Текст вопроса...</h3>
+                </div>
+
+                <!-- Контейнер для вариантов ответа или сборки предложений -->
+                <div id="answers-container" class="answers-grid">
+                    <!-- Кнопки с вариантами генерируются через JS -->
+                </div>
+            </main>
+
+            <!-- Всплывающее уведомление о правильности ответа -->
+            <div id="feedback-overlay" class="hidden">
+                <h2 id="feedback-text">Правильно!</h2>
+                <p id="feedback-bonus">+ Bonus XP</p>
+            </div>
+        </section>
+
+        <!-- ЭКРАН 3: РЕЗУЛЬТАТЫ (СВИТОК) -->
+        <section id="result-screen" class="screen hidden">
+            <div class="scroll-container">
+                <h2>Результат Испытания</h2>
+                <div class="result-stats">
+                    <p>Набрано Опыта: <span id="final-xp">0</span> pts</p>
+                    <p>Достигнутый Уровень: <strong id="final-level" class="highlight">A1</strong></p>
+                </div>
+                
+                <div class="feedback-analysis">
+                    <h3>Анализ:</h3>
+                    <ul id="analysis-list">
+                        <!-- Сильные стороны и точки роста генерируются в JS -->
+                    </ul>
+                </div>
+
+                <button id="restart-btn" class="magic-btn">Испытать судьбу снова</button>
+            </div>
+        </section>
+
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
