@@ -2,19 +2,16 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <!-- Мета-тег для правильного отображения и адаптации на мобильных устройствах -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Language Quest: Citadel of Words</title>
     <link rel="stylesheet" href="style.css">
-    <!-- Подключение необычных шрифтов для атмосферы цитадели -->
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Metamorphous&display=swap" rel="stylesheet">
 </head>
-<body>
-    <!-- АУДИО ЭЛЕМЕНТЫ -->
-    <!-- Вставка аудио ссылок из GitHub Pages -->
-    <audio id="bg-music" loop>
-        <source src="https://george-stone-pax.github.io/my-game-assets/Aylex%20-%20Back%20To%20Life%20(freetouse.com).mp3" type="audio/mpeg">
-    </audio>
+<!-- Класс theme-menu задает начальный стиль. JS будет менять классы theme-a0, theme-a1 и т.д. -->
+<body class="theme-menu">
+    <div id="damage-overlay"></div>
+    
+    <!-- АУДИО ЭЛЕМЕНТЫ (Ссылки из твоей базы ассетов) -->
     <audio id="sound-correct">
         <source src="https://george-stone-pax.github.io/my-game-assets/rightanswer-95219.mp3" type="audio/mpeg">
     </audio>
@@ -22,18 +19,40 @@
         <source src="https://george-stone-pax.github.io/my-game-assets/dodgeball.mp3" type="audio/mpeg">
     </audio>
 
-    <!-- ПАНЕЛЬ УПРАВЛЕНИЯ (Всегда поверх игры) -->
+    <!-- Фоновая музыка разбита по уровням для создания уникальной атмосферы -->
+    <audio id="bg-music-menu" loop>
+        <source src="https://george-stone-pax.github.io/my-game-assets/Aylex%20-%20Back%20To%20Life%20(freetouse.com).mp3" type="audio/mpeg">
+    </audio>
+    <audio id="bg-music-a0" loop>
+        <source src="https://george-stone-pax.github.io/gamesnew/My_music1.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="bg-music-a1" loop>
+        <source src="https://george-stone-pax.github.io/gamesnew/My_music2.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="bg-music-a2" loop>
+        <source src="https://george-stone-pax.github.io/gamesnew/My_music3.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="bg-music-b1" loop>
+        <source src="https://george-stone-pax.github.io/gamesnew/My_music4.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="bg-music-b2" loop>
+        <source src="https://george-stone-pax.github.io/gamesnew/My_music5.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="bg-music-c1" loop>
+        <source src="https://george-stone-pax.github.io/gamesnew/My_music6.mp3" type="audio/mpeg">
+    </audio>
+
+    <!-- ПАНЕЛЬ УПРАВЛЕНИЯ -->
     <div id="controls-panel">
         <button id="fullscreen-btn" class="control-btn" title="Полноэкранный режим">⛶</button>
-        
         <div class="volume-control">
             <button id="mute-btn" class="control-btn" title="Включить/Выключить звук">🔊</button>
-            <!-- Ползунок для изменения уровня громкости в игре -->
-            <input type="range" id="volume-slider" min="0" max="1" step="0.01" value="0.5">
+            <!-- Громкость по умолчанию 10% -->
+            <input type="range" id="volume-slider" min="0" max="1" step="0.01" value="0.1">
         </div>
     </div>
 
-    <!-- ГЛАВНЫЙ КОНТЕЙНЕР ПРИЛОЖЕНИЯ -->
+    <!-- ГЛАВНЫЙ КОНТЕЙНЕР -->
     <div id="app-container">
         
         <!-- ЭКРАН 1: ГЛАВНОЕ МЕНЮ -->
@@ -42,7 +61,7 @@
                 <h1>Language Quest</h1>
                 <h2>Citadel of Words</h2>
             </div>
-            <p class="lore-text">Расшифруйте древние скрижали, чтобы достичь Вершины Мудрости.</p>
+            <p class="lore-text">Пройди путь от самых основ (A0) до Вершины Мудрости (C1). У тебя лишь одна попытка. Ошибка означает конец пути.</p>
             <button id="start-btn" class="magic-btn">Войти в Цитадель</button>
         </section>
 
@@ -50,17 +69,16 @@
         <section id="game-screen" class="screen hidden">
             <header class="game-header">
                 <div class="level-indicator">
-                    <span id="current-hall">Зал 1: Вход (A1)</span>
+                    <span id="current-hall">Зал 0: Врата Пробуждения (A0)</span>
                 </div>
                 <div class="stats">
                     <div class="hp-bar" id="hp-container">
-                        <!-- Сердечки (жизни) будут добавляться через JS -->
-                        <span class="heart">❤️</span>
+                        <!-- Всего 1 жизнь (sudden death) -->
                         <span class="heart">❤️</span>
                         <span class="heart">❤️</span>
                     </div>
                     <div class="xp-counter">XP: <span id="xp-score">0</span></div>
-                    <div class="timer" id="timer-display">⏱ 15s</div>
+                    <div class="timer" id="timer-display">⏱ 45s</div>
                 </div>
             </header>
 
@@ -73,36 +91,34 @@
                     <h3 id="question-text">Текст вопроса...</h3>
                 </div>
 
-                <!-- Контейнер для вариантов ответа или сборки предложений -->
-                <div id="answers-container" class="answers-grid">
-                    <!-- Кнопки с вариантами генерируются через JS -->
+                <!-- Контейнер для динамических механик (выбор, сборка, ввод и т.д.) -->
+                <div id="interactive-area">
+                    <!-- Сюда JS будет рендерить интерфейс в зависимости от механики текущего вопроса -->
                 </div>
             </main>
 
-            <!-- Всплывающее уведомление о правильности ответа -->
+            <!-- Всплывающее уведомление -->
             <div id="feedback-overlay" class="hidden">
                 <h2 id="feedback-text">Правильно!</h2>
                 <p id="feedback-bonus">+ Bonus XP</p>
             </div>
         </section>
 
-        <!-- ЭКРАН 3: РЕЗУЛЬТАТЫ (СВИТОК) -->
+        <!-- ЭКРАН 3: РЕЗУЛЬТАТЫ -->
         <section id="result-screen" class="screen hidden">
             <div class="scroll-container">
-                <h2>Результат Испытания</h2>
+                <h2 id="result-title">Путь Окончен</h2>
                 <div class="result-stats">
                     <p>Набрано Опыта: <span id="final-xp">0</span> pts</p>
-                    <p>Достигнутый Уровень: <strong id="final-level" class="highlight">A1</strong></p>
+                    <p>Подтвержденный Уровень: <strong id="final-level" class="highlight">A0</strong></p>
                 </div>
                 
                 <div class="feedback-analysis">
                     <h3>Анализ:</h3>
-                    <ul id="analysis-list">
-                        <!-- Сильные стороны и точки роста генерируются в JS -->
-                    </ul>
+                    <ul id="analysis-list"></ul>
                 </div>
 
-                <button id="restart-btn" class="magic-btn">Испытать судьбу снова</button>
+                <button id="restart-btn" class="magic-btn">Начать заново</button>
             </div>
         </section>
 
