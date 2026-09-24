@@ -1719,3 +1719,75 @@ nav {
         animation-timing-function: ease-out;
     }
 }
+/* =========================================
+   КНОПКА-ЛЕНТА (строгий display: inline)
+   ========================================= */
+
+/* Главный контейнер ссылки */
+.english-level-btn {
+    display: inline; /* Строчный элемент по вашему требованию */
+    text-decoration: none;
+    
+    background-color: #312030;
+    border-radius: 12px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+    
+    /* Отступ и высота кнопки для inline-элемента регулируются через padding и line-height */
+    padding: 10px 0;
+    line-height: 2.2; 
+    
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+    cursor: pointer;
+}
+
+/* Эффект при наведении */
+.english-level-btn:hover {
+    background-color: #c05da0;
+    box-shadow: 0 12px 25px rgba(0,0,0,0.25);
+}
+
+.english-level-btn:active {
+    opacity: 0.9;
+}
+
+/* Внутренний контейнер: отвечает за обрезку бегущей строки и ограничение ширины */
+.scroll-container {
+    display: inline-block; /* Чтобы внутри inline-ссылки работали overflow: hidden и max-width */
+    vertical-align: middle;
+    width: 100%;
+    max-width: 850px; /* Ширина плашки с бегущей строкой */
+    overflow: hidden; /* Обрезает вылезающий текст */
+    
+    -webkit-mask-image: linear-gradient(to right, transparent, black 12%, black 88%, transparent);
+    mask-image: linear-gradient(to right, transparent, black 12%, black 88%, transparent);
+}
+
+/* Блок с бегущим текстом */
+.scroll-content {
+    display: inline-block;
+    white-space: nowrap;
+    
+    /* Увеличенный шрифт */
+    font-size: 24px; 
+    font-weight: 600;
+    color: #ffffff;
+    
+    animation: move-left 30s linear infinite;
+}
+
+/* Анимация движения */
+@keyframes move-left {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+}
+
+/* Адаптация под телефоны */
+@media (max-width: 768px) {
+    .scroll-container {
+        max-width: 92vw; /* На смартфонах занимает почти всю ширину экрана */
+    }
+    
+    .scroll-content {
+        font-size: 18px; /* Адаптивный размер шрифта для мобильных */
+    }
+}
