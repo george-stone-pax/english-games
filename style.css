@@ -1106,6 +1106,7 @@ nav {
 }
 
 .location-info {
+    
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -1132,13 +1133,13 @@ nav {
 
 .loc-item h4 {
     margin: 0 0 4px 0;
-    font-size: 15px;
+    font-size: 20px;
     font-weight: 700;
 }
 
 .loc-item p {
     margin: 0;
-    font-size: 13.5px;
+    font-size: 16px;
     color: #444;
     line-height: 1.4;
 }
