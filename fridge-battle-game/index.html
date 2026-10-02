@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fridge Battle: Educational Edition</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <!-- Custom Styles -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="h-screen flex flex-col overflow-hidden bg-sky-50 font-['Nunito']">
+
+    <!-- Header -->
+    <header class="bg-indigo-600 text-white p-3 shadow-md shrink-0 flex justify-between items-center z-20">
+        <h1 class="text-xl font-bold flex items-center gap-2">
+            ❄️ Fridge Battle: <span class="font-light text-indigo-200">1 Player vs 2 Player</span>
+        </h1>
+        <div class="flex items-center gap-4 text-sm">
+            <div class="bg-indigo-700 px-3 py-1 rounded-full border border-indigo-500">
+                Раунд: <span id="turn-counter">1</span>/<span id="max-turns-display">5</span>
+            </div>
+            <button id="sound-toggle-btn" class="bg-indigo-700 hover:bg-indigo-800 p-1.5 rounded-full border border-indigo-500 transition" title="Включить/выключить озвучку">
+                🔊
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Content Grid -->
+    <main class="flex-1 flex flex-col md:flex-row h-full overflow-hidden relative">
+        
+        <!-- Left: Game Board & Controls & Trash Bin -->
+        <div class="flex-1 p-2 md:p-4 bg-indigo-50 flex flex-col items-center justify-between overflow-auto relative">
+            
+            <!-- Trash Bin Area -->
+            <div id="trash-bin" class="absolute left-4 top-1/2 -translate-y-1/2 flex flex-col items-center justify-center p-3 rounded-2xl border-4 border-dashed border-red-300 bg-red-50/80 backdrop-blur-sm z-10 transition-all duration-300 hover:scale-105">
+                <div class="text-4xl md:text-5xl animate-bounce mb-1">🗑️</div>
+                <span class="text-xs font-black text-red-600 uppercase tracking-wider">Trash Bin</span>
+            </div>
+
+            <!-- Game Board Container -->
+            <div class="flex-1 flex items-center justify-center w-full my-auto">
+                <div id="game-board" class="grid gap-1.5 md:gap-2 w-full max-w-xl aspect-square bg-white p-3 rounded-2xl shadow-xl border-4 border-indigo-200 transition-all duration-300">
+                    <!-- Ячейки генерируются динамически через script.js -->
+                </div>
+            </div>
+            
+            <!-- Bottom Controls Area -->
+            <div class="mt-2 mb-2 flex flex-col items-center justify-center w-full z-10 gap-2">
+                <!-- Dice Coordinates Display -->
+                <div id="dice-display" class="hidden bg-white px-6 py-2 rounded-xl shadow-lg font-extrabold text-2xl text-indigo-800 border-2 border-indigo-200 animate-pulse">
+                    🎲 <span id="dice-coords">1:1</span>
+                </div>
+                
+                <!-- Action Button -->
+                <button id="roll-btn" class="w-72 bg-emerald-500 hover:bg-emerald-600 text-white font-black py-3 px-6 rounded-full shadow-lg transform transition active:scale-95 text-lg border-b-4 border-emerald-700 uppercase tracking-wider">
+                    1 Player's Turn: Roll! 🎲
+                </button>
+            </div>
+        </div>
+
+        <!-- Right: Fridges (Student & Teacher Visual Fridges) -->
+        <div class="w-full md:w-96 bg-slate-100 shadow-2xl flex flex-col border-l-2 border-slate-300 shrink-0 h-[50vh] md:h-full z-20 overflow-y-auto">
+            
+            <!-- Student Fridge -->
+            <div id="p1-panel" class="flex-1 flex flex-col p-3 border-b-2 border-slate-300 bg-emerald-50/50 transition-colors duration-300">
+                <div class="flex justify-between items-center mb-2">
+                    <h2 class="font-extrabold text-emerald-900 flex items-center gap-2 text-base">
+                        <span>🧒 1 Player's Fridge</span>
+                    </h2>
+                    <span id="p1-status" class="text-xs font-bold bg-emerald-200 text-emerald-800 px-2.5 py-0.5 rounded-full animate-pulse">Ходит</span>
+                </div>
+                
+                <!-- Realistic Fridge Body (Shelves) -->
+                <div id="student-fridge" class="fridge-body flex-1 bg-gradient-to-b from-sky-100 to-sky-50 rounded-2xl border-4 border-slate-300 p-2 shadow-inner flex flex-col gap-2 justify-between">
+                    <!-- Top Shelf: Drinks -->
+                    <div class="fridge-shelf border-b-4 border-sky-200/80 pb-1 min-h-[60px]" data-shelf="drinks">
+                        <div class="shelf-label text-[10px] font-bold text-sky-400 uppercase tracking-wider px-1">🥤 Drinks</div>
+                        <div class="shelf-items grid grid-cols-4 gap-1 mt-1"></div>
+                    </div>
+                    <!-- Middle Shelf: Meals / Main -->
+                    <div class="fridge-shelf border-b-4 border-sky-200/80 pb-1 min-h-[60px]" data-shelf="meals">
+                        <div class="shelf-label text-[10px] font-bold text-amber-500 uppercase tracking-wider px-1">🍕 Prepared Food</div>
+                        <div class="shelf-items grid grid-cols-4 gap-1 mt-1"></div>
+                    </div>
+                    <!-- Bottom Shelf: Fruits & Veggies -->
+                    <div class="fridge-shelf min-h-[60px]" data-shelf="produce">
+                        <div class="shelf-label text-[10px] font-bold text-emerald-500 uppercase tracking-wider px-1">🍎 Veggies & Fruits</div>
+                        <div class="shelf-items grid grid-cols-4 gap-1 mt-1"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Teacher Fridge -->
+            <div id="p2-panel" class="flex-1 flex flex-col p-3 bg-slate-50 transition-colors duration-300">
+                <div class="flex justify-between items-center mb-2">
+                    <h2 class="font-extrabold text-rose-900 flex items-center gap-2 text-base">
+                        <span id="p2-name-label">👓 2 Player's Fridge</span>
+                    </h2>
+                    <span id="p2-status" class="hidden text-xs font-bold bg-rose-200 text-rose-800 px-2.5 py-0.5 rounded-full animate-pulse">Ходит</span>
+                </div>
+                
+                <!-- Realistic Fridge Body (Shelves) -->
+                <div id="teacher-fridge" class="fridge-body flex-1 bg-gradient-to-b from-sky-100 to-sky-50 rounded-2xl border-4 border-slate-300 p-2 shadow-inner flex flex-col gap-2 justify-between">
+                    <!-- Top Shelf: Drinks -->
+                    <div class="fridge-shelf border-b-4 border-sky-200/80 pb-1 min-h-[60px]" data-shelf="drinks">
+                        <div class="shelf-label text-[10px] font-bold text-sky-400 uppercase tracking-wider px-1">🥤 Drinks</div>
+                        <div class="shelf-items grid grid-cols-4 gap-1 mt-1"></div>
+                    </div>
+                    <!-- Middle Shelf: Meals / Main -->
+                    <div class="fridge-shelf border-b-4 border-sky-200/80 pb-1 min-h-[60px]" data-shelf="meals">
+                        <div class="shelf-label text-[10px] font-bold text-amber-500 uppercase tracking-wider px-1">🍕 Prepared Food</div>
+                        <div class="shelf-items grid grid-cols-4 gap-1 mt-1"></div>
+                    </div>
+                    <!-- Bottom Shelf: Fruits & Veggies -->
+                    <div class="fridge-shelf min-h-[60px]" data-shelf="produce">
+                        <div class="shelf-label text-[10px] font-bold text-emerald-500 uppercase tracking-wider px-1">🍎 Veggies & Fruits</div>
+                        <div class="shelf-items grid grid-cols-4 gap-1 mt-1"></div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Modal 1: Game Settings (Start Modal) -->
+    <div id="settings-modal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-md flex items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-3xl shadow-2xl max-w-md w-full p-6 border-4 border-indigo-200 flex flex-col gap-5">
+            <h2 class="text-3xl font-black text-indigo-700 text-center tracking-tight">🎮 Game Settings</h2>
+            
+            <!-- Mode Selection -->
+            <div class="flex flex-col gap-2">
+                <label class="text-sm font-extrabold text-slate-700">Режим игры:</label>
+                <div class="grid grid-cols-2 gap-3">
+                    <button id="mode-p2p" class="mode-btn active bg-indigo-600 text-white font-bold py-2.5 px-4 rounded-xl border-2 border-indigo-700 shadow transition">
+                        👥 1 Player vs 2 Player
+                    </button>
+                    <button id="mode-ai" class="mode-btn bg-slate-100 text-slate-700 font-bold py-2.5 px-4 rounded-xl border-2 border-slate-200 shadow hover:bg-slate-200 transition">
+                        Player vs 🤖 AI
+                    </button>
+                </div>
+            </div>
+
+            <!-- Board Size Selection -->
+            <div class="flex flex-col gap-2">
+                <label class="text-sm font-extrabold text-slate-700">Размер игрового поля:</label>
+                <div class="grid grid-cols-2 gap-3">
+                    <button id="size-4" class="size-btn bg-slate-100 text-slate-700 font-bold py-2.5 px-4 rounded-xl border-2 border-slate-200 shadow hover:bg-slate-200 transition">
+                        ⚡ 4 x 4 (Быстрая)
+                    </button>
+                    <button id="size-6" class="size-btn active bg-indigo-600 text-white font-bold py-2.5 px-4 rounded-xl border-2 border-indigo-700 shadow transition">
+                        🧩 6 x 6 (Классическая)
+                    </button>
+                </div>
+            </div>
+
+            <!-- Rounds Selection -->
+            <div class="flex flex-col gap-2">
+                <label class="text-sm font-extrabold text-slate-700">Количество ходов (раундов):</label>
+                <div class="grid grid-cols-3 gap-2">
+                    <button id="turns-3" class="turns-btn bg-slate-100 text-slate-700 font-bold py-2 px-3 rounded-xl border-2 border-slate-200 shadow hover:bg-slate-200 transition">
+                        3 ходов
+                    </button>
+                    <button id="turns-5" class="turns-btn active bg-indigo-600 text-white font-bold py-2 px-3 rounded-xl border-2 border-indigo-700 shadow transition">
+                        5 ходов
+                    </button>
+                    <button id="turns-10" class="turns-btn bg-slate-100 text-slate-700 font-bold py-2 px-3 rounded-xl border-2 border-slate-200 shadow hover:bg-slate-200 transition">
+                        10 ходов
+                    </button>
+                </div>
+            </div>
+
+            <button id="start-game-btn" class="mt-2 w-full bg-emerald-500 hover:bg-emerald-600 text-white font-black py-3.5 rounded-2xl shadow-lg border-b-4 border-emerald-700 text-xl transition transform active:scale-95 uppercase tracking-wider">
+                Start Battle! 🚀
+            </button>
+        </div>
+    </div>
+
+    <!-- Modal 2: Action Selection (Steal / Swap) -->
+    <div id="action-modal" class="fixed inset-0 bg-black/70 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-3xl shadow-2xl max-w-lg w-full p-6 border-4 border-amber-300 flex flex-col gap-4">
+            <h3 id="action-modal-title" class="text-2xl font-black text-amber-600 text-center"></h3>
+            <p id="action-modal-desc" class="text-center text-slate-600 font-semibold text-sm"></p>
+            
+            <div id="action-items-container" class="grid grid-cols-3 gap-3 max-h-60 overflow-y-auto p-2 bg-slate-50 rounded-xl border border-slate-200">
+                <!-- Динамический выбор предметов -->
+            </div>
+
+            <button id="confirm-action-btn" class="hidden w-full bg-amber-500 hover:bg-amber-600 text-white font-bold py-3 rounded-xl shadow border-b-4 border-amber-700 transition">
+                Подтвердить выбор
+            </button>
+        </div>
+    </div>
+
+    <!-- Modal 3: Final Result & "Describe Your Fridge" -->
+    <div id="final-modal" class="fixed inset-0 bg-slate-900/85 backdrop-blur-md hidden items-center justify-center z-50 p-4 overflow-y-auto">
+        <div class="bg-white rounded-3xl shadow-2xl max-w-3xl w-full p-6 md:p-8 relative flex flex-col border-4 border-indigo-200 my-auto gap-6">
+            <h2 class="text-4xl font-black text-indigo-700 text-center tracking-tight">🎉 Game Over! 🎉</h2>
+            
+            <!-- Speaking Prompt Task -->
+            <div class="bg-amber-50 border-2 border-amber-200 rounded-2xl p-4 text-center">
+                <h3 class="text-xl font-black text-amber-800 mb-1">🗣️ Task: Describe Your Fridge!</h3>
+                <p class="text-slate-600 font-medium text-sm">
+                    Опишите устно сопернику или учителю, что лежит в вашем холодильнике, используя конструкции:<br>
+                    <span class="font-bold text-indigo-600">"I have got..."</span>
+                </p>
+            </div>
+
+            <!-- Hidden Answers & Check Steps -->
+            <div class="flex flex-col items-center gap-4 w-full">
+                <!-- Step 1: Reveal List -->
+                <button id="reveal-answer-btn" class="bg-indigo-600 hover:bg-indigo-700 text-white font-black py-3 px-8 rounded-full shadow-lg border-b-4 border-indigo-800 transition transform hover:scale-105 text-lg">
+                    👁️️ Показать список продуктов
+                </button>
+
+                <!-- Secret Final Lists Container (Initially Hidden) -->
+                <div id="final-lists-wrapper" class="hidden w-full grid grid-cols-1 md:grid-cols-2 gap-4 transition-all duration-500">
+                    <!-- Student Final List -->
+                    <div class="bg-emerald-50 p-4 rounded-2xl border-2 border-emerald-200">
+                        <h4 class="font-extrabold text-emerald-900 mb-3 text-lg border-b border-emerald-200 pb-1">
+                            🧒 1 Player's Items
+                        </h4>
+                        <div id="final-student-items" class="grid grid-cols-3 gap-2"></div>
+                    </div>
+
+                    <!-- Teacher Final List -->
+                    <div class="bg-rose-50 p-4 rounded-2xl border-2 border-rose-200">
+                        <h4 id="final-teacher-title" class="font-extrabold text-rose-900 mb-3 text-lg border-b border-rose-200 pb-1">
+                            👓  2 Player's Items
+                        </h4>
+                        <div id="final-teacher-items" class="grid grid-cols-3 gap-2"></div>
+                    </div>
+                </div>
+
+                <!-- Step 2: Check Answer Button (Initially Hidden) -->
+                <button id="check-answer-btn" class="hidden bg-amber-500 hover:bg-amber-600 text-white font-black py-3 px-8 rounded-full shadow-lg border-b-4 border-amber-700 transition transform hover:scale-105 text-lg">
+                    📝 Проверить ответ (с озвучкой)
+                </button>
+
+                <!-- Step 3: Text Answer & Audio Box (Initially Hidden) -->
+                <div id="generated-answer-box" class="hidden w-full bg-slate-50 border-2 border-indigo-200 rounded-2xl p-4 flex flex-col gap-3 shadow-inner">
+                    <div class="flex justify-between items-center border-b border-slate-200 pb-2">
+                        <h4 class="font-extrabold text-indigo-900 text-base">🔊 Correct Description Example:</h4>
+                        <button id="speak-answer-btn" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-3 py-1.5 rounded-xl text-xs flex items-center gap-1 shadow transition">
+                            🔊 Озвучить
+                        </button>
+                    </div>
+                    <p id="generated-answer-text" class="text-slate-800 font-bold italic text-base leading-relaxed">
+                        <!-- Текст сгенерированного ответа -->
+                    </p>
+                </div>
+            </div>
+
+            <div class="flex justify-center mt-2">
+                <button id="restart-game-btn" class="bg-emerald-500 hover:bg-emerald-600 text-white font-black py-3.5 px-10 rounded-full shadow-lg border-b-4 border-emerald-700 transition transform hover:scale-105 text-lg uppercase tracking-wider">
+                    🔄 New Game
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification Toast -->
+    <div id="toast" class="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50 pointer-events-none transition-all duration-300 opacity-0 scale-50">
+        <div class="bg-white/95 backdrop-blur-md border-4 border-amber-400 text-indigo-950 px-8 py-6 rounded-3xl shadow-2xl flex flex-col items-center gap-2 min-w-[220px]">
+            <span class="text-6xl drop-shadow-md" id="toast-icon">🍎</span>
+            <div class="font-black text-2xl tracking-tight text-center" id="toast-title">Apple</div>
+        </div>
+    </div>
+
+    <!-- JavaScript File -->
+    <script src="script.js"></script>
+    
+</body>
+</html>
