@@ -50,7 +50,7 @@
                 <description>Узнайте свой уровень английского языка бесплатно с помощью нашей интерактивной геймифицированной системы.</description>
                 <param name="Формат">Онлайн-тест</param>
                 <param name="План">Диагностика словарного запаса, грамматики и понимания речи</param>
-                <param name="Продолжительность" unit="минута">15</param>
+                <param name="Продолжительность" unit="час">0.25</param>
             </offer>
 
             <!-- ИГРА 1: Memory Flip -->
@@ -63,7 +63,7 @@
                 <description>Интерактивная тренировка памяти и перевода слов.</description>
                 <param name="Формат">Образовательная игра</param>
                 <param name="План">Тренировка зрительной памяти и запоминание новых англоязычных слов</param>
-                <param name="Продолжительность" unit="минута">10</param>
+                <param name="Продолжительность" unit="час">0.2</param>
             </offer>
 
             <!-- ИГРА 2: Monster Maker -->
@@ -76,7 +76,7 @@
                 <description>Интерактивная игра на закрепление лексики и описаний: нарисуй монстра правильно!</description>
                 <param name="Формат">Образовательная игра</param>
                 <param name="План">Закрепление лексики частей тела и внешних описаний персонажей</param>
-                <param name="Продолжительность" unit="минута">15</param>
+                <param name="Продолжительность" unit="час">0.25</param>
             </offer>
 
             <!-- ИГРА 3: Past Simple Factory -->
@@ -89,7 +89,7 @@
                 <description>Тренажер вопросов и грамматики в прошедшем времени Past Simple.</description>
                 <param name="Формат">Образовательная игра</param>
                 <param name="План">Отработка составления вопросов и неправильных глаголов в Past Simple</param>
-                <param name="Продолжительность" unit="минута">15</param>
+                <param name="Продолжительность" unit="час">0.25</param>
             </offer>
 
             <!-- ИГРА 4: Race of Comparisons -->
@@ -102,7 +102,7 @@
                 <description>Гонка на знание степеней сравнения прилагательных (Comparative &amp; Superlative).</description>
                 <param name="Формат">Образовательная игра</param>
                 <param name="План">Практика образования Comparative и Superlative степеней сравнения</param>
-                <param name="Продолжительность" unit="минута">15</param>
+                <param name="Продолжительность" unit="час">0.25</param>
             </offer>
 
             <!-- ИГРА 5: Time Travelers -->
@@ -115,7 +115,7 @@
                 <description>Тренажер временных форм английского языка.</description>
                 <param name="Формат">Образовательная игра</param>
                 <param name="План">Сравнение и применение основных временных форм английского языка</param>
-                <param name="Продолжительность" unit="минута">20</param>
+                <param name="Продолжительность" unit="час">0.33</param>
             </offer>
 
             <!-- ИГРА 6: Decalex -->
@@ -128,7 +128,7 @@
                 <description>Динамичная игра на составление слов и расширение словарного запаса.</description>
                 <param name="Формат">Образовательная игра</param>
                 <param name="План">Составление английских слов из буквенных блоков на время</param>
-                <param name="Продолжительность" unit="минута">10</param>
+                <param name="Продолжительность" unit="час">0.2</param>
             </offer>
 
             <!-- ИГРА 7: Naughty Cat -->
@@ -141,7 +141,7 @@
                 <description>Отработка предлогов места (In, On, Under) в игровой форме.</description>
                 <param name="Формат">Образовательная игра</param>
                 <param name="План">Закрепление английских предлогов места в процессе интерактива</param>
-                <param name="Продолжительность" unit="минута">10</param>
+                <param name="Продолжительность" unit="час">0.2</param>
             </offer>
 
         </offers>
