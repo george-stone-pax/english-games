@@ -1,19 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<yml_catalog date="2026-09-30 14:10">
+<yml_catalog date="2026-10-02 12:00">
     <shop>
         <name>English OS</name>
         <company>Студия английского языка «English OS»</company>
         <url>https://english-os.ru/</url>
+        <email>kadoshnikovpasha@yandex.ru</email>
+        <picture>https://english-os.ru/logo.png</picture>
         
         <currencies>
             <currency id="RUB" rate="1"/>
         </currencies>
-
-        <categories>
-            <category id="1">Курсы и форматы обучения</category>
-            <category id="2">Оценка знаний</category>
-            <category id="3">Интерактивные образовательные игры</category>
-        </categories>
 
         <offers>
             
@@ -22,13 +18,13 @@
                 <url>https://english-os.ru/#comparison-section</url>
                 <price>4500</price>
                 <currencyId>RUB</currencyId>
-                <categoryId>1</categoryId>
                 <picture>https://english-os.ru/logo.png</picture>
                 <name>Английский язык в мини-группе (2–6 человек)</name>
                 <description>Живое общение, парная работа и разговорная практика. Фиксированное расписание: 2 раза в неделю по 60 минут (около 9 занятий в месяц). Доступная стоимость и здоровая соревновательная атмосфера.</description>
                 <param name="Формат">Мини-группа</param>
-                <param name="Длительность">60 минут</param>
-                <param name="Частота">2 раза в неделю</param>
+                <param name="План">Модули лексики, разговорной практики, грамматики и интерактивных домашних заданий</param>
+                <param name="Продолжительность" unit="месяц">1</param>
+                <param name="Частота">2 раза в неделю по 60 минут</param>
             </offer>
 
             <!-- ОФЕР 2: Индивидуальное обучение -->
@@ -36,12 +32,12 @@
                 <url>https://english-os.ru/#comparison-section</url>
                 <price>0</price>
                 <currencyId>RUB</currencyId>
-                <categoryId>1</categoryId>
                 <picture>https://english-os.ru/logo.png</picture>
                 <name>Индивидуальные занятия по английскому языку</name>
-                <description>Персональная программа обучения под ваши цели и гибкий график. Скидка 50% на первое пробное занятие!</description>
+                <description>Персональная программа обучения под ваши цели и гибкий график. Бесплатное первое пробное занятие!</description>
                 <param name="Формат">Индивидуально</param>
-                <param name="Акция">Скидка 50% на первое занятие</param>
+                <param name="План">Персональный учебный план с упором на слабые стороны и цели ученика</param>
+                <param name="Продолжительность" unit="месяц">1</param>
             </offer>
 
             <!-- ОФЕР 3: Тест уровня -->
@@ -49,11 +45,12 @@
                 <url>https://english-os.ru/test-game/</url>
                 <price>0</price>
                 <currencyId>RUB</currencyId>
-                <categoryId>2</categoryId>
                 <picture>https://english-os.ru/logo.png</picture>
                 <name>Бесплатный онлайн-тест уровня английского языка</name>
                 <description>Узнайте свой уровень английского языка бесплатно с помощью нашей интерактивной геймифицированной системы.</description>
-                <param name="Стоимость">Бесплатно</param>
+                <param name="Формат">Онлайн-тест</param>
+                <param name="План">Диагностика словарного запаса, грамматики и понимания речи</param>
+                <param name="Продолжительность" unit="минута">15</param>
             </offer>
 
             <!-- ИГРА 1: Memory Flip -->
@@ -61,10 +58,12 @@
                 <url>https://english-os.ru/memory-game/</url>
                 <price>0</price>
                 <currencyId>RUB</currencyId>
-                <categoryId>3</categoryId>
                 <picture>https://george-stone-pax.github.io/english-games/Game_Memory_Logo.png</picture>
                 <name>Игра Memory Flip</name>
                 <description>Интерактивная тренировка памяти и перевода слов.</description>
+                <param name="Формат">Образовательная игра</param>
+                <param name="План">Тренировка зрительной памяти и запоминание новых англоязычных слов</param>
+                <param name="Продолжительность" unit="минута">10</param>
             </offer>
 
             <!-- ИГРА 2: Monster Maker -->
@@ -72,10 +71,12 @@
                 <url>https://english-os.ru/monster-maker-game/</url>
                 <price>0</price>
                 <currencyId>RUB</currencyId>
-                <categoryId>3</categoryId>
                 <picture>https://english-os.ru/monster-maker_logo.png</picture>
                 <name>Игра Monster Maker</name>
                 <description>Интерактивная игра на закрепление лексики и описаний: нарисуй монстра правильно!</description>
+                <param name="Формат">Образовательная игра</param>
+                <param name="План">Закрепление лексики частей тела и внешних описаний персонажей</param>
+                <param name="Продолжительность" unit="минута">15</param>
             </offer>
 
             <!-- ИГРА 3: Past Simple Factory -->
@@ -83,10 +84,12 @@
                 <url>https://english-os.ru/conveyor-game/</url>
                 <price>0</price>
                 <currencyId>RUB</currencyId>
-                <categoryId>3</categoryId>
                 <picture>https://english-os.ru/conveyor_logo.png</picture>
                 <name>Игра Past Simple Factory</name>
                 <description>Тренажер вопросов и грамматики в прошедшем времени Past Simple.</description>
+                <param name="Формат">Образовательная игра</param>
+                <param name="План">Отработка составления вопросов и неправильных глаголов в Past Simple</param>
+                <param name="Продолжительность" unit="минута">15</param>
             </offer>
 
             <!-- ИГРА 4: Race of Comparisons -->
@@ -94,10 +97,12 @@
                 <url>https://english-os.ru/race-game/</url>
                 <price>0</price>
                 <currencyId>RUB</currencyId>
-                <categoryId>3</categoryId>
                 <picture>https://english-os.ru/race-game_logo.png</picture>
                 <name>Игра Race of Comparisons</name>
                 <description>Гонка на знание степеней сравнения прилагательных (Comparative &amp; Superlative).</description>
+                <param name="Формат">Образовательная игра</param>
+                <param name="План">Практика образования Comparative и Superlative степеней сравнения</param>
+                <param name="Продолжительность" unit="минута">15</param>
             </offer>
 
             <!-- ИГРА 5: Time Travelers -->
@@ -105,10 +110,12 @@
                 <url>https://english-os.ru/travel-game/</url>
                 <price>0</price>
                 <currencyId>RUB</currencyId>
-                <categoryId>3</categoryId>
                 <picture>https://english-os.ru/travel-game_logo.png</picture>
                 <name>Игра Time Travelers</name>
                 <description>Тренажер временных форм английского языка.</description>
+                <param name="Формат">Образовательная игра</param>
+                <param name="План">Сравнение и применение основных временных форм английского языка</param>
+                <param name="Продолжительность" unit="минута">20</param>
             </offer>
 
             <!-- ИГРА 6: Decalex -->
@@ -116,10 +123,12 @@
                 <url>https://english-os.ru/decalex-game/</url>
                 <price>0</price>
                 <currencyId>RUB</currencyId>
-                <categoryId>3</categoryId>
                 <picture>https://english-os.ru/decalex-game_logo.png</picture>
                 <name>Игра Decalex - Собери слово!</name>
                 <description>Динамичная игра на составление слов и расширение словарного запаса.</description>
+                <param name="Формат">Образовательная игра</param>
+                <param name="План">Составление английских слов из буквенных блоков на время</param>
+                <param name="Продолжительность" unit="минута">10</param>
             </offer>
 
             <!-- ИГРА 7: Naughty Cat -->
@@ -127,10 +136,12 @@
                 <url>https://english-os.ru/in_on_under-game/</url>
                 <price>0</price>
                 <currencyId>RUB</currencyId>
-                <categoryId>3</categoryId>
                 <picture>https://english-os.ru/in_on_under-game_logo.png</picture>
                 <name>Игра Naughty Cat</name>
                 <description>Отработка предлогов места (In, On, Under) в игровой форме.</description>
+                <param name="Формат">Образовательная игра</param>
+                <param name="План">Закрепление английских предлогов места в процессе интерактива</param>
+                <param name="Продолжительность" unit="минута">10</param>
             </offer>
 
         </offers>
