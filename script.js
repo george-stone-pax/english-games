@@ -420,7 +420,7 @@ if (modalOverlay) {
 // =========================================
 // ОТПРАВКА ФОРМЫ ЧЕРЕЗ ПРОКСИ YANDEX CLOUD
 // =========================================
-const PROXY_URL = "https://functions.yandexcloud.net/d4e88n6uhg055m7uk7uf";
+const PROXY_URL = "https://tg-lead-proxy.kadoshnikov-pasha228.workers.dev";
 
 const bookingForm = document.getElementById("booking-form");
 const submitBtn = document.getElementById("submit-btn");
