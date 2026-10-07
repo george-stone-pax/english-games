@@ -1,63 +1,175 @@
-// 1. Регистрируем плагины GSAP
+// Регистрируем плагины GSAP для существующих переходов и анимаций.
 gsap.registerPlugin(ScrollTrigger);
 
-// =========================================
-// АНИМАЦИЯ ГАЛЕРЕИ (РАЗНАЯ ДЛЯ ПК И ТЕЛЕФОНОВ)
-// =========================================
+// На странице используется обычная адаптивная сетка игр, поэтому каталог
+// не перехватывает прокрутку страницы и не превращается в горизонтальный слайдер.
 const container = document.querySelector(".gallery-container");
 const track = document.querySelector(".gallery-track");
 
-function getScrollAmount() {
-  let trackWidth = track.scrollWidth;
-  return -(trackWidth - window.innerWidth);
-}
-
-// Создаем медиа-правило GSAP
-let mm = gsap.matchMedia();
-
-// ДЕСТОП: экраны шире 768px (Анимация скролла колесиком)
-mm.add("(min-width: 769px)", () => {
-  const tween = gsap.to(track, {
-    x: getScrollAmount,
-    ease: "none",
-  });
-
-  const st = ScrollTrigger.create({
-    trigger: container,
-    start: "top top",
-    end: () => `+=${Math.abs(getScrollAmount())}`,
-    pin: true,
-    animation: tween,
-    scrub: 1,
-    invalidateOnRefresh: true,
-  });
-
-  // Принудительно обновляем расчеты GSAP после загрузки всех картинок и шрифтов
-  window.addEventListener("load", () => {
-    ScrollTrigger.refresh();
-  });
-});
-
-// МОБИЛЬНЫЕ: экраны 768px и меньше (Свайп пальцем)
-mm.add("(max-width: 768px)", () => {
-  container.style.overflowX = "auto";
-  container.style.overflowY = "hidden";
-  container.style.scrollbarWidth = "none";
-  container.style.msOverflowStyle = "none";
-  container.classList.add("hide-scrollbar");
-});
-
-// Красивое появление шапки сайта при загрузке
+// Красивое появление шапки сайта при загрузке.
 gsap.from("nav", {
-  y: -100,
+  y: -24,
   opacity: 0,
-  duration: 1,
+  duration: 0.7,
   ease: "power3.out",
 });
 
 // =========================================
-// БУРГЕР-МЕНЮ
+// ПОИСК ИГР ПО НАЗВАНИЮ, ТЕМЕ И ОПИСАНИЮ
 // =========================================
+const searchInput = document.getElementById("game-search");
+const searchResults = document.getElementById("search-results");
+const searchClear = document.getElementById("search-clear");
+const gameCards = [...document.querySelectorAll(".gallery-card")];
+
+function normalizeSearch(value) {
+  return value.toLocaleLowerCase("ru-RU").trim();
+}
+
+function renderSearchResults(value) {
+  const query = normalizeSearch(value);
+  const matches = gameCards.filter((card) => {
+    const text = normalizeSearch(
+      `${card.dataset.search || ""} ${card.textContent}`,
+    );
+    return !query || text.includes(query);
+  });
+
+  gameCards.forEach((card) =>
+    card.classList.toggle(
+      "is-hidden",
+      Boolean(query) && !matches.includes(card),
+    ),
+  );
+  searchClear.classList.toggle("is-visible", Boolean(query));
+  searchResults.innerHTML = "";
+
+  if (!query) {
+    searchResults.classList.remove("is-visible");
+    return;
+  }
+
+  if (!matches.length) {
+    searchResults.innerHTML =
+      '<div class="search-empty">Ничего не нашли. Попробуйте «времена», «алфавит» или «Past Simple».</div>';
+  } else {
+    matches.slice(0, 5).forEach((card) => {
+      const result = document.createElement("a");
+      result.className = "search-result";
+      result.href = card.href;
+      result.setAttribute("role", "option");
+      result.innerHTML = `<img src="${card.querySelector("img").src}" alt=""><span><strong>${card.querySelector("h3").textContent}</strong><small>${card.querySelector("p").textContent}</small></span>`;
+      searchResults.appendChild(result);
+    });
+  }
+  searchResults.classList.add("is-visible");
+}
+
+if (searchInput) {
+  searchInput.addEventListener("input", () =>
+    renderSearchResults(searchInput.value),
+  );
+  searchInput.addEventListener("focus", () => {
+    if (searchInput.value) renderSearchResults(searchInput.value);
+  });
+}
+if (searchClear) {
+  searchClear.addEventListener("click", () => {
+    searchInput.value = "";
+    renderSearchResults("");
+    searchInput.focus();
+  });
+}
+document.addEventListener("click", (event) => {
+  if (!event.target.closest(".site-search"))
+    searchResults?.classList.remove("is-visible");
+});
+
+// Управление нижней лентой игр: стрелки листают её на ширину одной карточки.
+const gamesViewport = document.querySelector(".gallery-viewport");
+const gamesPrev = document.getElementById("games-prev");
+const gamesNext = document.getElementById("games-next");
+
+function moveGames(direction) {
+  if (!gamesViewport) return;
+  const card = gamesViewport.querySelector(".gallery-card");
+  const gap = 18;
+  gamesViewport.scrollBy({
+    left: direction * ((card?.offsetWidth || 246) + gap),
+    behavior: "smooth",
+  });
+}
+
+gamesPrev?.addEventListener("click", () => moveGames(-1));
+gamesNext?.addEventListener("click", () => moveGames(1));
+
+gamesViewport?.addEventListener(
+  "wheel",
+  (event) => {
+    if (
+      window.matchMedia("(hover: hover)").matches &&
+      Math.abs(event.deltaY) > Math.abs(event.deltaX)
+    ) {
+      const maxScroll = gamesViewport.scrollWidth - gamesViewport.clientWidth;
+      const nextScroll = Math.max(
+        0,
+        Math.min(maxScroll, gamesViewport.scrollLeft + event.deltaY),
+      );
+      if (nextScroll !== gamesViewport.scrollLeft) {
+        event.preventDefault();
+        gamesViewport.scrollLeft = nextScroll;
+      }
+    }
+  },
+  { passive: false },
+);
+
+// Боковые рейлы реагируют на направление и скорость прокрутки страницы.
+const sideRails = [...document.querySelectorAll(".side-rail")];
+let railTicking = false;
+let previousScrollY = window.scrollY;
+let previousScrollTime = performance.now();
+window.addEventListener(
+  "scroll",
+  () => {
+    if (railTicking) return;
+    railTicking = true;
+    requestAnimationFrame(() => {
+      const now = performance.now();
+      const currentY = window.scrollY;
+      const delta = currentY - previousScrollY;
+      const elapsed = Math.max(now - previousScrollTime, 1);
+      const energy = Math.min((Math.abs(delta) / elapsed) * 2.8, 1);
+      const drift = Math.sin(currentY / 115) * Math.min(energy * 34, 22);
+
+      sideRails.forEach((rail, index) => {
+        rail.style.setProperty("--rail-drift", `${index ? -drift : drift}px`);
+        rail.style.setProperty("--scroll-energy", energy.toFixed(2));
+        rail.style.setProperty("--scroll-direction", delta >= 0 ? "1" : "-1");
+      });
+
+      previousScrollY = currentY;
+      previousScrollTime = now;
+      railTicking = false;
+    });
+  },
+  { passive: true },
+);
+
+const gameApproach = document.querySelector(".about-card-main");
+function openGamesFromBenefit() {
+  document
+    .getElementById("games-section")
+    ?.scrollIntoView({ behavior: "smooth" });
+}
+gameApproach?.addEventListener("click", openGamesFromBenefit);
+gameApproach?.addEventListener("keydown", (event) => {
+  if (event.key === "Enter" || event.key === " ") {
+    event.preventDefault();
+    openGamesFromBenefit();
+  }
+});
+
 const burgerBtn = document.getElementById("burger-btn");
 const menuOverlay = document.getElementById("menu-overlay");
 const navLinks = document.querySelectorAll(".nav-links a");
@@ -95,6 +207,8 @@ const formatDetails = document.getElementById("format-details");
 const formatPrice = document.getElementById("format-price");
 const formatPriceDesc = document.getElementById("format-price-desc");
 const formatBtn = document.getElementById("format-btn");
+const onlineDiscount = document.getElementById("online-discount");
+let onlineDiscountActive = false;
 
 const formatData = {
   group: {
@@ -162,6 +276,11 @@ function updateComparisonContent(isIndividual) {
       formatPrice.textContent = data.price;
       formatPriceDesc.textContent = data.priceDesc;
       formatBtn.textContent = data.btnText;
+      onlineDiscount.hidden = !isIndividual;
+      onlineDiscountActive = isIndividual && onlineDiscountActive;
+      onlineDiscount.setAttribute("aria-pressed", String(onlineDiscountActive));
+      onlineDiscount.classList.toggle("is-active", onlineDiscountActive);
+      if (isIndividual && onlineDiscountActive) applyOnlineDiscount();
 
       gsap.to(comparisonCard, {
         opacity: 1,
@@ -171,6 +290,25 @@ function updateComparisonContent(isIndividual) {
     },
   });
 }
+
+function applyOnlineDiscount() {
+  formatPrice.textContent = onlineDiscountActive
+    ? "1 200 ₽ / урок"
+    : formatData.individual.price;
+  formatPriceDesc.textContent = onlineDiscountActive
+    ? "Онлайн-занятие · экономия 300 ₽ (20%)"
+    : formatData.individual.priceDesc;
+  formatDetails.textContent = onlineDiscountActive
+    ? "Онлайн-занятия из любой точки. Скидка 20% уже учтена в цене."
+    : formatData.individual.details;
+  onlineDiscount?.setAttribute("aria-pressed", String(onlineDiscountActive));
+  onlineDiscount?.classList.toggle("is-active", onlineDiscountActive);
+}
+
+onlineDiscount?.addEventListener("click", () => {
+  onlineDiscountActive = !onlineDiscountActive;
+  applyOnlineDiscount();
+});
 
 if (formatCheckbox) {
   formatCheckbox.addEventListener("change", (e) => {

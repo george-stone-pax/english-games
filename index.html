@@ -2,12 +2,13 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <!-- Добавлено ограничение масштабирования (user-scalable=no) — это уберет случайные "прыжки" и зум при свайпах на мобильном экране -->
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Игровой английский язык — платформа English OS</title>
     <meta name="description" content="Учите английский эффективно с помощью интерактивных игр и упражнений на платформе English OS.">
     <!-- Файл стилей -->
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="challenge.css">
+    <link rel="stylesheet" href="redesign.css">
     <link rel="icon" type="image/png" href="./logo.png?v=2">
     <!-- Yandex.Metrika counter -->
 <script type="text/javascript">
@@ -54,11 +55,19 @@
         <!-- ЗАТЕМНЕНИЕ ФОНА (Крутая фишка: при открытии меню задний фон сайта будет темнеть) -->
         <div class="menu-overlay" id="menu-overlay"></div>
         
+        <div class="site-search" role="search">
+            <div class="search-field">
+                <input id="game-search" type="search" autocomplete="off" placeholder="Поиск игры: тема, навык или название" aria-label="Поиск игры">
+                <button class="search-clear" id="search-clear" type="button" aria-label="Очистить поиск">×</button>
+            </div>
+            <div class="search-results" id="search-results" role="listbox" aria-label="Результаты поиска"></div>
+        </div>
+
         <div class="nav-links" id="nav-links">
-            <a href="#">Главная</a>
+            <a href="#about-section">Главная</a>
             <a href="#comparison-section">Форматы</a>
             <a href="#games-section">Игры</a>
-            <a href="#">О проекте</a>
+            <a href="#about-section">О проекте</a>
         </div>
     </nav>
 
@@ -77,10 +86,12 @@
         <source src="https://george-stone-pax.github.io/my-game-assets/dodgeball.mp3" type="audio/mpeg">
     </audio>
 <!-- СЕКЦИЯ "О НАС" (ПРЕИМУЩЕСТВА И ИНФОГРАФИКА) -->
-    <section class="about-section">
+    <section class="about-section" id="about-section">
+        <div class="side-rail side-rail-left" aria-hidden="true"><span>ENGLISH OS / 2026</span><i></i><b>01</b></div>
+        <div class="side-rail side-rail-right" aria-hidden="true"><b>PLAY</b><i></i><span>LEARN / REPEAT</span></div>
         <div class="about-container">
             <h1 class="bounce-in-top">О нашем проекте</h1>
-            <p class="section-subtitle">Новая школа английского языка на вашем районе! </h3>
+            <p class="section-subtitle">Новая школа английского языка на вашем районе! </p>
 <!-- КНОПКА-ЛЕНТА -->
 <a href="test-game/index.html" class="english-level-btn">
     <div class="scroll-container">
@@ -90,32 +101,66 @@
     </div>
 </a>
 <!-- КОНЕЦ КНОПКИ-ЛЕНТЫ -->
+            <section class="daily-quest" id="daily-quest" aria-labelledby="quest-title">
+                <div class="quest-topline">
+                    <span class="quest-live"><span></span> DAILY ENGLISH QUEST</span>
+                    <span class="quest-streak" id="quest-streak">🔥 Серия: 0 дней</span>
+                </div>
+                <div class="quest-body">
+                    <div class="quest-copy">
+                        <p class="quest-eyebrow" id="quest-date">ЗАДАНИЕ НА СЕГОДНЯ</p>
+                        <h2 id="quest-title">Проверим английский?</h2>
+                        <p class="quest-prompt" id="quest-prompt"></p>
+                    </div>
+                    <div class="quest-options" id="quest-options" role="group" aria-label="Варианты ответа"></div>
+                </div>
+                <p class="quest-feedback" id="quest-feedback" aria-live="polite"></p>
+                <div class="quest-progress"><span id="quest-progress-bar"></span></div>
+            </section>
+<!-- КОНЕЦ БЛОКА ЕЖЕДНЕВНОГО КВЕСТА -->
             <!-- Сетка преимуществ -->
+            <div class="benefits-intro">
+                <div>
+                    <p class="benefits-kicker">ПОЧЕМУ ENGLISH OS</p>
+                    <h2>Учёба, в которую хочется возвращаться</h2>
+                </div>
+                <p>Собрали всё, что помогает не просто учить слова, а действительно начать пользоваться английским каждый день.</p>
+            </div>
             <div class="about-grid">
-                <div class="about-card">
-                    <div class="about-icon">💰</div>
-                    <h3>Честная цена</h3>
-                    <p>Самая выгодная стоимость обучения на рынке с прозрачными условиями без скрытых платежей.</p>
-                </div>
-                <div class="about-card">
-                    <div class="about-icon">🎓</div>
-                    <h3>Профильное образование</h3>
-                    <p>Преподаватели исключительно с высшим педагогическим или лингвистическим образованием.</p>
-                </div>
-                <div class="about-card">
-                    <div class="about-icon">🎮</div>
+                <div class="about-card about-card-main" role="link" tabindex="0" data-href="#games-section" aria-label="Перейти к списку игр">
+                    <span class="benefit-index">01</span>
+                    <div class="about-icon">↗</div>
                     <h3>Игровой подход</h3>
-                    <p>Интерактивные веб-игры, квесты и современная геймификация для полного погружения в язык.</p>
+                    <p>Интерактивные веб-игры, квесты и современная геймификация превращают занятие в понятный челлендж.</p>
+                    <div class="benefit-meter"><span style="width: 86%"></span></div>
+                    <small>Вовлечённость на каждом занятии</small>
                 </div>
                 <div class="about-card">
-                    <div class="about-icon">🚀</div>
+                    <span class="benefit-index">02</span>
+                    <div class="about-icon">₽</div>
+                    <h3>Честная цена</h3>
+                    <p>Прозрачные условия без скрытых платежей и внезапных доплат.</p>
+                </div>
+                <div class="about-card">
+                    <span class="benefit-index">03</span>
+                    <div class="about-icon">◎</div>
+                    <h3>Профильные эксперты</h3>
+                    <p>Преподаватели с педагогическим или лингвистическим образованием.</p>
+                </div>
+                <div class="about-card">
+                    <span class="benefit-index">05</span>
+                    <div class="about-icon">✦</div>
                     <h3>Молодые эксперты</h3>
-                    <p>Энергичные специалисты, которые отлично понимают детей и подростков, имея реальный опыт работы.</p>
+                    <p>Понимаем детей и подростков и говорим с ними на одном языке.</p>
                 </div>
                 <div class="about-card about-card-wide">
-                    <div class="about-icon">📊</div>
-                    <h3>Личный дневник прогресса</h3>
-                    <p>Индивидуальный мини-дневник для каждого ученика, где родители и ребенок в реальном времени отслеживать успехи и достижения.</p>
+                    <div class="benefit-wide-copy">
+                        <span class="benefit-index">04</span>
+                        <div class="about-icon">▥</div>
+                        <h3>Личный дневник прогресса</h3>
+                        <p>Результаты, достижения и следующий шаг всегда перед глазами ученика и родителей.</p>
+                    </div>
+                    <div class="progress-orbit" aria-hidden="true"><span>↓</span><small>листать</small></div>
                 </div>
             </div>
             <!-- ========================================================================= -->
@@ -207,7 +252,8 @@
                 <div class="card-badge-row">
                     <div class="card-badge" id="format-badge">Мини-группа (2–6 человек)</div>
                     <div class="promo-badge" id="promo-badge">🔥 Скидка до конца учебного года 2026–2027</div>
-                    <div class="discount-badge" id="discount-badge" style="display: none;">🎉 Пробное занятие бесплатно!</div>
+                    <div class="promo-badge" id="discount-badge" style="display: none;">🎉 Пробное занятие бесплатно!</div>
+                    <button class="online-discount" id="online-discount" type="button" aria-pressed="false" hidden>Онлайн · скидка 20%</button>
                 </div>
                 
                 <h3 id="format-heading">Живое общение и командный драйв</h3>
@@ -307,128 +353,147 @@
 
     <!-- ГЛАВНЫЙ БЛОК С GSAP КАРУСЕЛЬЮ (ИГРЫ) -->
     <main class="gallery-container" id="games-section">
-        
+        <div class="games-heading">
+            <div>
+                <p>ИГРОВАЯ ЛАБОРАТОРИЯ</p>
+                <h2>Выбери игру и прокачай английский</h2>
+            </div>
+            <div class="gallery-controls" aria-label="Управление играми">
+                <button class="gallery-arrow" id="games-prev" type="button" aria-label="Предыдущие игры">←</button>
+                <button class="gallery-arrow" id="games-next" type="button" aria-label="Следующие игры">→</button>
+            </div>
+        </div>
         <!-- Фоновая большая надпись -->
         <div class="bg-huge-text">GAMES</div>
 
-        <!-- Трек, по которому будут ехать карточки -->
-        <div class="gallery-track">
+        <div class="gallery-viewport">
+            <div class="gallery-track">
             
             <!-- КАРТОЧКА 1 -->
-            <a href="/memory-game/" class="gallery-card">
+            <a href="/memory-game/" class="gallery-card" data-search="memory flip память перевод слова карточки vocabulary">
                 <!-- ========================================================================= -->
                 <!-- ВАЖНЫЙ КОММЕНТАРИЙ ДЛЯ ВСТАВКИ: Скриншот игры из GitHub Pages             -->
                 <!-- Вставляйте вашу ссылку на скриншот в атрибут src="" ниже                  -->
                 <!-- ========================================================================= -->
                 <img src="games_logo/Game_Memory_Logo.png" alt="Фон игры" class="card-image" width="320" height="450" loading="lazy">
                 <div class="card-info">
+                    <span class="game-label">ИГРА • ENGLISH OS</span>
                     <h3>Memory Flip</h3>
                     <p>Тренировка памяти и перевода</p>
                 </div>
             </a>
 
             <!-- КАРТОЧКА 2 -->
-            <a href="/monster-maker-game/" class="gallery-card">
+            <a href="/monster-maker-game/" class="gallery-card" data-search="monster maker монстр описание прилагательные слова">
                 <!-- ========================================================================= -->
                 <!-- ВАЖНЫЙ КОММЕНТАРИЙ ДЛЯ ВСТАВКИ: Скриншот игры из GitHub Pages             -->
                 <!-- Вставляйте вашу ссылку на скриншот в атрибут src="" ниже                  -->
                 <!-- ========================================================================= -->
                 <img src="games_logo/monster-maker_logo.png" alt="Фон игры" class="card-image" width="320" height="450" loading="lazy">
                 <div class="card-info">
+                    <span class="game-label">ИГРА • ENGLISH OS</span>
                     <h3>Monster Maker</h3>
                     <p>Нарисуй монстра правильно!</p>
                 </div>
             </a>
 
             <!-- КАРТОЧКА 3 -->
-            <a href="/conveyor-game/" class="gallery-card">
+            <a href="/conveyor-game/" class="gallery-card" data-search="past simple factory past simple вопросы грамматика">
                 <!-- ========================================================================= -->
                 <!-- ВАЖНЫЙ КОММЕНТАРИЙ ДЛЯ ВСТАВКИ: Скриншот игры из GitHub Pages             -->
                 <!-- Вставляйте вашу ссылку на скриншот в атрибут src="" ниже                  -->
                 <!-- ========================================================================= -->
                 <img src="games_logo/conveyor_logo.png" alt="Фон игры" class="card-image" width="320" height="450" loading="lazy">
                 <div class="card-info">
+                    <span class="game-label">ИГРА • ENGLISH OS</span>
                     <h3>Past Simple Factory</h3>
                     <p>Умеешь ли ты задавать вопросы в Past Simple?</p>
                 </div>
             </a>
 
             <!-- КАРТОЧКА 4 -->
-            <a href="/race-game/" class="gallery-card" width="320" height="450" loading="lazy">
+            <a href="/race-game/" class="gallery-card" data-search="race comparisons comparative superlative сравнения прилагательные">
                 <!-- ========================================================================= -->
                 <!-- ВАЖНЫЙ КОММЕНТАРИЙ ДЛЯ ВСТАВКИ: Скриншот игры из GitHub Pages             -->
                 <!-- Вставляйте вашу ссылку на скриншот в атрибут src="" ниже                  -->
                 <!-- ========================================================================= -->
                 <img src="games_logo/race-game_logo.png" alt="Фон игры" class="card-image" width="320" height="450" loading="lazy">
                 <div class="card-info">
+                    <span class="game-label">ИГРА • ENGLISH OS</span>
                     <h3>Race of Comparisons</h3>
                     <p>Слова "Superlative, Comparative" тебе о чём-нибудь говорят?</p>
+
+                    
                 </div>
             </a>
             
             <!-- КАРТОЧКА 5 -->
-            <a href="/travel-game/" class="gallery-card">
+            <a href="/travel-game/" class="gallery-card" data-search="time travelers времена времена глагола tenses путешествия">
                 <!-- ========================================================================= -->
                 <!-- ВАЖНЫЙ КОММЕНТАРИЙ ДЛЯ ВСТАВКИ: Скриншот игры из GitHub Pages             -->
                 <!-- Вставляйте вашу ссылку на скриншот в атрибут src="" ниже                  -->
                 <!-- ========================================================================= -->
                 <img src="games_logo/travel-game_logo.png" alt="Фон игры" class="card-image" width="320" height="450" loading="lazy">
                 <div class="card-info">
+                    <span class="game-label">ИГРА • ENGLISH OS</span>
                     <h3>Time Travelers</h3>
                     <p>Давайте-ка потренируемся в разных временах</p>
                 </div>
             </a>
             
             <!-- КАРТОЧКА 6 -->
-            <a href="/decalex-game/" class="gallery-card">
+            <a href="/decalex-game/" class="gallery-card" data-search="decalex собрать слово spelling лексика слова">
                 <!-- ========================================================================= -->
                 <!-- ВАЖНЫЙ КОММЕНТАРИЙ ДЛЯ ВСТАВКИ: Скриншот игры из GitHub Pages             -->
                 <!-- Вставляйте вашу ссылку на скриншот в атрибут src="" ниже                  -->
                 <!-- ========================================================================= -->
                 <img src="games_logo/decalex-game_logo.png" alt="Фон игры" class="card-image" width="320" height="450" loading="lazy">
                 <div class="card-info">
+                    <span class="game-label">ИГРА • ENGLISH OS</span>
                     <h3>Decalex - Собери слово!</h3>
                     <p>Сколько слов успеешь собрать?</p>
                 </div>
             </a>
              <!-- КАРТОЧКА 7 -->
-            <a href="/in_on_under-game/" class="gallery-card">
+            <a href="/in_on_under-game/" class="gallery-card" data-search="naughty cat in on under предлоги грамматика">
                 <!-- ========================================================================= -->
                 <!-- ВАЖНЫЙ КОММЕНТАРИЙ ДЛЯ ВСТАВКИ: Скриншот игры из GitHub Pages             -->
                 <!-- Вставляйте вашу ссылку на скриншот в атрибут src="" ниже                  -->
                 <!-- ========================================================================= -->
                 <img src="games_logo/in_on_under-game_logo.png" alt="Фон игры" class="card-image" width="320" height="450" loading="lazy">
                 <div class="card-info">
+                    <span class="game-label">ИГРА • ENGLISH OS</span>
                     <h3>Naughty Cat</h3>
                     <p>In, On или может Under?</p>
                 </div>
             </a>
             <!-- КАРТОЧКА 8 -->
-            <a href="/alphabet-game/" class="gallery-card">
+            <a href="/alphabet-game/" class="gallery-card" data-search="alphabet order алфавит буквы порядок spelling">
                 <!-- ========================================================================= -->
                 <!-- ВАЖНЫЙ КОММЕНТАРИЙ ДЛЯ ВСТАВКИ: Скриншот игры из GitHub Pages             -->
                 <!-- Вставляйте вашу ссылку на скриншот в атрибут src="" ниже                  -->
                 <!-- ========================================================================= -->
                 <img src="games_logo/alphabet-game_logo.png" alt="Фон игры" class="card-image" width="320" height="450" loading="lazy">
                 <div class="card-info">
+                    <span class="game-label">ИГРА • ENGLISH OS</span>
                     <h3>Alphabet Order</h3>
                     <p>Расставьте буквы английского алфавита в правильном порядке</p>
                 </div>
             </a>
             <!-- КАРТОЧКА 9 -->
-            <a href="/fridge-battle-game/" class="gallery-card">
+            <a href="/fridge-battle-game/" class="gallery-card" data-search="fridge battle алфавит буквы порядок spelling">
                 <!-- ========================================================================= -->
                 <!-- ВАЖНЫЙ КОММЕНТАРИЙ ДЛЯ ВСТАВКИ: Скриншот игры из GitHub Pages             -->
                 <!-- Вставляйте вашу ссылку на скриншот в атрибут src="" ниже                  -->
                 <!-- ========================================================================= -->
                 <img src="games_logo/fridge-battle_logo.png" alt="Фон игры" class="card-image" width="320" height="450" loading="lazy">
                 <div class="card-info">
+                    <span class="game-label">ИГРА • ENGLISH OS</span>
                     <h3>Fridge battle</h3>
                     <p>Расставьте буквы английского алфавита в правильном порядке</p>
                 </div>
             </a>
-
-
+            </div>
         </div>
     </main>
     <!-- ========================================================================= -->
@@ -478,6 +543,7 @@
     
     <!-- Файл с нашей логикой анимации -->
     <script src="script.js"></script>
+    <script src="challenge.js"></script>
     <!-- СЕКЦИЯ КОНТАКТОВ И ФУТЕРА -->
 <section class="footer-section">
     <div class="footer-container">
