@@ -1,0 +1,411 @@
+/* =========================================
+   БАЗОВЫЕ НАСТРОЙКИ И ПЕРЕМЕННЫЕ
+   ========================================= */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+:root {
+    /* Дефолтные значения (Главное меню) */
+    --bg-dark: #0b0c10;
+    --panel-bg: rgba(31, 40, 51, 0.85);
+    --text-primary: #e0e0e0;
+    --accent-glow: #66fcf1;
+    --accent-dark: #45a29e;
+    --magic-gold: #f4d03f;
+    --danger-red: #ff3b3b;
+    --success-green: #00e676;
+    
+    --font-title: 'Cinzel', serif;
+    --font-main: 'Metamorphous', cursive;
+}
+
+/* ДИНАМИЧЕСКИЕ ТЕМЫ ДЛЯ УРОВНЕЙ */
+body.theme-a0 {
+    --bg-dark: #141a14; --accent-glow: #81c784; --accent-dark: #2e7d32;
+    background-image: radial-gradient(circle at center, #233323 0%, #141a14 100%);
+}
+body.theme-a1 {
+    --bg-dark: #0a1118; --accent-glow: #64b5f6; --accent-dark: #1565c0;
+    background-image: radial-gradient(circle at center, #132435 0%, #0a1118 100%);
+}
+body.theme-a2 {
+    --bg-dark: #150a18; --accent-glow: #ba68c8; --accent-dark: #7b1fa2;
+    background-image: radial-gradient(circle at center, #2e1535 0%, #150a18 100%);
+}
+body.theme-b1 {
+    --bg-dark: #1a0b0b; --accent-glow: #ff8a65; --accent-dark: #d84315;
+    background-image: radial-gradient(circle at center, #351414 0%, #1a0b0b 100%);
+}
+body.theme-b2 {
+    --bg-dark: #000000; --accent-glow: #ea80fc; --accent-dark: #aa00ff;
+    background-image: radial-gradient(circle at center, #220033 0%, #000000 100%);
+}
+body.theme-c1 {
+    --bg-dark: #1a1600; --accent-glow: #ffd54f; --accent-dark: #ff8f00;
+    background-image: radial-gradient(circle at center, #332b00 0%, #1a1600 100%);
+}
+
+body {
+    background-color: var(--bg-dark);
+    background-image: radial-gradient(circle at center, #1f2833 0%, #0b0c10 100%);
+    color: var(--text-primary);
+    font-family: var(--font-main);
+    height: 100vh;
+    width: 100vw;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: background 1.5s ease, --accent-glow 1.5s ease;
+}
+
+/* =========================================
+   ЭФФЕКТЫ ПОЛУЧЕНИЯ УРОНА (1 право на ошибку)
+   ========================================= */
+#damage-overlay {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: radial-gradient(circle, transparent 20%, rgba(255, 0, 0, 0.6) 100%);
+    box-shadow: inset 0 0 100px rgba(255, 0, 0, 0.8);
+    opacity: 0;
+    pointer-events: none;
+    z-index: 9999;
+}
+
+.damage-flash #damage-overlay {
+    animation: flashRed 0.8s ease-out forwards;
+}
+
+@keyframes flashRed {
+    0% { opacity: 1; }
+    100% { opacity: 0; }
+}
+
+.screen-shake #app-container {
+    animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
+}
+
+@keyframes shake {
+    10%, 90% { transform: translate3d(-2px, 2px, 0); }
+    20%, 80% { transform: translate3d(4px, -3px, 0); }
+    30%, 50%, 70% { transform: translate3d(-6px, 4px, 0); }
+    40%, 60% { transform: translate3d(6px, -4px, 0); }
+}
+
+/* =========================================
+   ГЛАВНЫЙ КОНТЕЙНЕР
+   ========================================= */
+#app-container {
+    position: relative;
+    width: 100%;
+    max-width: 600px;
+    height: 100%;
+    max-height: 900px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    box-shadow: 0 0 50px rgba(0, 0, 0, 0.5);
+    background: rgba(0, 0, 0, 0.3);
+}
+
+.screen {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+    transition: opacity 0.6s ease;
+    opacity: 0;
+    pointer-events: none;
+    z-index: 10;
+}
+
+.screen.active {
+    opacity: 1;
+    pointer-events: auto;
+    z-index: 20;
+}
+
+.hidden { display: none !important; }
+
+/* =========================================
+   ПАНЕЛЬ УПРАВЛЕНИЯ
+   ========================================= */
+#controls-panel {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    display: flex;
+    gap: 10px;
+    z-index: 100;
+}
+
+.control-btn {
+    background: rgba(11, 12, 16, 0.6);
+    border: 1px solid var(--accent-dark);
+    color: var(--accent-glow);
+    border-radius: 50%;
+    width: 45px;
+    height: 45px;
+    font-size: 1.2rem;
+    cursor: pointer;
+    backdrop-filter: blur(5px);
+    transition: all 0.3s;
+}
+
+.control-btn:hover {
+    box-shadow: 0 0 15px var(--accent-glow);
+}
+
+.volume-control {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(11, 12, 16, 0.8);
+    padding: 5px 12px 5px 5px;
+    border-radius: 25px;
+    border: 1px solid var(--accent-dark);
+}
+
+input[type=range] {
+    width: 70px;
+    accent-color: var(--accent-glow);
+}
+
+/* =========================================
+   МЕНЮ И КНОПКИ
+   ========================================= */
+#start-screen {
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+}
+
+.title-container h1 {
+    font-family: var(--font-title);
+    font-size: 3rem;
+    color: var(--magic-gold);
+    text-shadow: 0 0 20px rgba(244, 208, 63, 0.5);
+    line-height: 1.1;
+}
+
+.title-container h2 {
+    font-family: var(--font-title);
+    color: var(--accent-glow);
+    letter-spacing: 4px;
+    margin-bottom: 2rem;
+}
+
+.magic-btn {
+    background: linear-gradient(45deg, #111, #222);
+    border: 2px solid var(--accent-dark);
+    color: var(--accent-glow);
+    font-family: var(--font-title);
+    font-size: 1.2rem;
+    padding: 15px 40px;
+    border-radius: 10px;
+    cursor: pointer;
+    text-transform: uppercase;
+    transition: all 0.3s;
+    box-shadow: 0 0 15px rgba(0,0,0,0.5);
+}
+
+.magic-btn:hover {
+    box-shadow: 0 0 25px var(--accent-glow);
+    text-shadow: 0 0 10px var(--accent-glow);
+}
+
+/* =========================================
+   ИГРОВОЙ ИНТЕРФЕЙС
+   ========================================= */
+.game-header {
+    margin-top: 60px;
+    border-bottom: 1px solid var(--accent-dark);
+    padding-bottom: 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.level-indicator {
+    text-align: center;
+    font-family: var(--font-title);
+    color: var(--accent-glow);
+    font-size: 1.3rem;
+    text-shadow: 0 0 10px var(--accent-glow);
+}
+
+.stats {
+    display: flex;
+    justify-content: space-between;
+    background: rgba(0, 0, 0, 0.6);
+    padding: 10px 15px;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.hp-bar .heart {
+    font-size: 1.4rem;
+    filter: drop-shadow(0 0 5px var(--danger-red));
+    transition: all 0.4s;
+    margin-right: 5px;
+}
+
+.hp-bar .heart.lost {
+    filter: grayscale(100%) opacity(0.3);
+    transform: scale(0.8);
+}
+
+/* Анимация таймера (15 секунд) */
+.timer {
+    color: var(--magic-gold);
+    font-weight: bold;
+    font-size: 1.1rem;
+    transition: color 0.3s;
+}
+
+.timer.warning {
+    color: var(--danger-red);
+    text-shadow: 0 0 10px var(--danger-red);
+    animation: heartbeat 0.8s infinite;
+}
+
+@keyframes heartbeat {
+    0% { transform: scale(1); }
+    25% { transform: scale(1.15); }
+    50% { transform: scale(1); }
+    75% { transform: scale(1.15); }
+    100% { transform: scale(1); }
+}
+
+.quest-area {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 15px;
+}
+
+.question-box {
+    background: var(--panel-bg);
+    border: 1px solid var(--accent-dark);
+    padding: 25px 15px;
+    border-radius: 10px;
+    text-align: center;
+    font-size: 1.3rem;
+    box-shadow: inset 0 0 20px rgba(0,0,0,0.8);
+}
+
+/* =========================================
+   СТИЛИ ДЛЯ РАЗНЫХ МЕХАНИК
+   ========================================= */
+
+/* 1. Базовые кнопки (Multiple Choice) */
+.mechanic-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 12px;
+}
+@media (min-width: 480px) {
+    .mechanic-grid { grid-template-columns: 1fr 1fr; }
+}
+.answer-btn {
+    background: rgba(0, 0, 0, 0.6);
+    border: 2px solid var(--accent-dark);
+    color: #fff;
+    padding: 15px;
+    border-radius: 8px;
+    font-family: var(--font-main);
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: 0.2s;
+}
+.answer-btn:hover { background: rgba(255,255,255,0.1); }
+.answer-btn.correct { background: var(--success-green); border-color: #fff; color: #000; }
+.answer-btn.wrong { background: var(--danger-red); border-color: #fff; color: #fff; }
+
+/* 2. Сборка предложений (Слова-блоки) */
+.mechanic-builder {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+    min-height: 50px;
+    padding: 15px;
+    border: 2px dashed var(--accent-dark);
+    border-radius: 8px;
+    background: rgba(0,0,0,0.3);
+    margin-bottom: 15px;
+}
+.word-block {
+    background: var(--accent-dark);
+    color: #fff;
+    padding: 8px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1.1rem;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.5);
+}
+
+/* 3. Ввод текста (Магический инпут) */
+.mechanic-input {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+}
+.magic-input {
+    background: transparent;
+    border: none;
+    border-bottom: 3px solid var(--accent-glow);
+    color: var(--accent-glow);
+    font-size: 1.5rem;
+    text-align: center;
+    padding: 10px;
+    width: 80%;
+    outline: none;
+    font-family: var(--font-main);
+}
+.magic-input:focus { border-bottom-color: #fff; text-shadow: 0 0 10px var(--accent-glow); }
+
+/* =========================================
+   ФИДБЕК И РЕЗУЛЬТАТЫ
+   ========================================= */
+#feedback-overlay {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(0, 0, 0, 0.95);
+    padding: 30px 50px;
+    border-radius: 10px;
+    border: 2px solid var(--magic-gold);
+    text-align: center;
+    z-index: 50;
+    box-shadow: 0 0 40px rgba(244, 208, 63, 0.4);
+}
+#feedback-overlay.success h2 { color: var(--success-green); }
+#feedback-overlay.error { border-color: var(--danger-red); box-shadow: 0 0 50px rgba(255, 0, 0, 0.5); }
+#feedback-overlay.error h2 { color: var(--danger-red); }
+
+#result-screen {
+    background: rgba(0,0,0,0.9);
+}
+.scroll-container {
+    background: #1a1a1a;
+    border: 2px solid var(--accent-dark);
+    box-shadow: 0 0 30px var(--accent-glow);
+    width: 90%; max-width: 450px;
+    padding: 30px;
+    border-radius: 10px;
+    text-align: center;
+}
+.highlight { color: var(--accent-glow); font-size: 1.5rem; display: block; margin-top: 10px; }
+.feedback-analysis {
+    margin: 20px 0; padding: 15px;
+    background: rgba(255,255,255,0.05);
+    border-radius: 8px; text-align: left;
+}
+.feedback-analysis li { margin-left: 20px; margin-bottom: 10px; color: #ccc; }

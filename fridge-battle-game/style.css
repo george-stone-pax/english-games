@@ -1,0 +1,120 @@
+@charset "UTF-8";
+
+/* ==========================================================================
+   1. ГЛОБАЛЬНЫЕ НАСТРОЙКИ И СКРОЛЛБАР
+   ========================================================================== */
+html, body {
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+}
+
+/* Компактный и аккуратный скроллбар */
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: rgba(241, 245, 249, 0.8);
+    border-radius: 8px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 8px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}
+
+/* ==========================================================================
+   2. ИГРОВОЕ ПОЛЕ И ЯЧЕЙКИ
+   ========================================================================== */
+.cell {
+    aspect-ratio: 1 / 1;
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: manipulation;
+    will-change: transform;
+}
+
+/* Эффект нажатия на ячейку */
+.cell:active {
+    transform: scale(0.96);
+}
+
+/* Пульсация ячейки при выборе костями */
+@keyframes cell-select-pulse {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.05);
+    }
+}
+
+.cell-active-pulse {
+    animation: cell-select-pulse 0.4s ease-in-out infinite;
+}
+
+/* ==========================================================================
+   3. СТИЛИЗАЦИЯ ХОЛОДИЛЬНИКА И ПОЛОК
+   ========================================================================== */
+.fridge-body {
+    box-shadow: inset 0 3px 10px rgba(0, 0, 0, 0.05);
+    /* Комментарий: Если вы захотите добавить фоновое изображение текстуры холодильника, укажите ссылку на GitHub Pages ниже */
+    /* background-image: url('https://george-stone-pax.github.io/my-game-assets/fridge-texture.png'); */
+}
+
+.fridge-shelf {
+    background-color: rgba(255, 255, 255, 0.5);
+    backdrop-filter: blur(4px);
+    border-radius: 0.75rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.shelf-items {
+    min-height: 42px;
+}
+
+/* ==========================================================================
+   4. КНОПКИ И СОСТОЯНИЯ (SETTINGS & MODALS)
+   ========================================================================== */
+.mode-btn.active,
+.size-btn.active,
+.turns-btn.active {
+    box-shadow: 0 4px 12px rgba(79, 70, 229, 0.35);
+}
+
+/* ==========================================================================
+   5. МУСОРКА (TRASH BIN)
+   ========================================================================== */
+#trash-bin {
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+#trash-bin.drag-over {
+    background-color: rgba(254, 226, 226, 0.95);
+    border-color: #ef4444;
+    transform: scale(1.08);
+}
+
+/* ==========================================================================
+   6. УВЕДОМЛЕНИЯ И АНИМАЦИИ (TOAST & FLY)
+   ========================================================================== */
+#toast {
+    will-change: transform, opacity;
+}
+
+/* Адаптивные исправления под маленькие экраны смартфонов */
+@media (max-width: 640px) {
+    .shelf-items {
+        min-height: 36px;
+    }
+
+    #game-board {
+        max-height: 72vw;
+    }
+}

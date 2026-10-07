@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<yml_catalog date="2026-10-05 14:00">
+  <shop>
+    <name>English OS — Репетиторство</name>
+    <company>Частный преподаватель / Исполнитель</company>
+    <url>https://english-os.ru</url>
+
+    <currencies>
+      <currency id="RUB" rate="1"/>
+    </currencies>
+
+    <categories>
+      <category id="1">Индивидуальные занятия</category>
+      <category id="2">Групповые занятия</category>
+    </categories>
+
+    <offers>
+      <!-- 1. Онлайн репетиторство -->
+      <offer id="tutoring-online" available="true">
+        <url>https://english-os.ru/services/online-tutoring</url>
+        <price>1200</price>
+        <currencyId>RUB</currencyId>
+        <categoryId>1</categoryId>
+        <picture>https://english-os.ru/assets/images/online-tutoring.jpg</picture>
+        <name>Онлайн репетиторство по английскому языку</name>
+        <description><![CDATA[ Персональное онлайн-обучение английскому языку. Индивидуальная программа, разговорная практика, подготовка к экзаменам и интерактивные материалы. ]]></description>
+        <param name="Формат">Онлайн</param>
+        <param name="Длительность">60 минут</param>
+        <param name="Тип занятия">Индивидуальное</param>
+        <param name="Уровень">От A1 до C1</param>
+      </offer>
+
+      <!-- 2. Очное репетиторство -->
+      <offer id="tutoring-offline" available="true">
+        <url>https://english-os.ru/services/offline-tutoring</url>
+        <price>1500</price>
+        <currencyId>RUB</currencyId>
+        <categoryId>1</categoryId>
+        <picture>https://english-os.ru/assets/images/offline-tutoring.jpg</picture>
+        <name>Очное репетиторство по английскому языку</name>
+        <description><![CDATA[ Индивидуальные очные занятия по английскому языку с преподавателем. Проработка грамматики, лексики, разговорной речи и персональный подход. ]]></description>
+        <param name="Формат">Очно</param>
+        <param name="Длительность">60 минут</param>
+        <param name="Тип занятия">Индивидуальное</param>
+        <param name="Уровень">От A1 до C1</param>
+      </offer>
+
+      <!-- 3. Групповое репетиторство -->
+      <offer id="tutoring-group" available="true">
+        <url>https://english-os.ru/services/group-tutoring</url>
+        <price>4500</price>
+        <currencyId>RUB</currencyId>
+        <categoryId>2</categoryId>
+        <picture>https://english-os.ru/assets/images/group-tutoring.jpg</picture>
+        <name>Групповое репетиторство по английскому языку</name>
+        <description><![CDATA[ Обучение английскому языку в мини-группах. Командная практика речи, интерактивные задания, систематическое усвоение материала. ]]></description>
+        <param name="Формат">Онлайн / Очно</param>
+        <param name="Тип занятия">Групповое (мини-группа)</param>
+        <param name="Периодичность/Объем">За курс / Абонемент</param>
+      </offer>
+    </offers>
+  </shop>
+</yml_catalog>

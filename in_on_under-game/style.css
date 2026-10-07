@@ -1,0 +1,199 @@
+@import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&display=swap');
+
+body {
+    font-family: 'Fredoka', sans-serif;
+    overflow: hidden;
+    /* Улучшенная адаптация под мобилки: запрет обновления страницы свайпом вниз и выделения */
+    overscroll-behavior-y: none;
+    touch-action: none; 
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
+}
+
+/* Room Styling */
+.room-bg {
+    background-color: #FFDEE9;
+    background-image: linear-gradient(0deg, #FFDEE9 0%, #B5FFFC 100%);
+    border-bottom: 15px solid #8e44ad;
+}
+
+@media (min-width: 768px) {
+    .room-bg { border-bottom-width: 20px; }
+}
+
+.floor {
+    background: #a0522d;
+    background-image: repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(0,0,0,0.05) 10px, rgba(0,0,0,0.05) 20px);
+    z-index: 5;
+}
+
+/* Game Objects */
+.game-obj {
+    position: absolute;
+    pointer-events: none; 
+    z-index: 20; 
+}
+
+/* Drop Zones */
+.drop-zone {
+    position: absolute;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    border: 3px dashed rgba(255, 255, 255, 0.6);
+    background: rgba(255, 255, 255, 0.2);
+    transform: translate(-50%, -50%);
+    transition: all 0.2s;
+    opacity: 0; 
+    pointer-events: none; 
+    z-index: 100; /* Зоны всегда сверху, чтобы было видно куда тащить */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+@media (min-width: 768px) {
+    .drop-zone {
+        width: 70px;
+        height: 70px;
+    }
+}
+
+.drop-zone::after {
+    content: '';
+    width: 10px;
+    height: 10px;
+    background: rgba(255,255,255,0.9);
+    border-radius: 50%;
+    box-shadow: 0 0 5px rgba(0,0,0,0.2);
+}
+
+@media (min-width: 768px) {
+    .drop-zone::after {
+        width: 12px;
+        height: 12px;
+    }
+}
+
+.show-zones .drop-zone {
+    opacity: 1;
+    animation: pulse-zone 2s infinite;
+}
+
+.drop-zone.hovered {
+    background: rgba(52, 211, 153, 0.5); 
+    border-color: #fff;
+    transform: translate(-50%, -50%) scale(1.15);
+    box-shadow: 0 0 20px rgba(52, 211, 153, 0.6);
+}
+
+@keyframes pulse-zone {
+    0% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.4); }
+    70% { box-shadow: 0 0 0 10px rgba(255, 255, 255, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0); }
+}
+
+/* The Draggable Cat */
+#hero-cat {
+    cursor: grab;
+    z-index: 50; /* По умолчанию перед объектами */
+    filter: drop-shadow(0 5px 10px rgba(0,0,0,0.3));
+}
+
+#hero-cat.dragging {
+    cursor: grabbing;
+    transition: none !important; 
+    z-index: 1000 !important; 
+    transform: translate(-50%, -50%) scale(1.1);
+}
+
+#hero-cat.behind-object {
+    z-index: 10 !important;
+    filter: brightness(0.8);
+    transform: translate(-50%, -50%) scale(0.95); 
+}
+
+/* UI Elements */
+.glass-panel {
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px); /* Для Safari (iOS) */
+    border: 2px solid rgba(255, 255, 255, 0.8);
+    border-radius: 1rem;
+    box-shadow: 0 8px 32px rgba(31, 38, 135, 0.15);
+}
+
+.btn-primary {
+    background: linear-gradient(45deg, #FF512F 0%, #DD2476 100%);
+    color: white;
+    transition: all 0.3s ease;
+}
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(221, 36, 118, 0.4);
+}
+
+/* Confetti keyframes */
+@keyframes pop {
+    0% { transform: scale(0); opacity: 1; }
+    100% { transform: translate(var(--tx), var(--ty)) scale(1.5); opacity: 0; }
+}
+
+.animate-bounce-in {
+    animation: bounce-in 0.5s ease-out;
+}
+@keyframes bounce-in {
+    0% { transform: scale(0); }
+    50% { transform: scale(1.2); }
+    100% { transform: scale(1); }
+}
+
+/* --- 3D & Object CSS Adjustments --- */
+
+/* 3D Box */
+.box-container {
+    perspective: 500px;
+}
+.box-front {
+    background: #d97706; /* amber-600 */
+    border: 3px solid #b45309;
+    z-index: 2;
+}
+.box-side {
+    position: absolute;
+    top: 2px;
+    right: -10px; /* Выступает вправо */
+    width: 15px;
+    height: 94%;
+    background: #b45309; /* Темная боковина */
+    transform: skewY(-15deg);
+    transform-origin: left;
+    border: 2px solid #78350f;
+    z-index: 1;
+}
+
+@media (min-width: 768px) {
+    .box-front { border-width: 4px; }
+    .box-side { right: -15px; width: 20px; }
+}
+
+/* Chair 3D-ish */
+.chair-leg { 
+    width: 4px; 
+    position: absolute; 
+    background: #374151; 
+    border-radius: 2px; 
+}
+.chair-seat { 
+    height: 10px; 
+    background: #fb923c; 
+    border-bottom: 3px solid #ea580c; 
+    border-radius: 4px; 
+    z-index: 25; 
+}
+
+@media (min-width: 768px) {
+    .chair-leg { width: 6px; }
+    .chair-seat { height: 12px; border-bottom-width: 4px; }
+}

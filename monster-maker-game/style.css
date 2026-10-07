@@ -1,0 +1,140 @@
+/* =========================================
+   Monster Maker - Custom Styles
+   ========================================= */
+
+/* Импорт веселого шрифта */
+@import url('https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&display=swap');
+
+body {
+    font-family: 'Comic Neue', cursive, sans-serif;
+    /* Отключаем обновление страницы свайпом вниз (pull-to-refresh) на мобильных */
+    overscroll-behavior-y: none; 
+}
+
+/* --- АНИМАЦИЯ КУБИКА --- */
+.dice-animation {
+    animation: diceShake 0.6s cubic-bezier(.36,.07,.19,.97) both;
+}
+
+@keyframes diceShake {
+    0% { transform: translate3d(0, 0, 0) rotate(0deg) scale(1); }
+    10%, 90% { transform: translate3d(-2px, -5px, 0) rotate(-10deg) scale(1.1); }
+    20%, 80% { transform: translate3d(4px, 5px, 0) rotate(10deg) scale(1.1); }
+    30%, 50%, 70% { transform: translate3d(-6px, -5px, 0) rotate(-15deg) scale(1.2); }
+    40%, 60% { transform: translate3d(6px, 5px, 0) rotate(15deg) scale(1.2); }
+    100% { transform: translate3d(0, 0, 0) rotate(0deg) scale(1); }
+}
+
+/* Анимация завершения игры (празднования) */
+.celebrate-animation {
+    animation: popAndSpin 1s cubic-bezier(0.175, 0.885, 0.32, 1.275) both;
+}
+
+@keyframes popAndSpin {
+    0% { transform: scale(1) rotate(0deg); }
+    50% { transform: scale(1.4) rotate(180deg); color: #facc15; }
+    100% { transform: scale(1) rotate(360deg); }
+}
+
+/* --- АКТИВНАЯ ЯЧЕЙКА (ВЫПАВШИЙ РЕЗУЛЬТАТ) --- */
+.cell-active {
+    background-color: #fef08a; /* Светло-желтый (yellow-200) */
+    border: 3px solid #eab308 !important; /* Желтый (yellow-500) */
+    border-radius: 8px;
+    transform: scale(1.1);
+    box-shadow: 0 4px 15px rgba(234, 179, 8, 0.4);
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    z-index: 10;
+    position: relative;
+    animation: cellPulse 1.5s infinite;
+}
+
+@keyframes cellPulse {
+    0% { box-shadow: 0 0 0 0 rgba(234, 179, 8, 0.6); }
+    70% { box-shadow: 0 0 0 10px rgba(234, 179, 8, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(234, 179, 8, 0); }
+}
+
+/* Адаптация ячейки для мобильных устройств (чтобы не распирало таблицу) */
+@media (max-width: 640px) {
+    .cell-active {
+        transform: scale(1.03); 
+    }
+}
+
+/* --- СТИЛИ ХОЛСТА (КАНВАСА) --- */
+canvas {
+    cursor: crosshair;
+    background-color: #ffffff;
+    /* Создаем красивую фоновую сетку (в крапинку) */
+    background-image: 
+        radial-gradient(#d1d5db 1px, transparent 1px),
+        radial-gradient(#d1d5db 1px, transparent 1px);
+    background-size: 20px 20px;
+    background-position: 0 0, 10px 10px;
+    border-radius: inherit;
+    /* ЖЕСТКАЯ БЛОКИРОВКА СКРОЛЛА ПРИ РИСОВАНИИ НА ТЕЛЕФОНЕ */
+    touch-action: none !important;
+    overscroll-behavior: none !important;
+}
+
+/* --- КАСТОМНЫЕ СКРОЛЛБАРЫ --- */
+/* Для таблицы с частями монстра */
+.parts-grid::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+.parts-grid::-webkit-scrollbar-track {
+    background: #f1f5f9;
+    border-radius: 4px;
+}
+.parts-grid::-webkit-scrollbar-thumb {
+    background: #94a3b8;
+    border-radius: 4px;
+}
+.parts-grid::-webkit-scrollbar-thumb:hover {
+    background: #64748b;
+}
+
+/* Для всей страницы и боковой панели (отключаем на мобилках для экономии места) */
+@media (min-width: 768px) {
+    ::-webkit-scrollbar {
+        width: 10px;
+    }
+    ::-webkit-scrollbar-track {
+        background: #f0fdf4;
+    }
+    ::-webkit-scrollbar-thumb {
+        background: #86efac;
+        border-radius: 5px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+        background: #4ade80;
+    }
+}
+
+/* --- КАСТОМНЫЕ INPUT RANGE (ПОЛЗУНКИ) --- */
+input[type=range] {
+    -webkit-appearance: none;
+    background: transparent;
+}
+input[type=range]:focus {
+    outline: none;
+}
+input[type=range]::-webkit-slider-runnable-track {
+    width: 100%;
+    height: 6px;
+    cursor: pointer;
+    background: #e2e8f0;
+    border-radius: 3px;
+}
+input[type=range]::-webkit-slider-thumb {
+    height: 16px;
+    width: 16px;
+    border-radius: 50%;
+    background: currentColor;
+    cursor: pointer;
+    -webkit-appearance: none;
+    margin-top: -5px; /* Выравнивание по центру */
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}

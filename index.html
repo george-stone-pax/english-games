@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <!-- Добавлено ограничение масштабирования (user-scalable=no) — это уберет случайные "прыжки" и зум при свайпах на мобильном экране -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Игровой английский язык — платформа English OS</title>
+    <meta name="description" content="Учите английский эффективно с помощью интерактивных игр и упражнений на платформе English OS.">
+    <!-- Файл стилей -->
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" type="image/png" href="./logo.png?v=2">
+    <!-- Yandex.Metrika counter -->
+<script type="text/javascript">
+    (function(m,e,t,r,i,k,a){
+        m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+        m[i].l=1*new Date();
+        for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
+        k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)
+    })(window, document,'script','https://mc.yandex.ru/metrika/tag.js?id=113352927', 'ym');
+
+    ym(113352927, 'init', {ssr:true, webvisor:true, clickmap:true, ecommerce:"dataLayer", referrer: document.referrer, url: location.href, accurateTrackBounce:true, trackLinks:true});
+</script>
+<noscript><div><img src="https://mc.yandex.ru/watch/113352927" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
+<!-- /Yandex.Metrika counter -->
+</head>
+<body>
+
+  <!-- ========================================================================= -->
+    <!-- ПЛАВАЮЩИЕ 3D-ДЮНЫ / BLOB MORPHING ПО БОКАМ САЙТА                          -->
+    <!-- ========================================================================= -->
+    <div class="blob-container" aria-hidden="true">
+        <!-- Левая сторона -->
+        <div class="blob blob-left-top"></div>
+        <div class="blob blob-left-bottom"></div>
+
+        <!-- Правая сторона -->
+        <div class="blob blob-right-top"></div>
+        <div class="blob blob-right-bottom"></div>
+    </div>
+    <!-- НАВИГАЦИЯ (Шапка сайта) -->
+    <nav id="nav">
+        <div class="logo-wrapper">
+    <img src="logo.png" alt="Логотип" class="my-logo">
+    <span class="logo-text">English OS</span>
+</div>
+        
+        <!-- КНОПКА БУРГЕР-МЕНЮ (Будет видна только на смартфонах) -->
+        <button class="burger-btn" id="burger-btn" aria-label="Открыть меню" aria-expanded="false">
+            <span class="burger-line"></span>
+            <span class="burger-line"></span>
+            <span class="burger-line"></span>
+        </button>
+
+        <!-- ЗАТЕМНЕНИЕ ФОНА (Крутая фишка: при открытии меню задний фон сайта будет темнеть) -->
+        <div class="menu-overlay" id="menu-overlay"></div>
+        
+        <div class="nav-links" id="nav-links">
+            <a href="#">Главная</a>
+            <a href="#comparison-section">Форматы</a>
+            <a href="#games-section">Игры</a>
+            <a href="#">О проекте</a>
+        </div>
+    </nav>
+
+    <!-- ЗВУКОВЫЕ ЭФФЕКТЫ И МУЗЫКА -->
+    <!-- ========================================================================= -->
+    <!-- ВАЖНЫЙ КОММЕНТАРИЙ ДЛЯ ВСТАВКИ: Ссылки на аудио из GitHub Pages           -->
+    <!-- Вы можете поменять ссылки src="" на любые другие из вашей коллекции       -->
+    <!-- ========================================================================= -->
+    <audio id="bg-music" loop>
+        <source src="https://george-stone-pax.github.io/my-game-assets/Aylex%20-%20Back%20To%20Life%20(freetouse.com).mp3" type="audio/mpeg">
+    </audio>
+    <audio id="sound-correct">
+        <source src="https://george-stone-pax.github.io/my-game-assets/rightanswer-95219.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="sound-wrong">
+        <source src="https://george-stone-pax.github.io/my-game-assets/dodgeball.mp3" type="audio/mpeg">
+    </audio>
+<!-- СЕКЦИЯ "О НАС" (ПРЕИМУЩЕСТВА И ИНФОГРАФИКА) -->
+    <section class="about-section">
+        <div class="about-container">
+            <h1 class="bounce-in-top">О нашем проекте</h1>
+            <p class="section-subtitle">Новая школа английского языка на вашем районе! </h3>
+<!-- КНОПКА-ЛЕНТА -->
+<a href="test-game/index.html" class="english-level-btn">
+    <div class="scroll-container">
+        <div class="scroll-content">
+            Узнать свой уровень английского языка бесплатно 🎓 • Узнать свой уровень английского языка бесплатно 🎁 • Узнать свой уровень английского языка бесплатно 🎮 • Узнать свой уровень английского языка бесплатно 🎓 • Узнать свой уровень английского языка бесплатно 🎁 • Узнать свой уровень английского языка бесплатно 🎮 • 
+        </div>
+    </div>
+</a>
+<!-- КОНЕЦ КНОПКИ-ЛЕНТЫ -->
+            <!-- Сетка преимуществ -->
+            <div class="about-grid">
+                <div class="about-card">
+                    <div class="about-icon">💰</div>
+                    <h3>Честная цена</h3>
+                    <p>Самая выгодная стоимость обучения на рынке с прозрачными условиями без скрытых платежей.</p>
+                </div>
+                <div class="about-card">
+                    <div class="about-icon">🎓</div>
+                    <h3>Профильное образование</h3>
+                    <p>Преподаватели исключительно с высшим педагогическим или лингвистическим образованием.</p>
+                </div>
+                <div class="about-card">
+                    <div class="about-icon">🎮</div>
+                    <h3>Игровой подход</h3>
+                    <p>Интерактивные веб-игры, квесты и современная геймификация для полного погружения в язык.</p>
+                </div>
+                <div class="about-card">
+                    <div class="about-icon">🚀</div>
+                    <h3>Молодые эксперты</h3>
+                    <p>Энергичные специалисты, которые отлично понимают детей и подростков, имея реальный опыт работы.</p>
+                </div>
+                <div class="about-card about-card-wide">
+                    <div class="about-icon">📊</div>
+                    <h3>Личный дневник прогресса</h3>
+                    <p>Индивидуальный мини-дневник для каждого ученика, где родители и ребенок в реальном времени отслеживать успехи и достижения.</p>
+                </div>
+            </div>
+            <!-- ========================================================================= -->
+            <!-- 3D-ИНТЕРАКТИВНАЯ КНИГА: ЛИЧНЫЙ ДНЕВНИК ПРОГРЕССА                          -->
+            <!-- ========================================================================= -->
+            <div class="diary-book-wrapper">
+                <div class="book-controls">
+                    <button id="book-prev-btn" class="book-nav-btn" aria-label="Предыдущая страница">‹</button>
+                    <span id="page-counter" class="page-counter">Обложка (0 / 3)</span>
+                    <button id="book-next-btn" class="book-nav-btn" aria-label="Следующая страница">›</button>
+                </div>
+
+                <div class="book" id="diary-book">
+                    <!-- ЛИСТ 1: Обложка -> Разворот 1 (Слева) -->
+                    <div class="paper" id="p1">
+                        <div class="front">
+                            <div class="page-content">
+                                <!-- Передняя обложка -->
+                                <img src="Book1.1.jpg" alt="Обложка" class="book-img" width="320" height="440">
+                                <div class="book-badge-tag">Нажмите, чтобы открыть 📖</div>
+                            </div>
+                        </div>
+                        <div class="back">
+                            <div class="page-content">
+                                <!-- Разворот 1 (Слева) -->
+                                <img src="StudentID_beginner-class.png" alt="Разворот 1 Слева" class="book-img" width="320" height="440">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ЛИСТ 2: Разворот 1 (Справа) -> Разворот 2 (Слева) -->
+                    <div class="paper" id="p2">
+                        <div class="front">
+                            <div class="page-content">
+                                <!-- Разворот 1 (Справа) -->
+                                <img src="book2R.png" alt="Разворот 1 Справа" class="book-img" width="320" height="440">
+                            </div>
+                        </div>
+                        <div class="back">
+                            <div class="page-content">
+                                <!-- Разворот 2 (Слева) -->
+                                <img src="book2L.png" alt="Разворот 2 Слева" class="book-img" width="320" height="440">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ЛИСТ 3: Разворот 2 (Справа) -> Задняя обложка -->
+                    <div class="paper" id="p3">
+                        <div class="front">
+                            <div class="page-content">
+                                <!-- Разворот 2 (Справа) -->
+                                <img src="book3R.jpg" alt="Разворот 2 Справа" class="book-img" width="320" height="440">
+                            </div>
+                        </div>
+                        <div class="back">
+                            <div class="page-content">
+                                <!-- Задняя обложка -->
+                                <img src="Book41.png" alt="Задняя обложка" class="book-img" width="320" height="440">
+                                <!-- Блок с анимированным текстом поверх обложки -->
+                                <div class="typewriter-card">
+                                    <span class="typewriter-icon">✨</span>
+                                    <p class="typewriter-text" id="typewriter-text"></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- СЕКЦИЯ СРАВНЕНИЯ ФОРМАТОВ (ПЕРЕНЕСЕНА ПЕРЕД ИГРАМИ) -->
+    <section class="comparison-section" id="comparison-section">
+        <div class="comparison-container">
+            <h2 class="comparison-title">Выбери свой формат обучения</h2>
+            <p class="comparison-subtitle">Сравните преимущества, расписание и динамику, чтобы определиться до звонка</p>
+
+            <!-- Блок с вашим тумблером -->
+            <div class="toggle-switch-wrapper">
+                <span class="format-label-text">Мини-группа</span>
+                <div class="container">
+                    <input type="checkbox" id="checkbox">
+                    <label for="checkbox" class="label" id="format-toggle-label"></label>
+                </div>
+                <span class="format-label-text">Индивидуально</span>
+            </div>
+
+            <!-- Карточка с динамическим контентом -->
+            <div class="comparison-card" id="comparison-card">
+                <div class="card-badge-row">
+                    <div class="card-badge" id="format-badge">Мини-группа (2–6 человек)</div>
+                    <div class="promo-badge" id="promo-badge">🔥 Скидка до конца учебного года 2026–2027</div>
+                    <div class="discount-badge" id="discount-badge" style="display: none;">🎉 Пробное занятие бесплатно!</div>
+                </div>
+                
+                <h3 id="format-heading">Живое общение и командный драйв</h3>
+                
+                <div class="comparison-grid">
+                    <div class="comp-item">
+                        <span class="comp-icon">🚀</span>
+                        <div>
+                            <h4>Динамика занятий</h4>
+                            <p id="format-dynamics">Интерактивные игры, парная работа, здоровая соревновательная атмосфера и преодоление языкового барьера.</p>
+                        </div>
+                    </div>
+                    <div class="comp-item">
+                        <span class="comp-icon">📅</span>
+                        <div>
+                            <h4>Расписание</h4>
+                            <p id="format-schedule">Фиксированные дни и время (2 раза в неделю по 60 минут), которые дисциплинируют.</p>
+                        </div>
+                    </div>
+                    <div class="comp-item">
+                        <span class="comp-icon">⭐</span>
+                        <div>
+                            <h4>Главные плюсы</h4>
+                            <p id="format-pros">Доступная стоимость, постоянная разговорная практика с другими студентами, совместные проекты.</p>
+                        </div>
+                    </div>
+                    <div class="comp-item">
+                        <span class="comp-icon">💎</span>
+                        <div>
+                            <h4>Объем и детали</h4>
+                            <p id="format-details">Около 9 занятий в месяц. Выгодное предложение действительно до конца учебного года 2026–2027.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Нижняя панель с ценой и кнопкой -->
+                <div class="card-footer-pricing">
+                    <div class="pricing-info">
+                        <span class="price-value" id="format-price">4 500 ₽ / месяц</span>
+                        <span class="price-desc" id="format-price-desc">(~500 ₽ за 1 занятие)</span>
+                    </div>
+                    <a href="#cta" class="price-action-btn" id="format-btn">Записаться в мини-группу</a>
+                </div>
+            </div>
+        </div>
+    </section>
+<!-- СЕКЦИЯ С КАРТОЙ (ГДЕ МЫ НАХОДИМСЯ) -->
+    <section class="location-section" id="location-section">
+        <div class="location-container">
+            <h2 class="location-title">Где мы находимся</h2>
+            <p class="location-subtitle">Ждём вас на очных занятиях в нашей уютной студии</p>
+
+            <div class="location-card">
+                <!-- Информационная колонка -->
+                <div class="location-info">
+                    <div class="loc-item">
+                        <span class="loc-icon">📍</span>
+                        <div>
+                            <h4>Адрес студии</h4>
+                            <!-- Замените на ваш точный адрес -->
+                            <p>г. Москва, 2-я Карачаровская улица, 8</p>
+                        </div>
+                    </div>
+                    
+                    <div class="loc-item">
+                        <span class="loc-icon">🚇</span>
+                        <div>
+                            <h4>Ближайшее метро</h4>
+                            <p>10-15 минут пешком от станций Нижегородская, Стахановская, Чухлинка, Перово, Андроновка</p>
+                        </div>
+                    </div>
+
+                    <div class="loc-item">
+                        <span class="loc-icon">⏰</span>
+                        <div>
+                            <h4>Режим работы</h4>
+                            <p>Пн – Пт: с 15:00 до 21:00<br>Сб: с 9:00 до 16:00  <br>Вс: выходной</p>
+                        </div>
+                    </div>
+
+                    <div class="loc-item">
+                        <span class="loc-icon">📞</span>
+                        <div>
+                            <h4>Связь</h4>
+                            <p>+7 (916) 596-33-00</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Контейнер для встроенной интерактивной карты -->
+                <div class="location-map-wrapper">
+                 <iframe src="https://yandex.ru/map-widget/v1/?um=constructor%3A8a305eb9230fd429e24cfb0da396bef3a4eee8ff819bdf041ddb3446b4b363dd&amp;source=constructor" width="600" height="450" frameborder="0"></iframe>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ГЛАВНЫЙ БЛОК С GSAP КАРУСЕЛЬЮ (ИГРЫ) -->
+    <main class="gallery-container" id="games-section">
+        
+        <!-- Фоновая большая надпись -->
+        <div class="bg-huge-text">GAMES</div>
+
+        <!-- Трек, по которому будут ехать карточки -->
+        <div class="gallery-track">
+            
+            <!-- КАРТОЧКА 1 -->
+            <a href="/memory-game/" class="gallery-card">
+                <!-- ========================================================================= -->
+                <!-- ВАЖНЫЙ КОММЕНТАРИЙ ДЛЯ ВСТАВКИ: Скриншот игры из GitHub Pages             -->
+                <!-- Вставляйте вашу ссылку на скриншот в атрибут src="" ниже                  -->
+                <!-- ========================================================================= -->
+                <img src="games_logo/Game_Memory_Logo.png" alt="Фон игры" class="card-image" width="320" height="450" loading="lazy">
+                <div class="card-info">
+                    <h3>Memory Flip</h3>
+                    <p>Тренировка памяти и перевода</p>
+                </div>
+            </a>
+
+            <!-- КАРТОЧКА 2 -->
+            <a href="/monster-maker-game/" class="gallery-card">
+                <!-- ========================================================================= -->
+                <!-- ВАЖНЫЙ КОММЕНТАРИЙ ДЛЯ ВСТАВКИ: Скриншот игры из GitHub Pages             -->
+                <!-- Вставляйте вашу ссылку на скриншот в атрибут src="" ниже                  -->
+                <!-- ========================================================================= -->
+                <img src="games_logo/monster-maker_logo.png" alt="Фон игры" class="card-image" width="320" height="450" loading="lazy">
+                <div class="card-info">
+                    <h3>Monster Maker</h3>
+                    <p>Нарисуй монстра правильно!</p>
+                </div>
+            </a>
+
+            <!-- КАРТОЧКА 3 -->
+            <a href="/conveyor-game/" class="gallery-card">
+                <!-- ========================================================================= -->
+                <!-- ВАЖНЫЙ КОММЕНТАРИЙ ДЛЯ ВСТАВКИ: Скриншот игры из GitHub Pages             -->
+                <!-- Вставляйте вашу ссылку на скриншот в атрибут src="" ниже                  -->
+                <!-- ========================================================================= -->
+                <img src="games_logo/conveyor_logo.png" alt="Фон игры" class="card-image" width="320" height="450" loading="lazy">
+                <div class="card-info">
+                    <h3>Past Simple Factory</h3>
+                    <p>Умеешь ли ты задавать вопросы в Past Simple?</p>
+                </div>
+            </a>
+
+            <!-- КАРТОЧКА 4 -->
+            <a href="/race-game/" class="gallery-card" width="320" height="450" loading="lazy">
+                <!-- ========================================================================= -->
+                <!-- ВАЖНЫЙ КОММЕНТАРИЙ ДЛЯ ВСТАВКИ: Скриншот игры из GitHub Pages             -->
+                <!-- Вставляйте вашу ссылку на скриншот в атрибут src="" ниже                  -->
+                <!-- ========================================================================= -->
+                <img src="games_logo/race-game_logo.png" alt="Фон игры" class="card-image" width="320" height="450" loading="lazy">
+                <div class="card-info">
+                    <h3>Race of Comparisons</h3>
+                    <p>Слова "Superlative, Comparative" тебе о чём-нибудь говорят?</p>
+                </div>
+            </a>
+            
+            <!-- КАРТОЧКА 5 -->
+            <a href="/travel-game/" class="gallery-card">
+                <!-- ========================================================================= -->
+                <!-- ВАЖНЫЙ КОММЕНТАРИЙ ДЛЯ ВСТАВКИ: Скриншот игры из GitHub Pages             -->
+                <!-- Вставляйте вашу ссылку на скриншот в атрибут src="" ниже                  -->
+                <!-- ========================================================================= -->
+                <img src="games_logo/travel-game_logo.png" alt="Фон игры" class="card-image" width="320" height="450" loading="lazy">
+                <div class="card-info">
+                    <h3>Time Travelers</h3>
+                    <p>Давайте-ка потренируемся в разных временах</p>
+                </div>
+            </a>
+            
+            <!-- КАРТОЧКА 6 -->
+            <a href="/decalex-game/" class="gallery-card">
+                <!-- ========================================================================= -->
+                <!-- ВАЖНЫЙ КОММЕНТАРИЙ ДЛЯ ВСТАВКИ: Скриншот игры из GitHub Pages             -->
+                <!-- Вставляйте вашу ссылку на скриншот в атрибут src="" ниже                  -->
+                <!-- ========================================================================= -->
+                <img src="games_logo/decalex-game_logo.png" alt="Фон игры" class="card-image" width="320" height="450" loading="lazy">
+                <div class="card-info">
+                    <h3>Decalex - Собери слово!</h3>
+                    <p>Сколько слов успеешь собрать?</p>
+                </div>
+            </a>
+             <!-- КАРТОЧКА 7 -->
+            <a href="/in_on_under-game/" class="gallery-card">
+                <!-- ========================================================================= -->
+                <!-- ВАЖНЫЙ КОММЕНТАРИЙ ДЛЯ ВСТАВКИ: Скриншот игры из GitHub Pages             -->
+                <!-- Вставляйте вашу ссылку на скриншот в атрибут src="" ниже                  -->
+                <!-- ========================================================================= -->
+                <img src="games_logo/in_on_under-game_logo.png" alt="Фон игры" class="card-image" width="320" height="450" loading="lazy">
+                <div class="card-info">
+                    <h3>Naughty Cat</h3>
+                    <p>In, On или может Under?</p>
+                </div>
+            </a>
+            <!-- КАРТОЧКА 8 -->
+            <a href="/alphabet-game/" class="gallery-card">
+                <!-- ========================================================================= -->
+                <!-- ВАЖНЫЙ КОММЕНТАРИЙ ДЛЯ ВСТАВКИ: Скриншот игры из GitHub Pages             -->
+                <!-- Вставляйте вашу ссылку на скриншот в атрибут src="" ниже                  -->
+                <!-- ========================================================================= -->
+                <img src="games_logo/alphabet-game_logo.png" alt="Фон игры" class="card-image" width="320" height="450" loading="lazy">
+                <div class="card-info">
+                    <h3>Alphabet Order</h3>
+                    <p>Расставьте буквы английского алфавита в правильном порядке</p>
+                </div>
+            </a>
+            <!-- КАРТОЧКА 9 -->
+            <a href="/fridge-battle-game/" class="gallery-card">
+                <!-- ========================================================================= -->
+                <!-- ВАЖНЫЙ КОММЕНТАРИЙ ДЛЯ ВСТАВКИ: Скриншот игры из GitHub Pages             -->
+                <!-- Вставляйте вашу ссылку на скриншот в атрибут src="" ниже                  -->
+                <!-- ========================================================================= -->
+                <img src="games_logo/fridge-battle_logo.png" alt="Фон игры" class="card-image" width="320" height="450" loading="lazy">
+                <div class="card-info">
+                    <h3>Fridge battle</h3>
+                    <p>Расставьте буквы английского алфавита в правильном порядке</p>
+                </div>
+            </a>
+
+
+        </div>
+    </main>
+    <!-- ========================================================================= -->
+    <!-- МОДАЛЬНОЕ ОКНО ДЛЯ ЗАПИСИ (ФОРМА ТЕЛЕГРАМ)                                -->
+    <!-- ========================================================================= -->
+    <div id="booking-modal" class="modal-overlay">
+        <div class="modal-content">
+            <button class="modal-close-btn" id="close-modal-btn">&times;</button>
+            <h2 class="modal-title">Запись на обучение</h2>
+            <p class="modal-subtitle">Оставьте данные, и мы свяжемся с вами!</p>
+            
+            <!-- Форма без action и method, отправкой управляет JavaScript -->
+            <form id="booking-form">
+                <div class="form-group">
+                    <label for="name">Ваше имя *</label>
+                    <input type="text" id="name" name="name" required placeholder="Иван Иванов">
+                </div>
+                
+                <div class="form-group">
+                    <label for="contact">Телефон или Telegram *</label>
+                    <input type="text" id="contact" name="contact" required placeholder="+7 (999) 000-00-00 или @username">
+                </div>
+                
+                <div class="form-group">
+                    <label for="plan">Формат обучения</label>
+                    <select id="plan" name="plan">
+                        <option value="Мини-группа">Мини-группа</option>
+                        <option value="Индивидуально">Индивидуально</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="comment">Комментарий (необязательно)</label>
+                    <textarea id="comment" name="comment" placeholder="Ваш уровень, класс или пожелания"></textarea>
+                </div>
+                
+                <button type="submit" class="submit-btn" id="submit-btn">Отправить заявку</button>
+                
+                <!-- Место для сообщения об успехе или ошибке -->
+                <div id="form-status" class="form-status"></div>
+            </form>
+        </div>
+    </div>
+        <!-- ПОДКЛЮЧЕНИЕ БИБЛИОТЕК АНИМАЦИИ -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+    
+    <!-- Файл с нашей логикой анимации -->
+    <script src="script.js"></script>
+    <!-- СЕКЦИЯ КОНТАКТОВ И ФУТЕРА -->
+<section class="footer-section">
+    <div class="footer-container">
+        
+        <div class="footer-grid">
+            
+            <!-- Левая колонка: Контакты -->
+            <div class="footer-col">
+                <h3 class="footer-heading">КОНТАКТЫ</h3>
+                
+                <div class="footer-contact-item">
+                    <span class="footer-icon">📞</span>
+                    <div>
+                        <p>+7 (916) 596-33-00 - Павел</p>
+                    </div>
+                </div>
+
+                <div class="footer-contact-item">
+                    <span class="footer-icon">✉️</span>
+                    <p>kadoshnikovpasha@ya.ru</p>
+                </div>
+
+                <div class="footer-logo-block">
+                    <img src="logo.png" alt="English OS" class="footer-logo">
+                    <span class="footer-brand">English OS</span>
+                </div>
+            </div>
+
+            <!-- Средняя колонка: Адрес и График работы -->
+            <div class="footer-col">
+                <h3 class="footer-heading">АДРЕС</h3>
+                
+                <div class="footer-contact-item">
+                    <span class="footer-icon">📍</span>
+                    <div>
+                        <h4>Москва (м. Нижегородская)</h4>
+                        <p>г. Москва, 2-я Карачаровская улица, 8</p>
+                    </div>
+                </div>
+
+                <div class="footer-schedule" style="margin-top: 25px;">
+                    <h4>ГРАФИК РАБОТЫ</h4>
+                    <p><span>ПН-ПТ</span> 9:00 - 20:00</p>
+                    <p><span>СБ</span> 9:00 - 16:00</p>
+                    <p><span>ВС</span> Выходной</p>
+                </div>
+            </div>
+
+            <!-- Правая колонка: 3 кнопки связи с мессенджерами -->
+            <div class="footer-col">
+                <h3 class="footer-heading">СВЯЗАТЬСЯ С НАМИ</h3>
+                <p class="footer-text-note" style="margin-bottom: 20px;">
+                    Выберите удобный мессенджер, чтобы задать вопрос или записаться:
+                </p>
+
+                <div class="messenger-buttons-stack">
+    <a href="https://t.me/Kadoshnikov22" target="_blank" class="messenger-btn tg-btn">
+        <img src="telegram_logo.png" alt="Telegram" class="messenger-icon"> 
+        <span>Написать в Telegram</span>
+    </a>
+    <a href="https://vk.com/aeeeaeeeee" target="_blank" class="messenger-btn vk-btn">
+        <img src="vk_logo.png" alt="VK" class="messenger-icon"> 
+        <span>Написать в VK</span>
+    </a>
+    <a href="https://max.ru/u/f9LHodD0cOK9blOwqdL-1vrAg2Lm1I4Ul5pFcWErlucNf5tXYpcydbrAbDE" target="_blank" class="messenger-btn max-btn">
+        <img src="max_logo.png" alt="Max" class="messenger-icon"> 
+        <span>Написать в Max</span>
+    </a>
+</div>
+            </div>
+
+        </div>
+
+        <!-- Нижняя копирайт-линия -->
+        <div class="footer-bottom">
+            <p>Все права защищены. Данный сайт носит исключительно информационный характер и не является публичной офертой.</p>
+            <p>© 2026 Студия английского языка «English OS». Все права защищены.</p>
+        </div>
+
+    </div>
+</section>
+</body>
+</html>

@@ -1,0 +1,114 @@
+/* style.css - The Time Traveler 3.0 Ultimate Edition */
+
+/* -------------------------------------------------------
+   [НАСТРОЙКА ФОНОВОЙ КАРТИНКИ]
+   Вставьте URL вашей картинки внутри url('...').
+   Пример: background-image: url('https://english-os.ru/assets/bg.jpg');
+   ------------------------------------------------------- */
+body {
+    background-image: none; /* Замените 'none' на url('ваша_ссылка') */
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    background-repeat: no-repeat;
+    /* Убираем синее выделение при тапе на мобильных устройствах */
+    -webkit-tap-highlight-color: transparent; 
+}
+
+/* Кастомный скроллбар для внутренних блоков (например, списка времен) */
+.custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+    background: rgba(241, 245, 249, 0.5);
+    border-radius: 10px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background-color: rgba(148, 163, 184, 0.5); 
+    border-radius: 10px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(100, 116, 139, 0.8);
+}
+
+/* Скрытие основного скроллбара страницы для чистого UI */
+body::-webkit-scrollbar {
+    display: none;
+}
+body {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+/* -------------------------------------------------------
+   [3D ПЕРСПЕКТИВА И ТРАНСФОРМАЦИИ]
+   Подготовка для Three.js и продвинутых CSS эффектов
+   ------------------------------------------------------- */
+.perspective-1000 {
+    perspective: 1000px;
+}
+.preserve-3d {
+    transform-style: preserve-3d;
+}
+.backface-hidden {
+    backface-visibility: hidden;
+}
+
+/* -------------------------------------------------------
+   [КАСТОМНЫЕ АНИМАЦИИ]
+   ------------------------------------------------------- */
+@keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
+}
+.animate-float {
+    animation: float 3s ease-in-out infinite;
+}
+
+@keyframes fade-in-up {
+    from { 
+        opacity: 0; 
+        transform: translateY(15px); 
+    }
+    to { 
+        opacity: 1; 
+        transform: translateY(0); 
+    }
+}
+.animate-fade-in-up {
+    animation: fade-in-up 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* -------------------------------------------------------
+   [СТИЛИ КАРТЫ И ЯЧЕЕК]
+   ------------------------------------------------------- */
+.cell-transition {
+    /* Плавный отскок при наведении */
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.cell-hover-effect:hover {
+    transform: scale(1.08) translateY(-5px);
+    z-index: 20;
+}
+
+/* Специфичные стили для Golden Map (Свечение и глубина) */
+.golden-glow {
+    box-shadow: 0 0 20px rgba(251, 191, 36, 0.6), inset 0 0 15px rgba(255, 255, 255, 0.7);
+}
+.golden-text-shadow {
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3), 0 0 15px rgba(251, 191, 36, 0.8);
+}
+
+/* -------------------------------------------------------
+   [АДАПТАЦИЯ ПОД МОБИЛЬНЫЕ УСТРОЙСТВА]
+   Учет "челки" (notch) и безопасных зон на смартфонах
+   ------------------------------------------------------- */
+@supports (padding-bottom: env(safe-area-inset-bottom)) {
+    #controls-bar {
+        padding-bottom: calc(1rem + env(safe-area-inset-bottom));
+    }
+    #app-body {
+        padding-bottom: calc(8rem + env(safe-area-inset-bottom));
+    }
+}

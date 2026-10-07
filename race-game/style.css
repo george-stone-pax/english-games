@@ -1,0 +1,187 @@
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Roboto:wght@400;700&display=swap');
+
+:root {
+    --neon-blue: #00f3ff;
+    --neon-pink: #ff00ff;
+    --neon-green: #0aff00;
+    --dark-bg: #050510;
+    --glass-bg: rgba(5, 5, 16, 0.85);
+    --glass-border: rgba(0, 243, 255, 0.3);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
+body { background-color: #000; font-family: 'Roboto', sans-serif; color: white; display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; touch-action: none; }
+
+#game-container {
+    width: 100vw; height: 100vh; max-width: 1200px; max-height: 800px; position: relative;
+    background: linear-gradient(to bottom, #0b0b2a 0%, #4a1a4a 50%, #000 50%);
+    border: 2px solid var(--neon-blue); box-shadow: 0 0 40px rgba(0, 243, 255, 0.2); border-radius: 12px; overflow: hidden;
+}
+#game-container.fullscreen-active { max-width: 100vw; max-height: 100vh; border: none; border-radius: 0; }
+
+/* === ОКРУЖЕНИЕ === */
+.sky { position: absolute; top: 0; left: 0; width: 100%; height: 50%; background: radial-gradient(circle at center bottom, rgba(255,0,255,0.6), transparent 70%); z-index: 1; }
+
+/* СОЛНЦЕ ПОДНЯТО */
+.sun {
+    position: absolute;
+    bottom: 35%; /* Существенно поднято над горизонтом */
+    left: 50%;
+    transform: translateX(-50%);
+    width: 35vh; height: 35vh; max-width: 250px; max-height: 250px;
+    background: linear-gradient(to top, var(--neon-pink) 0%, #ffcc00 100%);
+    border-radius: 50%; box-shadow: 0 0 80px var(--neon-pink);
+    clip-path: polygon(0 0, 100% 0, 100% 55%, 0 55%, 0 60%, 100% 60%, 100% 65%, 0 65%, 0 70%, 100% 70%, 100% 100%, 0 100%);
+}
+
+.mountains { position: absolute; bottom: 0; width: 100%; height: 12vh; background: linear-gradient(to top, #000, transparent), repeating-linear-gradient(90deg, var(--neon-blue) 0, transparent 2px, transparent 40px, var(--neon-blue) 42px); background-size: 100% 100%, 42px 100%; clip-path: polygon(0% 100%, 10% 30%, 20% 100%, 35% 15%, 50% 100%, 65% 20%, 80% 100%, 90% 40%, 100% 100%); opacity: 0.4; z-index: 2; }
+
+/* === ПРОСТАЯ И НАДЕЖНАЯ ДОРОГА === */
+/* Общий контейнер: задает 3D-перспективу сразу для всех слоев внутри */
+#road-container {
+    position: absolute;
+    bottom: 0;
+    left: -50%;
+    width: 200%;
+    height: 200vh; 
+    transform-origin: bottom center;
+    transform: perspective(300px) rotateX(25deg);
+    z-index: 10;
+}
+
+/* Слой 1: Поверхность и горизонтальные бегущие линии */
+.road-surface {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #111;
+    background-image: linear-gradient(0deg, transparent 90%, rgba(0, 243, 255, 0.5) 100%);
+    background-size: 100% 100px;
+    animation: roadMove 1s linear infinite;
+}
+
+/* Слой 2: Продольные (вертикальные) линии */
+.road-lines {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    /* linear-gradient убран, линии рисуются ниже */
+}
+
+/* Общие стили для обеих линий */
+.road-lines::before,
+.road-lines::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    width: 2%; /* Толщина линий */
+    height: 100%; /* Запас высоты (при наклоне линия визуально становится короче) */
+    background-color: var(--neon-blue, #00f3ff);
+    transform-origin: bottom center;
+    box-shadow: 0 0 15px var(--neon-blue, #00f3ff); /* Неоновое свечение */
+}
+
+/* Левая линия */
+.road-lines::before {
+    left: 42%; /* Положение на нижнем краю экрана */
+    transform: rotate(5deg); /* Наклон вправо (к центру) */
+}
+
+/* Правая линия */
+.road-lines::after {
+    right: 42%; /* Положение на нижнем краю экрана */
+    transform: rotate(-5deg); /* Наклон влево (к центру) */
+}
+
+@keyframes roadMove {
+    from { background-position: 0 0; }
+    to { background-position: 0 100px; }
+}
+
+/* === HUD === */
+#hud { position: absolute; top: 0; left: 0; width: 100%; padding: 20px; display: flex; justify-content: space-between; align-items: flex-start; z-index: 100; font-family: 'Orbitron', sans-serif; pointer-events: none; }
+.hud-left, .hud-right { display: flex; flex-direction: column; gap: 10px; pointer-events: auto; }
+.hud-right { align-items: flex-end; }
+.rank-box, .score-box, .speedometer { background: rgba(0, 0, 0, 0.6); padding: 10px 15px; border-left: 3px solid var(--neon-blue); border-radius: 0 5px 5px 0; color: white; text-shadow: 0 0 5px var(--neon-blue); font-size: 14px; }
+.hud-right .speedometer { border-left: none; border-right: 3px solid var(--neon-pink); border-radius: 5px 0 0 5px; }
+.rank-big, #speed-val { font-size: 24px; font-weight: 900; }
+.progress-container { flex-grow: 1; margin: 0 30px; height: 12px; background: rgba(255, 255, 255, 0.1); border: 1px solid var(--neon-blue); border-radius: 10px; overflow: hidden; box-shadow: 0 0 10px rgba(0,243,255,0.2); }
+.progress-bar { height: 100%; width: 0%; background: linear-gradient(90deg, var(--neon-blue), var(--neon-pink)); box-shadow: 0 0 15px var(--neon-pink); transition: width 0.5s ease-out; }
+
+/* === МАШИНЫ === */
+.car-sprite { position: absolute; left: 50%; transform: translateX(-50%); width: 25vw; max-width: 250px; min-width: 150px; z-index: 20; transform-origin: bottom center; transition: transform 0.3s ease-out, left 0.5s ease-out; }
+.car-image { width: 100%; display: block; filter: drop-shadow(0px 10px 10px rgba(0, 0, 0, 0.9)); }
+#player-car { z-index: 30; bottom: 5%; }
+#enemy-car { width: 45vw; 
+    max-width: 450px;bottom: 50%; transform: translateX(-50%) scale(0.01); opacity: 0; z-index: 20; }
+.flame-container { position: absolute; bottom: 15px; left: 50%; transform: translateX(-50%); width: 100%; height: 40px; z-index: -1; }
+.flame { position: absolute; bottom: 0; width: 15%; height: 100%; background: linear-gradient(to top, #fff, #0aff00, transparent); clip-path: polygon(50% 100%, 0 0, 100% 0); display: none; animation: flicker 0.1s infinite alternate; filter: drop-shadow(0 0 10px var(--neon-green)); }
+@keyframes flicker { 0% { transform: scaleY(1); opacity: 0.8; } 100% { transform: scaleY(1.4); opacity: 1; } }
+
+#feedback-text { position: absolute; top: 30%; left: 50%; transform: translate(-50%, -50%); font-size: 8vw; font-weight: 900; font-family: 'Orbitron', sans-serif; text-transform: uppercase; text-shadow: 4px 4px 0 #000, 0 0 20px currentColor; z-index: 250; display: none; pointer-events: none; }
+
+/* === ЭКРАНЫ === */
+.screen { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: var(--glass-bg); backdrop-filter: blur(8px); z-index: 300; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 20px; }
+h1, h2, h3 { font-family: 'Orbitron', sans-serif; }
+h2 { color: var(--neon-blue); text-shadow: 0 0 10px var(--neon-blue); margin-bottom: 30px; font-size: 28px; }
+#final-grade {
+    text-align: center;
+    line-height: 1.4;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+    margin-top: 20px; /* Чтобы отделить от текста "Точность:" */
+}
+.glitch-title { font-size: 10vw; max-font-size: 80px; color: white; position: relative; margin-bottom: 40px; text-shadow: 0 0 20px var(--neon-pink); }
+.menu-btn-container { display: flex; flex-direction: column; gap: 20px; width: 100%; max-width: 350px; }
+.big-btn { padding: 15px 30px; font-size: 18px; background: rgba(0,0,0,0.6); border: 2px solid var(--neon-blue); color: var(--neon-blue); font-family: 'Orbitron', sans-serif; font-weight: 700; cursor: pointer; text-transform: uppercase; border-radius: 5px; transition: all 0.2s; }
+.big-btn:hover { background: var(--neon-blue); color: #000; box-shadow: 0 0 20px var(--neon-blue); }
+.pulse { animation: pulseGlow 1.5s infinite; }
+@keyframes pulseGlow { 0%, 100% { box-shadow: 0 0 10px var(--neon-green); border-color: var(--neon-green); color: var(--neon-green); } 50% { box-shadow: 0 0 30px var(--neon-green); border-color: #fff; color: #fff; } }
+.icon-btn { background: rgba(0,0,0,0.5); border: 1px solid var(--neon-blue); color: white; font-size: 20px; padding: 8px 12px; border-radius: 5px; cursor: pointer; }
+.small-btn { background: transparent; border: 1px solid rgba(255,255,255,0.3); color: #aaa; padding: 8px 15px; border-radius: 5px; cursor: pointer; font-family: 'Orbitron', sans-serif; }
+
+/* === НАСТРОЙКИ, ТЕОРИЯ, ВОПРОСЫ === */
+.settings-content, .theory-content { background: rgba(0,0,0,0.6); padding: 25px; border-radius: 10px; border: 1px solid var(--glass-border); margin-bottom: 20px; width: 100%; max-width: 500px; text-align: left; }
+.theory-content { max-width: 800px; overflow-y: auto; }
+.settings-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid rgba(0, 243, 255, 0.1); padding-bottom: 15px; font-family: 'Roboto', sans-serif; }
+.cyber-input, .cyber-select { background: rgba(0,0,0,0.8); border: 1px solid var(--neon-blue); color: #fff; padding: 8px 10px; font-family: 'Orbitron', sans-serif; border-radius: 5px; }
+.theory-table { width: 100%; border-collapse: collapse; background: rgba(255,255,255,0.05); }
+.theory-table th, .theory-table td { border: 1px solid rgba(0,243,255,0.2); padding: 10px; text-align: center; }
+
+#question-overlay { position: absolute; top: 25%; left: 50%; transform: translateX(-50%); width: 90%; max-width: 600px; background: rgba(5,5,15,0.95); border: 2px solid var(--neon-blue); border-radius: 15px; padding: 20px; z-index: 200; box-shadow: 0 10px 30px rgba(0,0,0,0.8); }
+.question-header { width: 100%; height: 6px; background: #222; margin-bottom: 15px; border-radius: 3px; overflow: hidden; }
+#timer-bar { height: 100%; width: 100%; background: var(--neon-green); transition: width 0.1s linear; }
+#q-text { font-size: 20px; margin-bottom: 25px; color: #fff; font-weight: 700; text-align: center; }
+.options-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+.opt-btn { background: rgba(0,50,100,0.3); border: 1px solid rgba(0,243,255,0.5); color: white; padding: 15px; font-family: 'Orbitron', sans-serif; cursor: pointer; border-radius: 5px; }
+.opt-btn:hover { background: rgba(0,243,255,0.2); border-color: var(--neon-blue); }
+
+.briefing-card { background: rgba(0,0,0,0.5); border: 1px solid var(--neon-pink); padding: 20px; border-radius: 10px; margin: 30px 0; font-size: 18px; }
+.text-green { color: var(--neon-green); font-weight: bold; } .text-red { color: #ff003c; font-weight: bold; }
+.shake-screen { animation: shake 0.4s both; }
+@keyframes shake { 10%, 90% { transform: translate3d(-2px, 0, 0); } 20%, 80% { transform: translate3d(4px, 0, 0); } 30%, 50%, 70% { transform: translate3d(-6px, 0, 0); } 40%, 60% { transform: translate3d(6px, 0, 0); } }
+#fireworks { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 350; display: none; }
+
+/* === АДАПТИВНОСТЬ ДЛЯ ТЕЛЕФОНОВ === */
+@media (max-width: 768px) {
+    #game-container { border: none; border-radius: 0; max-width: 100vw; max-height: 100vh; }
+    .glitch-title { font-size: 40px; margin-bottom: 20px; }
+    
+    #hud { flex-wrap: wrap; padding: 10px; }
+    .progress-container { width: 100%; margin: 0 0 15px 0; order: -1; height: 8px; }
+    .hud-left, .hud-right { width: 48%; gap: 8px; }
+    .hud-right { align-items: flex-end; }
+    .rank-box, .score-box, .speedometer { padding: 6px 10px; font-size: 12px; }
+    
+    .car-sprite { width: 150px; }
+    #player-car { bottom: 6%; } /* Поднято, чтобы не обрезалось низом телефона */
+    
+    #question-overlay { top: 25%; width: 95%; padding: 15px; } /* Опущено под HUD */
+    #q-text { font-size: 16px; margin-bottom: 15px; }
+    .options-grid { gap: 10px; }
+    .opt-btn { padding: 12px; font-size: 12px; }
+}
+@media (max-width: 480px) { .options-grid { grid-template-columns: 1fr; } }
