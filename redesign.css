@@ -267,13 +267,15 @@ nav#nav {
 .about-card::after { content: ""; position: absolute; width: 120px; height: 120px; right: -38px; bottom: -42px; border: 1px solid rgba(109,169,66,.22); border-radius: 50%; box-shadow: 0 0 0 14px rgba(183,237,104,.08), 0 0 0 28px rgba(183,237,104,.05); }
 .about-card:hover { transform: translateY(-7px); border-color: var(--lime-deep); box-shadow: 0 22px 38px rgba(35,68,42,.12); }
 .about-card-main { grid-row: span 2; min-height: 410px; color: #fff; background: var(--navy); border-color: var(--navy); }
-.about-card-main h3, .about-card-main p { color: #fff; }
+.about-card-main h3 {
+    color: #ffffff !important;
+}
 .about-card-main p { color: rgba(255,255,255,.7); }
 .about-card-main::before { content: "LEVEL UP"; position: absolute; right: -20px; top: 64px; color: rgba(183,237,104,.1); font-size: 62px; font-weight: 900; letter-spacing: -5px; transform: rotate(90deg); }
 .about-card-wide { display: flex; align-items: center; justify-content: space-between; grid-column: span 2; min-height: 170px; background: var(--mint); }
 .about-icon { display: grid; place-items: center; width: 44px; height: 44px; margin-bottom: 34px; border-radius: 11px; color: var(--lime-deep); font-size: 22px; font-weight: 800; }
 .about-card-main .about-icon { color: var(--navy); background: var(--lime); }
-.benefit-index { position: absolute; top: 22px; right: 23px; color: #a9b8a7; font-size: 11px; font-weight: 800; letter-spacing: 1px; }
+.benefit-index { position: absolute; top: 22px; right: 23px; color: #f7f9f7; font-size: 11px; font-weight: 800; letter-spacing: 1px; }
 .about-card h3 { position: relative; z-index: 1; margin: 0 0 9px; color: var(--ink); font-size: 21px; letter-spacing: -.4px; }
 .about-card p { position: relative; z-index: 1; max-width: 330px; margin: 0; color: var(--muted); font-size: 14px; line-height: 1.55; }
 .benefit-meter { position: relative; z-index: 1; height: 5px; margin-top: 66px; overflow: hidden; background: rgba(255,255,255,.16); border-radius: 5px; }
@@ -327,4 +329,82 @@ nav#nav {
 @media (max-width: 700px) {
     .gallery-card { flex-basis: 250px; width: 250px; height: 370px; min-height: 370px; }
 }
+/* =========================================
+   ФОТОГРАФИИ ЭКСПЕРТОВ В КАРТОЧКЕ 05 (4:5)
+   ========================================= */
+.about-card-teachers {
+    display: flex;
+    flex-direction: column;
+}
 
+.teachers-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-top: 18px;
+}
+
+.teacher-card {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 4 / 5; /* Фиксированный формат 4:5 */
+    border-radius: 12px;
+    overflow: hidden;
+    cursor: pointer;
+    background: #eaf3e8;
+    transition: transform 0.35s cubic-bezier(0.25, 0.8, 0.25, 1), box-shadow 0.35s ease;
+}
+
+.teacher-card:hover {
+    transform: translateY(-2px);
+}
+
+/* Состояние при клике (увеличение и появление яркого фото) */
+.teacher-card.is-active {
+    transform: scale(1.08);
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.2);
+    z-index: 5;
+}
+
+.teacher-img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: opacity 0.4s ease;
+}
+
+.teacher-img.reveal-img {
+    opacity: 0;
+}
+
+.teacher-card.is-active .teacher-img.shadow-img {
+    opacity: 0;
+}
+
+.teacher-card.is-active .teacher-img.reveal-img {
+    opacity: 1;
+}
+/* =========================================
+   ЯРКО-ЗЕЛЕНАЯ СТРЕЛКА (УВЕЛИЧЕННАЯ И СДВИНУТАЯ ВНИЗ)
+   ========================================= */
+.progress-orbit .orbit-arrow {
+    width: 42px !important;       /* Увеличиваем размер стрелки */
+    height: 42px !important;
+    stroke: #4e9a62 !important;   /* Насыщенный ярко-зеленый цвет */
+    margin-top: 0px;             /* Сдвигаем стрелку чуть ниже внутри круга */
+    filter: drop-shadow(0 0 6px rgba(78, 154, 98, 0.8)) drop-shadow(0 0 12px rgba(109, 169, 66, 0.6)); /* Неоновое зелёное свечение */
+    animation: orbit-arrow-pulse 1.8s ease-in-out infinite alternate;
+}
+
+@keyframes orbit-arrow-pulse {
+    0% {
+        transform: translateY(0);
+        filter: drop-shadow(0 0 4px rgba(78, 154, 98, 0.7));
+    }
+    100% {
+        transform: translateY(6px); /* Плавный сдвиг при покачивании вниз */
+        filter: drop-shadow(0 0 10px rgba(109, 169, 66, 1));
+    }
+}

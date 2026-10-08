@@ -127,6 +127,7 @@
                 <p>Собрали всё, что помогает не просто учить слова, а действительно начать пользоваться английским каждый день.</p>
             </div>
             <div class="about-grid">
+                <!-- 01. Игровой подход (Левая колонка, карточка во всю высоту) -->
                 <div class="about-card about-card-main" role="link" tabindex="0" data-href="#games-section" aria-label="Перейти к списку игр">
                     <span class="benefit-index">01</span>
                     <div class="about-icon">↗</div>
@@ -135,24 +136,24 @@
                     <div class="benefit-meter"><span style="width: 86%"></span></div>
                     <small>Вовлечённость на каждом занятии</small>
                 </div>
+
+                <!-- 02. Честная цена (Верхний ряд, средняя колонка) -->
                 <div class="about-card">
                     <span class="benefit-index">02</span>
                     <div class="about-icon">₽</div>
                     <h3>Честная цена</h3>
                     <p>Прозрачные условия без скрытых платежей и внезапных доплат.</p>
                 </div>
+
+                <!-- 03. Профильные эксперты (Верхний ряд, правая колонка) -->
                 <div class="about-card">
                     <span class="benefit-index">03</span>
                     <div class="about-icon">◎</div>
                     <h3>Профильные эксперты</h3>
                     <p>Преподаватели с педагогическим или лингвистическим образованием.</p>
                 </div>
-                <div class="about-card">
-                    <span class="benefit-index">05</span>
-                    <div class="about-icon">✦</div>
-                    <h3>Молодые эксперты</h3>
-                    <p>Понимаем детей и подростков и говорим с ними на одном языке.</p>
-                </div>
+
+                <!-- 04. Личный дневник прогресса (Перемещён на место Молодых экспертов, широкая карточка) -->
                 <div class="about-card about-card-wide">
                     <div class="benefit-wide-copy">
                         <span class="benefit-index">04</span>
@@ -160,76 +161,96 @@
                         <h3>Личный дневник прогресса</h3>
                         <p>Результаты, достижения и следующий шаг всегда перед глазами ученика и родителей.</p>
                     </div>
-                    <div class="progress-orbit" aria-hidden="true"><span>↓</span><small>листать</small></div>
-                </div>
-            </div>
-            <!-- ========================================================================= -->
-            <!-- 3D-ИНТЕРАКТИВНАЯ КНИГА: ЛИЧНЫЙ ДНЕВНИК ПРОГРЕССА                          -->
-            <!-- ========================================================================= -->
-            <div class="diary-book-wrapper">
-                <div class="book-controls">
-                    <button id="book-prev-btn" class="book-nav-btn" aria-label="Предыдущая страница">‹</button>
-                    <span id="page-counter" class="page-counter">Обложка (0 / 3)</span>
-                    <button id="book-next-btn" class="book-nav-btn" aria-label="Следующая страница">›</button>
+                    <div class="progress-orbit" aria-hidden="true"><div class="progress-orbit" aria-hidden="true">
+    <svg class="orbit-arrow" viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 4v14M19 13l-7 7-7-7"/>
+    </svg>
+    
+</div></div>
                 </div>
 
-                <div class="book" id="diary-book">
-                    <!-- ЛИСТ 1: Обложка -> Разворот 1 (Слева) -->
-                    <div class="paper" id="p1">
-                        <div class="front">
-                            <div class="page-content">
-                                <!-- Передняя обложка -->
-                                <img src="Book1.1.jpg" alt="Обложка" class="book-img" width="320" height="440">
-                                <div class="book-badge-tag">Нажмите, чтобы открыть 📖</div>
-                            </div>
-                        </div>
-                        <div class="back">
-                            <div class="page-content">
-                                <!-- Разворот 1 (Слева) -->
-                                <img src="StudentID_beginner-class.png" alt="Разворот 1 Слева" class="book-img" width="320" height="440">
-                            </div>
-                        </div>
+                <!-- 05. Молодые эксперты (Перемещены в левый нижний угол, строго под Игровым подходом) -->
+                <div class="about-card about-card-teachers">
+    <span class="benefit-index">05</span>
+    <div class="about-icon">✦</div>
+    <h3>Молодые эксперты</h3>
+    <p>Понимаем детей и подростков и говорим с ними на одном языке.</p>
+
+    <!-- Сетка с фотографиями экспертов -->
+    <div class="teachers-grid">
+        <!-- Эксперт 1 -->
+        <div class="teacher-card" onclick="this.classList.toggle('is-active')">
+            <img src="just-photos/teacher1-shadow.jpg" alt="Эксперт 1" class="teacher-img shadow-img">
+            <img src="just-photos/teacher1.png" alt="Эксперт 1" class="teacher-img reveal-img">
+        </div>
+
+        <!-- Эксперт 2 -->
+        <div class="teacher-card" onclick="this.classList.toggle('is-active')">
+            <img src="just-photos/teacher2-shadow.jpg" alt="Эксперт 2" class="teacher-img shadow-img">
+            <img src="just-photos/teacher2.jpg" alt="Эксперт 2" class="teacher-img reveal-img">
+        </div>
+    </div>
+</div>
+
+                <!-- 06. 3D-книга (Перемещена внутрь сетки, строго под Личным дневником прогресса) -->
+                <div class="diary-book-wrapper">
+                    <div class="book-controls">
+                        <button id="book-prev-btn" class="book-nav-btn" aria-label="Предыдущая страница">‹</button>
+                        <span id="page-counter" class="page-counter">Обложка (0 / 3)</span>
+                        <button id="book-next-btn" class="book-nav-btn" aria-label="Следующая страница">›</button>
                     </div>
 
-                    <!-- ЛИСТ 2: Разворот 1 (Справа) -> Разворот 2 (Слева) -->
-                    <div class="paper" id="p2">
-                        <div class="front">
-                            <div class="page-content">
-                                <!-- Разворот 1 (Справа) -->
-                                <img src="book2R.png" alt="Разворот 1 Справа" class="book-img" width="320" height="440">
+                    <div class="book" id="diary-book">
+                        <!-- ЛИСТ 1 -->
+                        <div class="paper" id="p1">
+                            <div class="front">
+                                <div class="page-content">
+                                    <img src="Book1.1.jpg" alt="Обложка" class="book-img" width="320" height="440">
+                                    <div class="book-badge-tag">Нажмите, чтобы открыть 📖</div>
+                                </div>
+                            </div>
+                            <div class="back">
+                                <div class="page-content">
+                                    <img src="StudentID_beginner-class.png" alt="Разворот 1 Слева" class="book-img" width="320" height="440">
+                                </div>
                             </div>
                         </div>
-                        <div class="back">
-                            <div class="page-content">
-                                <!-- Разворот 2 (Слева) -->
-                                <img src="book2L.png" alt="Разворот 2 Слева" class="book-img" width="320" height="440">
-                            </div>
-                        </div>
-                    </div>
 
-                    <!-- ЛИСТ 3: Разворот 2 (Справа) -> Задняя обложка -->
-                    <div class="paper" id="p3">
-                        <div class="front">
-                            <div class="page-content">
-                                <!-- Разворот 2 (Справа) -->
-                                <img src="book3R.jpg" alt="Разворот 2 Справа" class="book-img" width="320" height="440">
+                        <!-- ЛИСТ 2 -->
+                        <div class="paper" id="p2">
+                            <div class="front">
+                                <div class="page-content">
+                                    <img src="book2R.png" alt="Разворот 1 Справа" class="book-img" width="320" height="440">
+                                </div>
+                            </div>
+                            <div class="back">
+                                <div class="page-content">
+                                    <img src="book2L.png" alt="Разворот 2 Слева" class="book-img" width="320" height="440">
+                                </div>
                             </div>
                         </div>
-                        <div class="back">
-                            <div class="page-content">
-                                <!-- Задняя обложка -->
-                                <img src="Book41.png" alt="Задняя обложка" class="book-img" width="320" height="440">
-                                <!-- Блок с анимированным текстом поверх обложки -->
-                                <div class="typewriter-card">
-                                    <span class="typewriter-icon">✨</span>
-                                    <p class="typewriter-text" id="typewriter-text"></p>
+
+                        <!-- ЛИСТ 3 -->
+                        <div class="paper" id="p3">
+                            <div class="front">
+                                <div class="page-content">
+                                    <img src="book3R.jpg" alt="Разворот 2 Справа" class="book-img" width="320" height="440">
+                                </div>
+                            </div>
+                            <div class="back">
+                                <div class="page-content">
+                                    <img src="Book41.png" alt="Задняя обложка" class="book-img" width="320" height="440">
+                                    <div class="typewriter-card">
+                                        <span class="typewriter-icon">✨</span>
+                                        <p class="typewriter-text" id="typewriter-text"></p>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
+            
     </section>
     <!-- СЕКЦИЯ СРАВНЕНИЯ ФОРМАТОВ (ПЕРЕНЕСЕНА ПЕРЕД ИГРАМИ) -->
     <section class="comparison-section" id="comparison-section">
