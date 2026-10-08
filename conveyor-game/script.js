@@ -135,6 +135,10 @@ let conveyor,
 let draggedObject = null;
 let dragPlane = new THREE.Plane();
 let planeIntersect = new THREE.Vector3();
+// Переменные для распознавания клика/тапа и возврата коробок
+let pointerDownTime = 0;
+let pointerDownPos = { x: 0, y: 0 };
+let wasInZoneOnDown = null;
 
 // --- ЭЛЕМЕНТЫ ИНТЕРФЕЙСА ---
 const messageEl = document.getElementById("message");
@@ -265,25 +269,33 @@ function init() {
 }
 
 // Адаптация положения камеры под телефон/планшет/ПК
+// Адаптация положения и угла обзора камеры под экраны смартфонов, планшетов и ПК
 function adjustCameraForScreen() {
   const aspect = window.innerWidth / window.innerHeight;
   camera.aspect = aspect;
 
-  if (aspect < 0.75) {
-    // Узкие экраны смартфонов в вертикальном режиме
+  if (aspect < 0.55) {
+    // Узкие экраны смартфонов: приближаем камеру и фокус
     camera.fov = 68;
-    camera.position.set(0, 68, 62);
+    camera.position.set(0, 48, 44);
+    camera.lookAt(0, 12, 0);
+  } else if (aspect < 0.75) {
+    // Обычные смартфоны в вертикальном режиме
+    camera.fov = 62;
+    camera.position.set(0, 52, 48);
+    camera.lookAt(0, 11, 0);
   } else if (aspect < 1.2) {
-    // Планшеты или квадратные экраны
+    // Планшеты
     camera.fov = 58;
     camera.position.set(0, 58, 52);
+    camera.lookAt(0, 10, 0);
   } else {
-    // Горизонтальные экраны (ПК, планшет альбомом)
+    // ПК
     camera.fov = 50;
     camera.position.set(0, 50, 45);
+    camera.lookAt(0, 10, 0);
   }
 
-  camera.lookAt(0, 10, 0);
   camera.updateProjectionMatrix();
 }
 
@@ -331,7 +343,12 @@ function createDropZones(numZones) {
   });
   dropZones = [];
 
-  const zoneSpacing = 18;
+  const aspect = window.innerWidth / window.innerHeight;
+  // Динамически уменьшаем шаг между ячейками, если экран узкий или предложению нужно много слов
+  let zoneSpacing = 18;
+  if (aspect < 0.75) {
+    zoneSpacing = Math.min(14.5, 85 / Math.max(numZones - 1, 1));
+  }
   const zoneSize = 7.5;
 
   for (let i = 0; i < numZones; i++) {
@@ -372,7 +389,7 @@ function createDropZones(numZones) {
   }
 }
 
-function createWordBox(word, position) {
+function createWordBox(word, position, boxSize = 4.0) {
   const wordCanvas = document.createElement("canvas");
   const wordCtx = wordCanvas.getContext("2d");
   wordCanvas.width = 256;
@@ -409,7 +426,6 @@ function createWordBox(word, position) {
     textMaterial,
   ];
 
-  const boxSize = 4.0;
   const boxGeometry = new THREE.BoxGeometry(boxSize, boxSize, boxSize);
   const box = new THREE.Mesh(boxGeometry, materials);
 
@@ -419,6 +435,7 @@ function createWordBox(word, position) {
 
   box.userData.isWordBox = true;
   box.userData.word = word;
+  box.userData.boxSize = boxSize; // Сохраняем размер коробки
   box.userData.originalPosition = position.clone();
   box.userData.targetPosition = null;
   box.userData.targetRotation = null;
@@ -453,16 +470,53 @@ function loadSentence() {
 
   createDropZones(numWords);
 
-  const spacing = 8.0;
-  const startX = -((numWords - 1) * spacing) / 2;
+  const aspect = window.innerWidth / window.innerHeight;
 
-  for (let i = 0; i < numWords; i++) {
-    const pos = new THREE.Vector3(
-      startX + i * spacing,
-      24,
-      25 + (Math.random() * 2 - 1),
-    );
-    createWordBox(words[i], pos);
+  if (aspect < 0.75) {
+    // --- КРУПНАЯ ДВУХРЯДНАЯ РАСКЛАДКА ДЛЯ СМАРТФОНОВ ---
+    const boxSize = 5; // Увеличенные коробки
+    const itemsPerRow = Math.ceil(numWords / 2);
+    const spacingX = 6.0; // Интервал между коробками
+
+    // Позиции рядов по высоте (Y) и глубине (Z)
+    const rows = [
+      { z: 18, y: 14 }, // Верхний ряд
+      { z: 24, y: 9 }, // Нижний ряд (крупно на переднем плане)
+    ];
+
+    for (let i = 0; i < numWords; i++) {
+      const rowIndex = Math.floor(i / itemsPerRow);
+      const colIndex = i % itemsPerRow;
+
+      const countInThisRow =
+        rowIndex === 0 ? itemsPerRow : numWords - itemsPerRow;
+
+      const startX = -((countInThisRow - 1) * spacingX) / 2;
+      const posX = startX + colIndex * spacingX;
+      const rowConfig = rows[rowIndex] || rows[1];
+
+      const pos = new THREE.Vector3(
+        posX,
+        rowConfig.y,
+        rowConfig.z + (Math.random() * 0.4 - 0.2),
+      );
+
+      createWordBox(words[i], pos, boxSize);
+    }
+  } else {
+    // --- ОДНОРЯДНАЯ РАСКЛАДКА ДЛЯ ПК И ПЛАНШЕТОВ ---
+    const boxSize = 4.0;
+    const spacing = 8.0;
+    const startX = -((numWords - 1) * spacing) / 2;
+
+    for (let i = 0; i < numWords; i++) {
+      const pos = new THREE.Vector3(
+        startX + i * spacing,
+        24,
+        25 + (Math.random() * 2 - 1),
+      );
+      createWordBox(words[i], pos, boxSize);
+    }
   }
 }
 
@@ -479,6 +533,12 @@ function loadNextSentence() {
 
 // --- УЛУЧШЕННОЕ ПЕРЕТАСКИВАНИЕ ДЛЯ МОБИЛЬНЫХ ЭКРАНОВ ---
 function onPointerDown(event) {
+  if (event.target && event.target.setPointerCapture) {
+    try {
+      event.target.setPointerCapture(event.pointerId);
+    } catch (e) {}
+  }
+
   updateMouse(event);
   raycaster.setFromCamera(mouse, camera);
   const intersects = raycaster.intersectObjects(wordBoxes);
@@ -486,11 +546,17 @@ function onPointerDown(event) {
   if (intersects.length > 0) {
     draggedObject = intersects[0].object;
 
+    // Фиксируем время и координаты нажатия для определения короткого тапа
+    pointerDownTime = Date.now();
+    pointerDownPos = { x: event.clientX, y: event.clientY };
+
+    // Проверяем, стояла ли коробка на конвейере
+    wasInZoneOnDown = findZoneWithBox(draggedObject);
+
     if (draggedObject.parent === dropZonesGroup) {
       scene.attach(draggedObject);
     }
 
-    // Позиционируем плоскость перетаскивания параллельно камере
     const camDir = new THREE.Vector3();
     camera.getWorldDirection(camDir);
     dragPlane.setFromNormalAndCoplanarPoint(
@@ -500,7 +566,7 @@ function onPointerDown(event) {
 
     draggedObject.userData.targetPosition = new THREE.Vector3(
       draggedObject.position.x,
-      draggedObject.position.y + 4, // Слегка приподнимаем коробку
+      draggedObject.position.y + 3,
       draggedObject.position.z,
     );
 
@@ -510,8 +576,9 @@ function onPointerDown(event) {
       Math.random() * 0.2 - 0.1,
     );
 
-    const zone = findZoneWithBox(draggedObject);
-    if (zone) zone.userData.occupiedBy = null;
+    if (wasInZoneOnDown) {
+      wasInZoneOnDown.userData.occupiedBy = null;
+    }
   }
 }
 
@@ -526,47 +593,97 @@ function onPointerMove(event) {
   }
 }
 
-function onPointerUp() {
+function onPointerUp(event) {
+  if (event && event.target && event.target.releasePointerCapture) {
+    try {
+      event.target.releasePointerCapture(event.pointerId);
+    } catch (e) {}
+  }
+
   if (draggedObject) {
-    let closestZone = null;
-    let minDistance = Infinity;
-    // Увеличенный порог магнита для удобства на смартфонах
-    const magnetThreshold = 18.0;
+    // Вычисляем смещение и время клика
+    const moveDist = Math.hypot(
+      event.clientX - pointerDownPos.x,
+      event.clientY - pointerDownPos.y,
+    );
+    const isTap = moveDist < 12 && Date.now() - pointerDownTime < 300;
 
-    const draggedPos = new THREE.Vector3();
-    draggedObject.getWorldPosition(draggedPos);
+    if (isTap) {
+      // --- РЕЖИМ БЫСТРОГО ТАПА / КЛИКА ---
+      if (wasInZoneOnDown) {
+        // 1. Если коробка стояла на платформе — при клике ВОЗВРАЩАЕМ её на место внизу
+        draggedObject.userData.targetPosition =
+          draggedObject.userData.originalPosition.clone();
+        draggedObject.userData.targetRotation = new THREE.Euler(0, 0, 0);
+      } else {
+        // 2. Если коробка стояла внизу — при клике АВТОМАТИЧЕСКИ ставим в первый свободный слот
+        const firstEmptyZone = dropZones
+          .slice()
+          .sort((a, b) => a.userData.index - b.userData.index)
+          .find((z) => !z.userData.occupiedBy);
 
-    dropZones.forEach((zone) => {
-      if (!zone.userData.occupiedBy) {
-        const zoneWorldPos = new THREE.Vector3();
-        zone.getWorldPosition(zoneWorldPos);
-        const distance = draggedPos.distanceTo(zoneWorldPos);
-
-        if (distance < minDistance && distance < magnetThreshold) {
-          minDistance = distance;
-          closestZone = zone;
+        if (firstEmptyZone) {
+          dropZonesGroup.attach(draggedObject);
+          const boxSize = draggedObject.userData.boxSize || 4.0;
+          const boxY = firstEmptyZone.position.y + boxSize / 2;
+          draggedObject.userData.targetPosition = firstEmptyZone.position
+            .clone()
+            .setY(boxY);
+          draggedObject.userData.targetRotation = new THREE.Euler(0, 0, 0);
+          firstEmptyZone.userData.occupiedBy = draggedObject;
+        } else {
+          draggedObject.userData.targetPosition =
+            draggedObject.userData.originalPosition.clone();
+          draggedObject.userData.targetRotation = new THREE.Euler(0, 0, 0);
         }
       }
-    });
-
-    if (closestZone) {
-      dropZonesGroup.attach(draggedObject);
-      const boxY = closestZone.position.y + 4.0 / 2;
-      draggedObject.userData.targetPosition = closestZone.position
-        .clone()
-        .setY(boxY);
-      draggedObject.userData.targetRotation = new THREE.Euler(0, 0, 0);
-      closestZone.userData.occupiedBy = draggedObject;
     } else {
-      draggedObject.userData.targetPosition =
-        draggedObject.userData.originalPosition.clone();
-      draggedObject.userData.targetRotation = new THREE.Euler(0, 0, 0);
+      // --- РЕЖИМ ПЕРЕТАСКИВАНИЯ (DRAG & DROP) ---
+      let closestZone = null;
+      let minDistance = Infinity;
+      const magnetThreshold = 22.0;
+
+      const draggedPos = new THREE.Vector3();
+      draggedObject.getWorldPosition(draggedPos);
+
+      dropZones.forEach((zone) => {
+        if (!zone.userData.occupiedBy) {
+          const zoneWorldPos = new THREE.Vector3();
+          zone.getWorldPosition(zoneWorldPos);
+
+          const dx = draggedPos.x - zoneWorldPos.x;
+          const dy = (draggedPos.y - zoneWorldPos.y) * 0.5;
+          const dz = draggedPos.z - zoneWorldPos.z;
+          const distance = Math.sqrt(dx * dx + dy * dy + dz * dz);
+
+          if (distance < minDistance && distance < magnetThreshold) {
+            minDistance = distance;
+            closestZone = zone;
+          }
+        }
+      });
+
+      if (closestZone) {
+        dropZonesGroup.attach(draggedObject);
+        const boxSize = draggedObject.userData.boxSize || 4.0;
+        const boxY = closestZone.position.y + boxSize / 2;
+        draggedObject.userData.targetPosition = closestZone.position
+          .clone()
+          .setY(boxY);
+        draggedObject.userData.targetRotation = new THREE.Euler(0, 0, 0);
+        closestZone.userData.occupiedBy = draggedObject;
+      } else {
+        // 3. При перетаскивании мимо платформ — возвращаем на исходное место
+        draggedObject.userData.targetPosition =
+          draggedObject.userData.originalPosition.clone();
+        draggedObject.userData.targetRotation = new THREE.Euler(0, 0, 0);
+      }
     }
 
     draggedObject = null;
+    wasInZoneOnDown = null;
   }
 }
-
 function checkAnswer() {
   const userAnswer = [];
   const sortedZones = [...dropZones].sort(
