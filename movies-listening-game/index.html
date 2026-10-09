@@ -1,0 +1,1088 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Кино-Голос: Угадай Персонажа</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Russo+One&family=Roboto+Condensed:wght@400;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary-glow: #fbbf24;
+        }
+        
+        body {
+            font-family: 'Roboto Condensed', sans-serif;
+            background: radial-gradient(circle at center, #1f2937 0%, #000000 100%);
+            color: white;
+            min-height: 100vh;
+            overflow-x: hidden;
+            /* Убрали глобальную перспективу, чтобы экран не "пьянел" при скролле */
+        }
+
+        h1, h2, .font-display {
+            font-family: 'Russo One', sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        /* Particles Background */
+        #particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+        
+        .particle {
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+            opacity: 0.3;
+            animation: float 10s infinite linear;
+        }
+
+        @keyframes float {
+            0% { transform: translateY(100vh) translateX(0); opacity: 0; }
+            50% { opacity: 0.5; }
+            100% { transform: translateY(-20vh) translateX(20px); opacity: 0; }
+        }
+
+        /* 3D Tilt Card - Перспектива применяется только здесь */
+        .character-card {
+            transition: transform 0.1s ease-out, box-shadow 0.3s ease;
+            transform-style: preserve-3d;
+            background: linear-gradient(145deg, #2d3748, #1a202c);
+            border: 1px solid #4a5568;
+            /* transform: perspective(1000px); добавляется JS-ом при наведении */
+        }
+
+        .character-card:hover {
+            box-shadow: 0 0 25px rgba(251, 191, 36, 0.4);
+            border-color: var(--primary-glow);
+            z-index: 10;
+        }
+
+        .character-card img {
+            transform: translateZ(20px);
+        }
+
+        /* Custom Animations */
+        .fade-in { animation: fadeIn 0.8s cubic-bezier(0.4, 0, 0.2, 1); }
+        .slide-up { animation: slideUp 0.5s ease-out; }
+        .pulse-glow { animation: pulseGlow 2s infinite; }
+
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        @keyframes pulseGlow {
+            0% { box-shadow: 0 0 5px #fbbf24; }
+            50% { box-shadow: 0 0 20px #fbbf24, 0 0 40px #fbbf24; }
+            100% { box-shadow: 0 0 5px #fbbf24; }
+        }
+
+        .shake { animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both; }
+        @keyframes shake {
+            10%, 90% { transform: translate3d(-1px, 0, 0); }
+            20%, 80% { transform: translate3d(2px, 0, 0); }
+            30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
+            40%, 60% { transform: translate3d(4px, 0, 0); }
+        }
+
+        .hidden-poster { filter: blur(30px) grayscale(100%); transition: filter 1.5s ease; }
+        .revealed-poster { filter: blur(0) grayscale(0%); }
+
+        /* Video Container Styling */
+        .video-wrapper {
+            position: relative;
+            border-radius: 1rem;
+            overflow: hidden;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.8);
+            border: 2px solid #fbbf24;
+            background: #000;
+        }
+
+        /* Stabilize Layout Height - ИСПРАВЛЕНО */
+        .content-area {
+            /* Используем min-height вместо height, чтобы страница росла сама */
+            min-height: 600px; 
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            width: 100%;
+            /* Убрали overflow-y: auto, чтобы не было двойного скролла */
+        }
+
+        /* Hint Card Styles */
+        .hint-word {
+            background: #374151;
+            border: 1px solid #4b5563;
+            color: #d1d5db;
+            cursor: pointer;
+            transition: all 0.3s;
+            user-select: none;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 45px;
+        }
+        .hint-word .meta {
+            font-size: 0.6em;
+            color: #9ca3af;
+            text-transform: uppercase;
+            margin-top: -2px;
+        }
+        .hint-word:hover:not(.revealed) {
+            background: #4b5563;
+            color: white;
+            transform: scale(1.05);
+            border-color: #60a5fa;
+        }
+        .hint-word.revealed {
+            background: #fbbf24;
+            color: black;
+            font-weight: bold;
+            border-color: #f59e0b;
+            cursor: default;
+            transform: none;
+        }
+        .hint-word.revealed .meta {
+            color: #78350f;
+        }
+        
+        .pointer-events-none {
+            pointer-events: none;
+        }
+
+        /* Volume Slider */
+        input[type=range] {
+            height: 4px;
+            -webkit-appearance: none;
+            margin: 10px 0;
+            width: 100px;
+            background: transparent;
+        }
+        input[type=range]:focus { outline: none; }
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 5px;
+            cursor: pointer;
+            background: #4b5563;
+            border-radius: 5px;
+        }
+        input[type=range]::-webkit-slider-thumb {
+            height: 15px;
+            width: 15px;
+            border-radius: 50%;
+            background: #fbbf24;
+            cursor: pointer;
+            -webkit-appearance: none;
+            margin-top: -5px;
+        }
+    </style>
+</head>
+<body class="flex flex-col items-center p-4">
+
+    <!-- Floating Particles Background -->
+    <div id="particles"></div>
+
+    <!-- HINT WARNING MODAL -->
+    <div id="hint-warning-modal" class="hidden fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4 backdrop-blur-sm fade-in">
+        <div class="bg-gray-800 border-2 border-yellow-500 rounded-2xl p-8 max-w-md text-center shadow-[0_0_50px_rgba(234,179,8,0.3)] relative">
+            <div class="text-5xl mb-4 animate-bounce">⚠️</div>
+            <h3 class="text-3xl font-bold text-white mb-4 font-display text-yellow-400">ВНИМАНИЕ!</h3>
+            <p class="text-gray-300 mb-6 text-lg leading-relaxed">
+                Ты видишь слова из названия фильма. Нажимая на них, ты получишь перевод на английский.
+                <br><br>
+                <span class="bg-red-900/50 text-red-300 px-3 py-2 rounded-lg border border-red-500/50 font-bold block mt-2 shadow-inner">
+                    <i class="fas fa-minus-circle mr-2"></i>Цена подсказки: -3 балла
+                </span>
+            </p>
+            <button onclick="closeHintWarning()" class="w-full px-8 py-4 bg-gradient-to-r from-yellow-600 to-yellow-500 hover:from-yellow-500 hover:to-yellow-400 text-black font-black rounded-xl text-xl transition shadow-lg transform active:scale-95 uppercase tracking-wider">
+                Всё понятно, погнали!
+            </button>
+        </div>
+    </div>
+
+    <!-- Header -->
+    <header class="w-full max-w-5xl flex flex-col md:flex-row justify-between items-center mb-6 bg-black/40 p-4 rounded-2xl backdrop-blur-md border border-white/10 shadow-2xl z-20 flex-shrink-0 gap-4">
+        <div class="flex items-center gap-3">
+            <div class="bg-yellow-500 text-black p-2 rounded-lg"><i class="fas fa-film text-2xl"></i></div>
+            <div>
+                <h1 class="text-xl md:text-3xl text-yellow-400 leading-none">Кино-Голос</h1>
+                <span class="text-xs text-gray-400 tracking-widest">УГАДАЙ ГЕРОЯ</span>
+            </div>
+        </div>
+
+        <!-- Stats & Settings -->
+        <div class="flex items-center gap-4">
+            <div class="flex items-center gap-2 bg-gray-800/50 px-3 py-1 rounded-full border border-gray-600">
+                <i class="fas fa-music text-gray-400 text-xs"></i>
+                <input type="range" id="volume-slider" min="0" max="0.15" step="0.005" value="0.04" title="Громкость музыки">
+            </div>
+
+            <div class="flex gap-2 font-bold font-mono text-sm md:text-base">
+                <div class="bg-blue-900/80 px-3 py-2 rounded-lg border border-blue-500/30 shadow-inner">
+                    LVL <span id="level-display" class="text-blue-300">1/9</span>
+                </div>
+                <div class="bg-green-900/80 px-3 py-2 rounded-lg border border-green-500/30 shadow-inner">
+                    SCORE <span id="score-display" class="text-green-300">0</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Start Screen -->
+    <div id="start-screen" class="flex flex-col items-center justify-center min-h-[70vh] text-center space-y-8 max-w-4xl mx-auto z-10 fade-in w-full">
+        <div class="relative group cursor-pointer" onclick="startGame()">
+            <div class="absolute inset-0 bg-yellow-500 rounded-full blur-xl opacity-20 group-hover:opacity-40 transition duration-500"></div>
+            <div class="relative bg-black/50 p-6 rounded-full border-2 border-yellow-500/50 group-hover:scale-110 transition duration-300">
+                <i class="fas fa-play text-6xl text-yellow-400 pl-2"></i>
+            </div>
+        </div>
+        
+        <h2 class="text-5xl md:text-6xl text-white drop-shadow-[0_0_15px_rgba(255,255,255,0.3)]">
+            ПРОВЕРКА<br><span class="text-yellow-500">КИНОМАНА</span>
+        </h2>
+        
+        <!-- RULES BLOCK -->
+        <div class="bg-gray-800/80 p-8 rounded-2xl border border-white/10 backdrop-blur-md w-full max-w-3xl shadow-2xl">
+            <h3 class="text-2xl font-bold text-yellow-400 mb-6 uppercase border-b border-white/10 pb-2"><i class="fas fa-book-open mr-2"></i> Правила Игры</h3>
+            
+            <div class="grid md:grid-cols-2 gap-6 text-left">
+                <div class="space-y-4">
+                    <div class="flex items-start gap-3">
+                        <div class="bg-indigo-600 w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 font-bold">1</div>
+                        <div>
+                            <span class="font-bold text-indigo-300 block">Угадай голос</span>
+                            <span class="text-gray-400 text-sm">Слушай аудиозапись и выбирай одного из 9 персонажей. Ошибка: -5 баллов.</span>
+                        </div>
+                    </div>
+                    <div class="flex items-start gap-3">
+                        <div class="bg-pink-600 w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 font-bold">2</div>
+                        <div>
+                            <span class="font-bold text-pink-300 block">Проверь себя</span>
+                            <span class="text-gray-400 text-sm">Если угадал верно, посмотри короткое видео с этим моментом.</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="space-y-4">
+                    <div class="flex items-start gap-3">
+                        <div class="bg-purple-600 w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 font-bold">3</div>
+                        <div>
+                            <span class="font-bold text-purple-300 block">Вспомни цитату</span>
+                            <span class="text-gray-400 text-sm">Выбери фразу из видео. Ошибка: -5 баллов.</span>
+                        </div>
+                    </div>
+                    <div class="flex items-start gap-3">
+                        <div class="bg-green-600 w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 font-bold">4</div>
+                        <div>
+                            <span class="font-bold text-green-300 block">Назови фильм</span>
+                            <span class="text-gray-400 text-sm">Введи название. Все слова есть в подсказках (цена подсказки: 3 балла). Ошибка в названии: -5 баллов.</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mt-6 pt-4 border-t border-white/10 text-center text-gray-500 text-sm italic">
+                * Рекомендуем включить звук погромче!
+            </div>
+        </div>
+
+        <button onclick="startGame()" class="px-12 py-5 bg-gradient-to-r from-yellow-600 to-yellow-500 hover:from-yellow-500 hover:to-yellow-400 text-black font-black text-2xl rounded-xl shadow-[0_0_30px_rgba(234,179,8,0.4)] transform transition hover:-translate-y-1 active:scale-95 uppercase tracking-wider">
+            Погнали!
+        </button>
+    </div>
+
+    <!-- Game Container -->
+    <main id="game-container" class="w-full max-w-5xl hidden flex-col items-center z-10">
+        
+        <!-- Animated Progress Bar -->
+        <div class="w-full h-4 bg-gray-900 rounded-full mb-8 overflow-hidden relative border border-gray-700 shadow-inner flex-shrink-0">
+            <div id="progress-bar" class="absolute top-0 left-0 h-full bg-gradient-to-r from-yellow-600 via-yellow-400 to-yellow-200 transition-all duration-700 ease-out box-shadow-[0_0_15px_#fbbf24]" style="width: 0%"></div>
+            <div id="progress-spark" class="absolute top-0 h-full w-2 bg-white blur-[4px] transition-all duration-700 ease-out opacity-70" style="left: 0%"></div>
+        </div>
+
+        <!-- Stable Content Area (Fixed Height) -->
+        <div class="content-area">
+            <h2 id="phase-title" class="text-3xl md:text-4xl text-center mb-8 text-blue-200 drop-shadow-lg slide-up min-h-[3rem] w-full">Фаза 1: Угадай голос</h2>
+
+            <!-- PHASE 1: AUDIO CONTROLS -->
+            <div id="phase-1-controls" class="flex flex-col items-center mb-8 slide-up w-full flex-shrink-0">
+                <button onclick="playCurrentAudio()" class="group relative px-10 py-5 bg-indigo-900/80 rounded-full border border-indigo-500/50 hover:bg-indigo-800 transition overflow-hidden shadow-xl">
+                    <div class="absolute inset-0 bg-indigo-500/20 translate-y-full group-hover:translate-y-0 transition duration-300"></div>
+                    <div class="flex items-center gap-4 relative z-10">
+                        <i class="fas fa-volume-up text-3xl text-indigo-300 group-hover:scale-110 transition"></i>
+                        <span class="font-bold text-xl tracking-wide">СЛУШАТЬ ГОЛОС</span>
+                    </div>
+                </button>
+                <div id="audio-visualizer" class="flex gap-1 h-6 mt-4 opacity-0 transition-opacity duration-300">
+                    <div class="w-1.5 bg-indigo-400 animate-[bounce_0.8s_infinite]"></div>
+                    <div class="w-1.5 bg-indigo-400 animate-[bounce_1.2s_infinite]"></div>
+                    <div class="w-1.5 bg-indigo-400 animate-[bounce_0.5s_infinite]"></div>
+                    <div class="w-1.5 bg-indigo-400 animate-[bounce_1.0s_infinite]"></div>
+                </div>
+            </div>
+
+            <!-- PHASE 1: GRID -->
+            <div id="phase-1-grid" class="grid grid-cols-3 gap-4 md:gap-6 w-full max-w-3xl slide-up"></div>
+
+            <!-- VIDEO REVEAL (Transition Phase) -->
+            <div id="video-reveal" class="hidden flex-col items-center w-full max-w-2xl fade-in">
+                <div class="video-wrapper w-full aspect-video mb-6 bg-black">
+                    <video id="char-video" playsinline crossorigin="anonymous" class="w-full h-full object-contain">
+                        <source src="" type="video/mp4">
+                    </video>
+                </div>
+                <div class="flex flex-col items-center gap-4 w-full">
+                    <div class="text-green-400 font-bold text-2xl animate-bounce">
+                        <i class="fas fa-check-circle"></i> Верно!
+                    </div>
+                    <div class="flex gap-4 w-full justify-center">
+                        <button onclick="replayVideo()" class="px-6 py-3 bg-gray-700 hover:bg-gray-600 rounded-xl font-bold text-lg shadow-lg border border-gray-500 transition-all">
+                            <i class="fas fa-redo"></i> Повторить
+                        </button>
+                        <button onclick="startPhase2()" class="px-8 py-3 bg-blue-600 hover:bg-blue-500 rounded-xl font-bold text-lg shadow-lg border-b-4 border-blue-800 active:border-b-0 active:translate-y-1 transition-all">
+                            ДАЛЕЕ: ЦИТАТЫ <i class="fas fa-chevron-right ml-2"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PHASE 2: QUOTES -->
+            <div id="phase-2-quotes" class="hidden flex-col gap-4 w-full max-w-xl mx-auto fade-in"></div>
+
+            <!-- PHASE 3: MOVIE GUESS -->
+            <div id="phase-3-guess" class="hidden flex-col items-center gap-6 w-full max-w-4xl mx-auto fade-in">
+                
+                <div class="flex flex-col md:flex-row items-center justify-center gap-8 w-full">
+                    <!-- Left Hints -->
+                    <div id="hints-left" class="flex flex-col gap-3 w-32 md:w-40 items-end">
+                        <!-- JS injected -->
+                    </div>
+
+                    <!-- Poster -->
+                    <div class="relative w-64 aspect-[2/3] bg-gray-900 rounded-xl overflow-hidden shadow-2xl border-4 border-gray-700 group flex-shrink-0">
+                        <!-- Changed to object-contain so wide images fit inside the frame -->
+                        <img id="hint-poster" src="" class="w-full h-full object-contain bg-black hidden-poster transition duration-1000" alt="Poster">
+                        <div id="poster-overlay" class="absolute inset-0 flex flex-col items-center justify-center bg-black/80 transition duration-1000">
+                            <i class="fas fa-lock text-6xl text-gray-700 mb-2"></i>
+                            <p class="text-xs text-gray-500 uppercase tracking-widest text-center px-4">Введи название</p>
+                        </div>
+                    </div>
+
+                    <!-- Right Hints -->
+                    <div id="hints-right" class="flex flex-col gap-3 w-32 md:w-40 items-start">
+                         <!-- JS injected -->
+                    </div>
+                </div>
+
+                <div class="w-full max-w-md relative mt-4">
+                    <input type="text" id="movie-input" class="w-full px-6 py-4 bg-gray-800 border-2 border-gray-600 rounded-xl text-center text-xl focus:border-yellow-500 focus:shadow-[0_0_20px_rgba(234,179,8,0.2)] outline-none transition text-white placeholder-gray-500" placeholder="Введи название фильма...">
+                </div>
+                
+                <button onclick="checkMovieGuess()" id="check-movie-btn" class="w-full max-w-md py-4 bg-gradient-to-r from-green-600 to-green-500 hover:from-green-500 hover:to-green-400 rounded-xl font-bold text-lg shadow-lg uppercase tracking-wider transform transition active:scale-95">
+                    Проверить Ответ
+                </button>
+                <p id="movie-error" class="text-red-400 hidden font-bold animate-pulse"><i class="fas fa-times-circle"></i> Неверно, попробуй еще раз!</p>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Game Over -->
+    <div id="game-over-screen" class="hidden flex-col items-center justify-center min-h-[60vh] space-y-8 text-center fade-in z-20 max-w-2xl mx-auto">
+        <h2 class="text-6xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-yellow-600">ИТОГИ</h2>
+        
+        <div class="bg-gray-800/90 p-8 rounded-2xl border-2 border-white/20 shadow-2xl w-full backdrop-blur-xl">
+            <!-- Grade Big Display -->
+            <div class="mb-6">
+                <p class="text-gray-400 uppercase tracking-widest text-sm mb-2">Твоя оценка</p>
+                <div id="final-grade-badge" class="text-8xl font-black text-white drop-shadow-[0_0_15px_rgba(255,255,255,0.5)]">5</div>
+                <div id="final-grade-text" class="text-2xl font-bold text-green-400 mt-2">ОТЛИЧНО</div>
+            </div>
+
+            <!-- Stats Grid -->
+            <div class="grid grid-cols-2 gap-4 mb-6 border-t border-b border-gray-700 py-6">
+                <div class="text-center border-r border-gray-700">
+                    <p class="text-gray-400 text-sm">Набрано очков</p>
+                    <p class="text-3xl font-bold text-white"><span id="final-score">0</span> <span class="text-sm text-gray-500">/ <span id="max-possible-score">360</span></span></p>
+                </div>
+                <div class="text-center">
+                    <p class="text-gray-400 text-sm">Процент успеха</p>
+                    <p class="text-3xl font-bold text-yellow-400" id="final-percentage">0%</p>
+                </div>
+            </div>
+
+            <button onclick="location.reload()" class="w-full px-10 py-4 bg-blue-600 hover:bg-blue-500 rounded-xl font-bold text-xl shadow-lg transition transform hover:scale-105 uppercase tracking-wide">
+                Играть Снова
+            </button>
+        </div>
+    </div>
+
+    <!-- AUDIO SYSTEM -->
+    <audio id="bg-music" loop>
+        <source src="https://george-stone-pax.github.io/my-game-assets/Aylex - Adrenaline Drive (freetouse.com).mp3" type="audio/mpeg">
+    </audio>
+    <audio id="sfx-correct" src="https://george-stone-pax.github.io/my-game-assets/rightanswer-95219.mp3" crossorigin="anonymous"></audio>
+    <audio id="sfx-wrong" src="https://george-stone-pax.github.io/my-game-assets/dodgeball.mp3" crossorigin="anonymous"></audio>
+    <audio id="char-audio" crossorigin="anonymous"></audio>
+
+    <script>
+        // --- CONFIG & STATE ---
+        const config = {
+            baseUrl: "https://george-stone-pax.github.io/gamesnew/",
+            // --- VOLUME SETTINGS ---
+            bgVolumeNormal: 0.04,  // Default 4%
+            bgVolumeQuiet: 0.005   // Ducking 0.5%
+        };
+
+        const characters = [
+            {
+                id: 'panda', name: 'По',
+                files: { img: 'panda.png', audio: 'panda.mp3', video: 'Pandaaa.mp4', poster: 'posterp.jpg' },
+                quotes: ["Извиняется за сломанную стену!", "Удивляется сломанной стене", "Спрашивает у обезьяны, как у него дела"], correct: 0,
+                answers: ['Kung fu panda', 'кунг фу панда'],
+                hintWords: [
+                    {ru: "Кунг", en: "Kung"}, 
+                    {ru: "Фу", en: "Fu"}, 
+                    {ru: "Панда", en: "Panda"}
+                ]
+            },
+            {
+                id: 'shrek', name: 'Шрек',
+                files: { img: 'shrek.png', audio: 'shrek.mp3', video: 'shreeek.mp4', poster: 'postersh.jpg' },
+                quotes: ["Благодарит всех, и говорит что останется здесь до четверга", "Признается в любви фанатам, но только по четвергам", "Говорит, что в четверг приедет к фанатам снова"], correct: 0,
+                answers: ['Shrek', 'шрек'],
+                hintWords: [
+                    {ru: "Шрек", en: "Shrek"}
+                ]
+            },
+            {
+                id: 'simba', name: 'Симба',
+                files: { img: 'lion.png', audio: 'simba.mp3', video: 'simbaaa.mp4', poster: 'posterl.jpg' },
+                quotes: ["Говорит, что его план с крахом провалился", "Жалуется на несправедливость жизни", "Говорит о свооих переживаниях"], correct: 2,
+                answers: ['The Lion king', 'lion king', 'король лев'],
+                hintWords: [
+                    {ru: "The", en: "The", note: "артикль"},
+                    {ru: "Лев", en: "Lion"},
+                    {ru: "Король", en: "King"}
+                ]
+            },
+            {
+                id: 'spongebob', name: 'Губка Боб',
+                files: { img: 'bob.png', audio: 'spaaanch.mp3', video: 'spaaanch.mp4', poster: 'posterb.jpg' },
+                quotes: ["Перечесляет все свои действия", "Перечисляет, что он делал утром!", "Перечисляет, какие игридиенты кладет"], correct: 2,
+                answers: ['Spongebob Squarepants', 'spongebob', 'губка боб квадратные штаны', 'губка боб'],
+                hintWords: [
+                    {ru: "ГубкаБоб", en: "SpongeBob"}, 
+                    {ru: "Квадратные", en: "Square"}, 
+                    {ru: "Штаны", en: "Pants"}
+                ]
+            },
+            {
+                id: 'spiderman', name: 'Паук',
+                files: { img: 'spider.png', audio: 'spider.mp3', video: 'spideeerman.mp4', poster: 'posters.jpg' },
+                quotes: ["Рассказал, как они познакомились с Mary Jane", "Говорит о проблемах, которые могут с ним случится", "Говорит о том, как он будет побеждать Мистерио"], correct: 1,
+                answers: ['Spider-man no way home', 'spiderman no way home', 'человек паук нет пути домой', 'человек-паук нет пути домой'],
+                hintWords: [
+                    {ru: "Человек-паук", en: "Spider-Man"}, 
+                    {ru: "Нет", en: "No"}, 
+                    {ru: "Пути", en: "Way"}, 
+                    {ru: "Домой", en: "Home"}
+                ]
+            },
+            {
+                id: 'voldemort', name: 'Волан-де-Морт',
+                files: { img: 'voland.png', audio: 'volland.mp3', video: 'volaaand.mp4', poster: 'posterv.png' },
+                quotes: ["Рассказывает анекдот", "Угрожает всем смертью!", "Говорит, что надеялся на большее"], correct: 2,
+                answers: ['Harry potter and the half-blood prince', 'Harry potter and the half blood prince', 'гарри поттер и принц полукровка'],
+                hintWords: [
+                    {ru: "Гарри", en: "Harry"}, 
+                    {ru: "Поттер", en: "Potter"}, 
+                    {ru: "И", en: "And", note: "союз"},
+                    {ru: "The", en: "The", note: "артикль"},
+                    {ru: "Полукровка", en: "Half-Blood"},
+                    {ru: "Принц", en: "Prince"}
+                ]
+            },
+            {
+                id: 'woody', name: 'Вуди',
+                files: { img: 'woody.png', audio: 'woooody.mp3', video: 'wooody.mp4', poster: 'posterw.jpg' },
+                quotes: ["Пытается познакомиться", "Рассказывает о подвигах", "Рассказывает о семье"], correct: 0,
+                answers: ['Toy story', 'история игрушек'],
+                hintWords: [
+                    {ru: "Игрушка", en: "Toy"}, 
+                    {ru: "История", en: "Story"}
+                ]
+            },
+            {
+                id: 'gollum', name: 'Голлум',
+                files: { img: 'gollum.png', audio: 'gollum.mp3', video: 'gulluuuum.mp4', poster: 'posterg.jpg' },
+                quotes: ["Голлум спорит сам с собой", "Голлум играет в слова сам с собой", "Голлум говорит сам с собой о том, какой он некрасивый"], correct: 0,
+                answers: ['The lord of the rings', 'властелин колец'],
+                hintWords: [
+                    {ru: "The", en: "The", note: "артикль"},
+                    {ru: "Властелин", en: "Lord"}, 
+                    {ru: "Of", en: "Of", note: "предлог"},
+                    {ru: "The", en: "The", note: "артикль"},
+                    {ru: "Колец", en: "Rings"}
+                ]
+            },
+            {
+                id: 'kevin', name: 'Кевин',
+                files: { img: 'kevin.png', audio: 'kevin.mp3', video: 'keeevin.mp4', poster: 'posterk.jpg' },
+                quotes: ["Обещает, что будет себя хорошо вести", "Говорит, как же ему хорошо жить одному", "Сожалеет, что его семья отдыхает без него"], correct: 0,
+                answers: ['Home alone', 'один дома'],
+                hintWords: [
+                    {ru: "Дом", en: "Home"}, 
+                    {ru: "Один", en: "Alone"}
+                ]
+            }
+        ];
+
+        let gameState = { 
+            level: 0, 
+            score: 0, 
+            phase: 1, 
+            queue: [],
+            isProcessing: false,
+            phase3Warned: false // Flag to track if warning was shown
+        };
+        
+        // --- AUDIO SYSTEM ---
+        let audioCtx;
+        let charAudioSource, videoAudioSource;
+        let charGainNode, bgGainNode;
+
+        function initAudioSystem() {
+            if (audioCtx) return;
+            const AudioContext = window.AudioContext || window.webkitAudioContext;
+            audioCtx = new AudioContext();
+
+            const charAudioEl = document.getElementById('char-audio');
+            charAudioSource = audioCtx.createMediaElementSource(charAudioEl);
+            charGainNode = audioCtx.createGain();
+            charGainNode.gain.value = 1.3; 
+            charAudioSource.connect(charGainNode).connect(audioCtx.destination);
+
+            const videoEl = document.getElementById('char-video');
+            videoAudioSource = audioCtx.createMediaElementSource(videoEl);
+            const videoGain = audioCtx.createGain();
+            videoGain.gain.value = 1.3; 
+            videoAudioSource.connect(videoGain).connect(audioCtx.destination);
+            
+            setupDucking(charAudioEl);
+            setupDucking(videoEl);
+        }
+
+        // Setup Volume Slider Logic
+        document.getElementById('volume-slider').addEventListener('input', function(e) {
+            config.bgVolumeNormal = parseFloat(e.target.value);
+            config.bgVolumeQuiet = Math.max(0, config.bgVolumeNormal / 8);
+            
+            const bgMusic = document.getElementById('bg-music');
+            bgMusic.volume = config.bgVolumeNormal;
+        });
+
+        function setupDucking(mediaElement) {
+            const bgMusic = document.getElementById('bg-music');
+            
+            mediaElement.onplay = () => {
+                fadeVolume(bgMusic, config.bgVolumeQuiet, 300); 
+                if(mediaElement.id === 'char-audio') document.getElementById('audio-visualizer').style.opacity = '1';
+            };
+            
+            const onStop = () => {
+                fadeVolume(bgMusic, config.bgVolumeNormal, 1000); 
+                document.getElementById('audio-visualizer').style.opacity = '0';
+            };
+
+            mediaElement.onpause = onStop;
+            mediaElement.onended = onStop;
+        }
+
+        function fadeVolume(element, target, duration) {
+            const start = element.volume;
+            const change = target - start;
+            const startTime = performance.now();
+
+            function animate(time) {
+                const elapsed = time - startTime;
+                if (elapsed < duration) {
+                    element.volume = start + (change * (elapsed / duration));
+                    requestAnimationFrame(animate);
+                } else {
+                    element.volume = target;
+                }
+            }
+            requestAnimationFrame(animate);
+        }
+
+        // --- DOM ELEMENTS ---
+        const els = {
+            start: document.getElementById('start-screen'),
+            game: document.getElementById('game-container'),
+            over: document.getElementById('game-over-screen'),
+            grid: document.getElementById('phase-1-grid'),
+            quotes: document.getElementById('phase-2-quotes'),
+            guess: document.getElementById('phase-3-guess'),
+            audioControls: document.getElementById('phase-1-controls'),
+            videoReveal: document.getElementById('video-reveal'),
+            video: document.getElementById('char-video'),
+            audio: document.getElementById('char-audio'),
+            title: document.getElementById('phase-title'),
+            poster: document.getElementById('hint-poster'),
+            overlay: document.getElementById('poster-overlay'),
+            input: document.getElementById('movie-input'),
+            bgMusic: document.getElementById('bg-music'),
+            progressBar: document.getElementById('progress-bar'),
+            progressSpark: document.getElementById('progress-spark'),
+            hintsLeft: document.getElementById('hints-left'),
+            hintsRight: document.getElementById('hints-right'),
+            levelDisplay: document.getElementById('level-display')
+        };
+
+        // --- VISUAL FX ---
+        function createParticles() {
+            const container = document.getElementById('particles');
+            for(let i=0; i<20; i++){
+                let p = document.createElement('div');
+                p.className = 'particle';
+                p.style.left = Math.random() * 100 + 'vw';
+                p.style.width = Math.random() * 5 + 2 + 'px';
+                p.style.height = p.style.width;
+                p.style.animationDelay = Math.random() * 5 + 's';
+                p.style.animationDuration = Math.random() * 10 + 10 + 's';
+                container.appendChild(p);
+            }
+        }
+        createParticles();
+
+        function handleTilt(e, card) {
+            const rect = card.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            const centerX = rect.width / 2;
+            const centerY = rect.height / 2;
+            const rotateX = (centerY - y) / 10;
+            const rotateY = (x - centerX) / 10;
+            card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.05)`;
+        }
+
+        function resetTilt(card) {
+            card.style.transform = `perspective(1000px) rotateX(0) rotateY(0) scale(1)`;
+        }
+
+        // --- GAME LOGIC ---
+
+        function startGame() {
+            initAudioSystem(); 
+            
+            gameState.queue = [...characters].sort(() => Math.random() - 0.5);
+            gameState.level = 0;
+            gameState.score = 0;
+            gameState.isProcessing = false;
+            gameState.phase3Warned = false; // Reset warning flag
+            
+            els.start.classList.add('hidden');
+            els.game.classList.remove('hidden');
+            els.game.classList.add('flex');
+            
+            // Set Initial Low Volume
+            els.bgMusic.volume = config.bgVolumeNormal; 
+            els.bgMusic.play().catch(console.error);
+
+            loadLevel();
+        }
+
+        function loadLevel() {
+            if (gameState.level >= gameState.queue.length) return endGame();
+
+            const char = gameState.queue[gameState.level];
+            updateProgress();
+            gameState.isProcessing = false;
+
+            // Update Level Display
+            els.levelDisplay.innerText = `${gameState.level + 1}/${characters.length}`;
+
+            gameState.phase = 1;
+            els.title.innerText = "Фаза 1: Угадай голос";
+            els.grid.classList.remove('hidden');
+            els.audioControls.classList.remove('hidden');
+            els.videoReveal.classList.add('hidden');
+            els.quotes.classList.add('hidden');
+            els.guess.classList.add('hidden');
+            els.video.pause();
+            
+            // Reset Poster & Hints
+            els.poster.classList.add('hidden-poster');
+            els.poster.classList.remove('revealed-poster');
+            els.overlay.classList.remove('hidden');
+            els.hintsLeft.innerHTML = '';
+            els.hintsRight.innerHTML = '';
+            
+            els.input.value = '';
+            els.input.disabled = false;
+            document.getElementById('check-movie-btn').disabled = false;
+            document.getElementById('movie-error').classList.add('hidden');
+
+            els.audio.src = config.baseUrl + char.files.audio;
+            
+            renderGrid();
+        }
+
+        function renderGrid() {
+            els.grid.innerHTML = '';
+            characters.forEach(c => {
+                const div = document.createElement('div');
+                div.className = 'character-card rounded-xl overflow-hidden aspect-square shadow-2xl relative cursor-pointer group';
+                
+                div.onmousemove = (e) => handleTilt(e, div);
+                div.onmouseleave = () => resetTilt(div);
+
+                const img = document.createElement('img');
+                img.src = config.baseUrl + c.files.img;
+                img.className = "w-full h-full object-cover transition duration-500 group-hover:scale-110";
+                
+                img.onerror = () => { img.src = "https://via.placeholder.com/300?text=?"; };
+
+                div.appendChild(img);
+                
+                const label = document.createElement('div');
+                label.className = "absolute bottom-0 w-full bg-black/80 text-center py-2 text-sm font-bold border-t border-yellow-500/50";
+                label.innerText = c.name;
+                div.appendChild(label);
+
+                div.onclick = () => checkPhase1(c.id, div);
+                els.grid.appendChild(div);
+            });
+        }
+
+        function playCurrentAudio() {
+            els.audio.play().catch(e => alert("Не удалось воспроизвести аудио"));
+        }
+
+        function checkPhase1(id, card) {
+            if (gameState.phase !== 1 || gameState.isProcessing) return;
+            
+            const target = gameState.queue[gameState.level];
+            
+            if (id === target.id) {
+                // Correct
+                gameState.isProcessing = true; // Lock
+                playSfx('correct');
+                gameState.score += 10;
+                updateScore();
+                
+                // Disable all cards to be safe
+                const allCards = document.querySelectorAll('.character-card');
+                allCards.forEach(c => c.style.pointerEvents = 'none');
+                
+                card.style.borderColor = '#4ade80';
+                card.style.boxShadow = '0 0 30px #4ade80';
+                
+                setTimeout(() => revealVideo(target), 800);
+            } else {
+                // WRONG: Minus 5 points
+                playSfx('wrong');
+                gameState.score = Math.max(0, gameState.score - 5);
+                updateScore();
+                
+                card.classList.add('shake');
+                card.style.borderColor = '#ef4444';
+                setTimeout(() => {
+                    card.classList.remove('shake');
+                    card.style.borderColor = '';
+                }, 400);
+            }
+        }
+
+        function revealVideo(char) {
+            els.audio.pause();
+            els.grid.classList.add('hidden');
+            els.audioControls.classList.add('hidden');
+            els.videoReveal.classList.remove('hidden');
+            els.videoReveal.classList.add('flex');
+            els.title.innerText = `Это ${char.name}! Смотри:`;
+            
+            if (!els.video.src.includes(char.files.video)) {
+                els.video.src = config.baseUrl + char.files.video;
+            }
+            els.video.currentTime = 0;
+            els.video.play().catch(console.error);
+        }
+
+        function replayVideo() {
+            els.video.currentTime = 0;
+            els.video.play().catch(console.error);
+        }
+
+        function startPhase2() {
+            els.video.pause();
+            gameState.phase = 2;
+            gameState.isProcessing = false; // Unlock
+            
+            els.title.innerText = "Фаза 2: Что он сказал?";
+            els.videoReveal.classList.add('hidden');
+            els.quotes.classList.remove('hidden');
+            els.quotes.classList.add('flex');
+            
+            els.quotes.innerHTML = '';
+            const char = gameState.queue[gameState.level];
+
+            char.quotes.forEach((q, i) => {
+                const btn = document.createElement('button');
+                btn.className = "w-full p-6 bg-gray-800 hover:bg-indigo-900 border-l-4 border-indigo-500 rounded-r-xl text-left transition transform hover:translate-x-2 text-lg shadow-md";
+                btn.innerHTML = `<i class="fas fa-quote-left text-yellow-500 mr-3"></i> ${q}`;
+                btn.onclick = () => checkPhase2(i, btn);
+                els.quotes.appendChild(btn);
+            });
+        }
+
+        function checkPhase2(idx, btn) {
+            if (gameState.isProcessing) return;
+
+            const target = gameState.queue[gameState.level];
+            if (idx === target.correct) {
+                gameState.isProcessing = true; // Lock
+                playSfx('correct');
+                btn.classList.remove('bg-gray-800', 'border-indigo-500');
+                btn.classList.add('bg-green-800', 'border-green-500', 'pulse-glow');
+                
+                // Disable all quote buttons
+                const allQuotes = document.querySelectorAll('#phase-2-quotes button');
+                allQuotes.forEach(b => b.disabled = true);
+
+                gameState.score += 10;
+                updateScore();
+                setTimeout(startPhase3, 1000);
+            } else {
+                // WRONG: Minus 5 points
+                playSfx('wrong');
+                gameState.score = Math.max(0, gameState.score - 5);
+                updateScore();
+                
+                btn.classList.add('shake', 'bg-red-900', 'border-red-500');
+                setTimeout(() => btn.classList.remove('shake', 'bg-red-900', 'border-red-500'), 500);
+            }
+        }
+
+        function startPhase3() {
+            gameState.phase = 3;
+            gameState.isProcessing = false; // Unlock
+            
+            els.title.innerText = "Фаза 3: Введи название фильма";
+            els.quotes.classList.add('hidden');
+            els.guess.classList.remove('hidden');
+            els.guess.classList.add('flex');
+            
+            // Show warning ONCE
+            if (!gameState.phase3Warned) {
+                document.getElementById('hint-warning-modal').classList.remove('hidden');
+            }
+
+            const char = gameState.queue[gameState.level];
+            els.poster.src = config.baseUrl + char.files.poster;
+
+            // Generate Hint Buttons
+            const words = char.hintWords;
+            const splitIndex = Math.ceil(words.length / 2);
+            const leftWords = words.slice(0, splitIndex);
+            const rightWords = words.slice(splitIndex);
+
+            renderHints(leftWords, els.hintsLeft);
+            renderHints(rightWords, els.hintsRight);
+        }
+
+        function closeHintWarning() {
+            document.getElementById('hint-warning-modal').classList.add('hidden');
+            gameState.phase3Warned = true;
+        }
+
+        function renderHints(words, container) {
+            container.innerHTML = '';
+            words.forEach(wordObj => {
+                const btn = document.createElement('div');
+                btn.className = 'hint-word px-4 py-2 rounded-lg font-bold text-center text-sm w-full';
+                btn.innerText = wordObj.ru;
+                
+                if(wordObj.note) {
+                    const meta = document.createElement('div');
+                    meta.className = 'meta';
+                    meta.innerText = `(${wordObj.note})`;
+                    btn.appendChild(meta);
+                }
+
+                btn.onclick = () => revealWord(btn, wordObj);
+                container.appendChild(btn);
+            });
+        }
+
+        function revealWord(btn, wordObj) {
+            if (btn.classList.contains('revealed') || gameState.isProcessing) return;
+            
+            gameState.score = Math.max(0, gameState.score - 3);
+            updateScore();
+            
+            const noteText = wordObj.note ? `\n<span class='meta'>(${wordObj.note})</span>` : '';
+            btn.innerHTML = `${wordObj.en}${noteText}`;
+            btn.classList.add('revealed');
+        }
+
+        // --- FUZZY MATCHING ---
+        function levenshtein(a, b) {
+            const matrix = [];
+            for (let i = 0; i <= b.length; i++) matrix[i] = [i];
+            for (let j = 0; j <= a.length; j++) matrix[0][j] = j;
+
+            for (let i = 1; i <= b.length; i++) {
+                for (let j = 1; j <= a.length; j++) {
+                    if (b.charAt(i - 1) === a.charAt(j - 1)) {
+                        matrix[i][j] = matrix[i - 1][j - 1];
+                    } else {
+                        matrix[i][j] = Math.min(
+                            matrix[i - 1][j - 1] + 1,
+                            Math.min(matrix[i][j - 1] + 1, matrix[i - 1][j] + 1)
+                        );
+                    }
+                }
+            }
+            return matrix[b.length][a.length];
+        }
+
+        function isFuzzyMatch(userInput, allowedAnswers) {
+            const cleanInput = userInput.toLowerCase().replace(/[^a-zа-я0-9]/g, '');
+            
+            return allowedAnswers.some(answer => {
+                const cleanAnswer = answer.toLowerCase().replace(/[^a-zа-я0-9]/g, '');
+                if (cleanInput === cleanAnswer) return true;
+                const dist = levenshtein(cleanInput, cleanAnswer);
+                const len = cleanAnswer.length;
+                if (len <= 3) return dist === 0;
+                if (len <= 6) return dist <= 1;
+                return dist <= 2;
+            });
+        }
+
+        function checkMovieGuess() {
+            if (gameState.isProcessing) return;
+
+            const val = els.input.value.trim();
+            const target = gameState.queue[gameState.level];
+            
+            if (isFuzzyMatch(val, target.answers)) {
+                gameState.isProcessing = true; // Lock
+                
+                playSfx('correct');
+                fireConfetti();
+                gameState.score += 20;
+                updateScore();
+                
+                els.input.disabled = true;
+                document.getElementById('check-movie-btn').disabled = true;
+
+                els.poster.classList.remove('hidden-poster');
+                els.poster.classList.add('revealed-poster');
+                els.overlay.classList.add('hidden');
+                
+                els.input.style.borderColor = '#4ade80';
+                els.input.style.color = '#4ade80';
+                
+                setTimeout(() => {
+                    gameState.level++;
+                    els.input.style.borderColor = '';
+                    els.input.style.color = '';
+                    loadLevel();
+                }, 2500); 
+            } else {
+                // WRONG: Minus 5 points
+                playSfx('wrong');
+                gameState.score = Math.max(0, gameState.score - 5);
+                updateScore();
+                
+                document.getElementById('movie-error').classList.remove('hidden');
+                els.input.classList.add('shake', 'border-red-500');
+                setTimeout(() => els.input.classList.remove('shake', 'border-red-500'), 500);
+            }
+        }
+
+        function playSfx(type) {
+            const id = type === 'correct' ? 'sfx-correct' : 'sfx-wrong';
+            const audio = document.getElementById(id);
+            audio.currentTime = 0;
+            audio.play().catch(e=>{});
+        }
+
+        function updateScore() {
+            document.getElementById('score-display').innerText = gameState.score;
+        }
+
+        function updateProgress() {
+            const pct = (gameState.level / characters.length) * 100;
+            els.progressBar.style.width = pct + '%';
+            els.progressSpark.style.left = pct + '%';
+        }
+
+        function fireConfetti() {
+            confetti({
+                particleCount: 100,
+                spread: 70,
+                origin: { y: 0.6 },
+                colors: ['#fbbf24', '#ffffff', '#ef4444']
+            });
+        }
+
+        function endGame() {
+            els.game.classList.add('hidden');
+            els.over.classList.remove('hidden');
+            els.over.classList.add('flex');
+            
+            // Grading System
+            const maxScore = characters.length * 40; // 9 * 40 = 360
+            const percentage = Math.round((gameState.score / maxScore) * 100);
+            
+            let grade = 2;
+            let gradeText = "ПЛОХО";
+            let colorClass = "text-red-500";
+
+            if (percentage >= 90) {
+                grade = 5;
+                gradeText = "ОТЛИЧНО!";
+                colorClass = "text-yellow-400";
+            } else if (percentage >= 75) {
+                grade = 4;
+                gradeText = "ХОРОШО";
+                colorClass = "text-green-400";
+            } else if (percentage >= 50) {
+                grade = 3;
+                gradeText = "УДОВЛЕТВОРИТЕЛЬНО";
+                colorClass = "text-blue-400";
+            }
+
+            document.getElementById('final-grade-badge').innerText = grade;
+            document.getElementById('final-grade-badge').className = `text-8xl font-black ${colorClass} drop-shadow-xl`;
+            
+            document.getElementById('final-grade-text').innerText = gradeText;
+            document.getElementById('final-grade-text').className = `text-2xl font-bold ${colorClass} mt-2`;
+
+            document.getElementById('final-score').innerText = gameState.score;
+            document.getElementById('max-possible-score').innerText = maxScore;
+            document.getElementById('final-percentage').innerText = percentage + '%';
+
+            fireConfetti();
+            setInterval(fireConfetti, 2000);
+        }
+    </script>
+</body>
+</html>

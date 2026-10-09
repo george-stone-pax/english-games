@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Английский паровозик: Present Simple</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Fredoka+One&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+<!--
+        body {
+            font-family: 'Inter', sans-serif;
+            background-image: url('https://images.unsplash.com/photo-1506672214330-c3ad4b53de41?q=80&w=2070&auto=format&fit=crop');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            color: #333;
+        }
+        .game-container {
+            background-color: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            border-radius: 2rem;
+            padding: 2rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            width: 95%;
+            max-width: 900px;
+            text-align: center;
+            border: 4px solid rgba(255,255,255,0.5);
+            position: relative; /* Добавлено для позиционирования счетчика */
+        }
+        /* Стиль для счетчика уровней */
+        #level-counter {
+            position: absolute;
+            top: 1.5rem;
+            right: 1.5rem;
+            background-color: rgba(0, 0, 0, 0.05);
+            padding: 0.5rem 1rem;
+            border-radius: 9999px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: #475569; /* slate-600 */
+            border: 1px solid rgba(0,0,0,0.1);
+        }
+        .wagon {
+            font-family: 'Fredoka One', cursive;
+            background-color: #fdba74; /* orange-300 */
+            color: #854d0e; /* amber-800 */
+            padding: 1rem 1.5rem;
+            margin: 0.5rem;
+            border-radius: 1rem 1rem 0.5rem 0.5rem;
+            cursor: grab;
+            user-select: none;
+            transition: all 0.2s ease-in-out;
+            border-bottom: 8px solid #f97316; /* orange-500 */
+            position: relative;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            display: inline-block; /* Important for horizontal layout */
+        }
+        .wagon:active {
+            cursor: grabbing;
+            transform: scale(1.1);
+            box-shadow: 0 10px 15px rgba(0,0,0,0.2);
+        }
+        /* Колеса вагона */
+        .wagon::after {
+            content: '';
+            position: absolute;
+            bottom: -18px;
+            left: 25%;
+            transform: translateX(-50%);
+            width: 24px;
+            height: 24px;
+            background: #4b5563;
+            border-radius: 50%;
+            border: 4px solid #9ca3af;
+            box-shadow: inset 0 0 0 3px #4b5563;
+        }
+        .wagon::before {
+            content: '';
+            position: absolute;
+            bottom: -18px;
+            right: 25%;
+            transform: translateX(50%);
+            width: 24px;
+            height: 24px;
+            background: #4b5563;
+            border-radius: 50%;
+            border: 4px solid #9ca3af;
+            box-shadow: inset 0 0 0 3px #4b5563;
+        }
+        /* Обновленные рельсы */
+        #drop-zone {
+            background-color: #d6ccc2; /* A light brownish gray for the ground */
+            background-image: 
+                /* Деревянные шпалы */
+                repeating-linear-gradient(90deg, #8d6e63 0, #8d6e63 20px, transparent 20px, transparent 80px),
+                /* Металлические рельсы */
+                linear-gradient(to bottom, transparent 40%, #7f8c8d 40%, #7f8c8d 45%, transparent 45%),
+                linear-gradient(to bottom, transparent 60%, #7f8c8d 60%, #7f8c8d 65%, transparent 65%);
+            background-size: 100px 100%, 100% 100%, 100% 100%;
+            min-height: 140px;
+            padding-bottom: 20px; /* Space for wheels */
+        }
+        .placeholder {
+            background-color: rgba(255, 255, 255, 0.5);
+            border: 2px dashed #9ca3af;
+            border-radius: 1rem;
+            align-self: center; /* Center placeholder vertically */
+        }
+        .dragging {
+            opacity: 0.5;
+        }
+        #feedback {
+            transition: all 0.3s ease;
+        }
+        .locomotive, .caboose {
+            width: 100px;
+            height: auto;
+            flex-shrink: 0; /* Prevent shrinking */
+        }
+    </style>
+-->
+</head>
+<body>
+
+<div class="game-container">
+    <!-- Счетчик уровней -->
+    <div id="level-counter"></div>
+
+    <h1 class="text-4xl md:text-5xl font-bold text-slate-800 mb-2 mt-8" style="font-family: 'Fredoka One', cursive;">Английский паровозик</h1>
+    <p class="text-slate-600 mb-6 text-lg">Перетащи вагоны-слова, чтобы составить правильный вопрос.</p>
+
+    <!-- Drop Zone: Куда перетаскивать вагоны -->
+    <div id="drop-zone" class="p-4 rounded-xl mb-6 flex items-end justify-start gap-2">
+        <!-- Обновленный локомотив -->
+        <span class="locomotive" aria-hidden="true"><span class="smokestack"></span><span class="cab-window"></span></span>
+        <!-- Вагоны и Замыкающий вагон будут здесь -->
+    </div>
+
+    <!-- Source Zone: Откуда брать вагоны -->
+    <div id="source-zone" class="p-4 bg-slate-200/50 rounded-xl flex flex-wrap justify-center items-center min-h-[120px]">
+        <!-- Вагоны будут добавлены сюда с помощью JavaScript -->
+    </div>
+
+    <!-- Feedback and Controls -->
+    <div class="mt-6 h-16 flex items-center justify-center">
+        <div id="feedback" class="text-3xl font-bold" style="font-family: 'Fredoka One', cursive;"></div>
+        <button id="next-btn" class="hidden bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-6 rounded-full text-xl transition-transform duration-200 hover:scale-105">Следующий вопрос →</button>
+    </div>
+    
+        <div id="end-game-modal" class="hidden" role="dialog" aria-modal="true">
+        <div>
+            <h2>Поздравляю!</h2>
+            <p>Ты собрал все 7 вопросов!</p>
+            <p id="final-score"></p>
+            <div class="result-actions">
+                <label for="player-name">Имя игрока</label>
+                <input id="player-name" type="text" maxlength="20" placeholder="Введите имя">
+                <button id="save-result-btn" type="button">Сохранить результат</button>
+                <p id="save-status" aria-live="polite"></p>
+                <button id="restart-btn" type="button">Играть снова</button>
+            </div>
+        </div>
+    </div>
+    <section class="leaderboard" aria-labelledby="leaderboard-title">
+        <div class="leaderboard-heading"><h2 id="leaderboard-title">Таблица лидеров</h2><button id="clear-leaderboard-btn" class="secondary-button" type="button">Очистить</button></div>
+        <p id="leaderboard-status" aria-live="polite">Лучшие результаты на этом устройстве</p>
+        <ol id="leaderboard-list"></ol>
+    </section>
+  </main>
+  <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Чей это голос?</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Roboto:wght@300;400;700&display=swap');
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #1a1a1a;
+            color: #e5e5e5;
+            overflow-x: hidden;
+            transition: background-color 0.5s ease;
+        }
+
+        h1, h2, .fantasy-font {
+            font-family: 'Cinzel', serif;
+        }
+
+        /* Анимация визуализатора голоса */
+        .visualizer-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 60px;
+            gap: 4px;
+        }
+
+        .bar {
+            width: 8px;
+            background: linear-gradient(to top, #4f46e5, #93c5fd);
+            border-radius: 4px;
+            animation: soundWave 0s infinite ease-in-out;
+            height: 10px;
+        }
+        
+        /* Hard mode bar colors */
+        .hard-mode .bar {
+            background: linear-gradient(to top, #ef4444, #fca5a5);
+        }
+
+        .visualizer-container.active .bar {
+            animation-duration: 0.8s;
+        }
+
+        .visualizer-container.active .bar:nth-child(1) { animation-delay: 0.0s; height: 20px; }
+        .visualizer-container.active .bar:nth-child(2) { animation-delay: 0.1s; height: 35px; }
+        .visualizer-container.active .bar:nth-child(3) { animation-delay: 0.2s; height: 50px; }
+        .visualizer-container.active .bar:nth-child(4) { animation-delay: 0.3s; height: 30px; }
+        .visualizer-container.active .bar:nth-child(5) { animation-delay: 0.1s; height: 45px; }
+
+        @keyframes soundWave {
+            0%, 100% { transform: scaleY(1); }
+            50% { transform: scaleY(2.5); }
+        }
+
+        /* Сетка для наложения на картинку */
+        .portrait-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: repeat(2, 1fr);
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        .portrait-zone {
+            cursor: pointer;
+            border: 4px solid transparent;
+            transition: all 0.2s ease;
+            border-radius: 10px;
+        }
+
+        .portrait-zone:hover {
+            border-color: rgba(255, 255, 255, 0.5);
+            background-color: rgba(255, 255, 255, 0.1);
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
+        }
+
+        .portrait-zone.correct {
+            border-color: #22c55e;
+            box-shadow: 0 0 20px #22c55e;
+            background-color: rgba(34, 197, 94, 0.2);
+        }
+
+        .portrait-zone.wrong {
+            border-color: #ef4444;
+            box-shadow: 0 0 20px #ef4444;
+            background-color: rgba(239, 68, 68, 0.2);
+            animation: shake 0.5s;
+        }
+
+        @keyframes shake {
+            0% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            50% { transform: translateX(5px); }
+            75% { transform: translateX(-5px); }
+            100% { transform: translateX(0); }
+        }
+
+        /* Модальные окна */
+        .modal-bg {
+            background: rgba(0, 0, 0, 0.9);
+        }
+    </style>
+</head>
+<body id="game-body" class="min-h-screen flex flex-col items-center justify-center p-4">
+
+    <!-- Start Modal -->
+    <div id="start-modal" class="fixed inset-0 z-50 flex items-center justify-center modal-bg">
+        <div class="bg-gray-800 p-8 rounded-xl border-2 border-yellow-600 text-center max-w-md shadow-2xl">
+            <h1 class="text-3xl text-yellow-500 mb-4 fantasy-font">Тайны Портретов</h1>
+            <p class="mb-6 text-gray-300">Вам предстоит угадать 6 голосов.<br>Каждый персонаж скажет фразу один раз.<br>Слушайте внимательно!</p>
+            <button onclick="startGame()" class="bg-yellow-700 hover:bg-yellow-600 text-white font-bold py-3 px-8 rounded-full transition transform hover:scale-105 shadow-lg border border-yellow-500">
+                Начать расследование
+            </button>
+        </div>
+    </div>
+
+    <!-- Result Modal -->
+    <div id="result-modal" class="fixed inset-0 z-50 flex items-center justify-center modal-bg hidden">
+        <div class="bg-gray-800 p-8 rounded-xl border-2 border-indigo-600 text-center max-w-md shadow-2xl transform scale-100 transition-transform">
+            <h2 class="text-3xl text-white mb-2 fantasy-font">Расследование завершено</h2>
+            
+            <div class="my-6">
+                <p class="text-gray-400 text-sm uppercase tracking-widest">Ваш результат</p>
+                <div id="final-score" class="text-5xl font-bold text-yellow-400 my-2">0%</div>
+                <div id="final-grade" class="text-2xl font-bold text-white">Оценка</div>
+            </div>
+
+            <p id="final-comment" class="mb-8 text-gray-300 italic">Комментарий...</p>
+
+            <button onclick="restartGame()" class="bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 px-8 rounded-full transition transform hover:scale-105 shadow-lg">
+                Попробовать снова
+            </button>
+        </div>
+    </div>
+
+    <!-- UI Header -->
+    <header id="game-header" class="w-full max-w-4xl flex flex-col md:flex-row justify-between items-center mb-4 bg-gray-800 p-4 rounded-lg shadow-lg border-b-4 border-indigo-900 transition-colors duration-500">
+        <div class="flex items-center gap-4">
+            <h1 id="game-title" class="text-2xl text-yellow-500 fantasy-font transition-colors duration-300">Чей Голос?</h1>
+            <div class="flex bg-gray-900 rounded-lg p-1">
+                <button id="btn-easy" onclick="setLevel('easy')" class="px-4 py-1 rounded bg-indigo-600 text-white text-sm transition">Легко</button>
+                <button id="btn-hard" onclick="setLevel('hard')" class="px-4 py-1 rounded hover:bg-gray-700 text-gray-400 text-sm transition">Сложно</button>
+            </div>
+        </div>
+        
+        <!-- Visualizer -->
+        <div class="flex flex-col items-center my-2 md:my-0">
+            <span class="text-xs text-indigo-300 mb-1 uppercase tracking-widest transition-colors duration-300" id="source-label">Источник звука</span>
+            <div id="visualizer" class="visualizer-container bg-gray-900 px-4 rounded-full border border-gray-700 transition-colors duration-300">
+                <div class="bar"></div>
+                <div class="bar"></div>
+                <div class="bar"></div>
+                <div class="bar"></div>
+                <div class="bar"></div>
+            </div>
+            <button onclick="replaySound()" class="mt-2 text-xs text-yellow-500 hover:text-white underline">🔄 Повторить звук</button>
+        </div>
+
+        <div class="flex items-center gap-4">
+            <div class="text-right">
+                <p class="text-xs text-gray-400">Осталось</p>
+                <p id="remaining-count" class="text-xl font-bold text-indigo-400 transition-colors duration-300">6</p>
+            </div>
+            <div class="text-right pl-4 border-l border-gray-700">
+                <p class="text-xs text-gray-400">Счет</p>
+                <p id="score" class="text-xl font-bold text-green-400">0</p>
+            </div>
+            <button onclick="toggleMusic()" id="music-btn" class="ml-2 p-2 rounded-full bg-gray-700 hover:bg-gray-600 text-white">
+                🎵
+            </button>
+        </div>
+    </header>
+
+    <!-- Game Board -->
+    <main id="game-board" class="relative w-full max-w-4xl shadow-2xl rounded-lg overflow-hidden border-4 border-yellow-900 transition-colors duration-500">
+        <!-- Main Image -->
+        <img src="https://george-stone-pax.github.io/my-game-assets/Generated image 1 (6).png" 
+             alt="6 Portraits" 
+             class="w-full h-auto block select-none pointer-events-none">
+        
+        <!-- Interactive Overlay Grid -->
+        <div class="portrait-grid">
+            <div class="portrait-zone" onclick="guess(1)" id="zone-1"></div>
+            <div class="portrait-zone" onclick="guess(2)" id="zone-2"></div>
+            <div class="portrait-zone" onclick="guess(3)" id="zone-3"></div>
+            <div class="portrait-zone" onclick="guess(4)" id="zone-4"></div>
+            <div class="portrait-zone" onclick="guess(5)" id="zone-5"></div>
+            <div class="portrait-zone" onclick="guess(6)" id="zone-6"></div>
+        </div>
+        
+        <!-- Message Overlay -->
+        <div id="message-overlay" class="absolute inset-0 flex items-center justify-center bg-black bg-opacity-70 pointer-events-none opacity-0 transition-opacity duration-300">
+            <h2 id="message-text" class="text-4xl font-bold text-white drop-shadow-lg fantasy-font transform scale-0 transition-transform duration-300">Верно!</h2>
+        </div>
+    </main>
+
+    <footer class="mt-4 text-gray-500 text-sm text-center">
+        Нажмите на портрет, чтобы угадать говорящего.<br>
+        Каждый голос прозвучит только один раз.
+    </footer>
+
+    <!-- Audio Elements -->
+    <audio id="bg-music" loop>
+        <source src="https://george-stone-pax.github.io/my-game-assets/Aylex - Back To Life (freetouse.com).mp3" type="audio/mpeg">
+    </audio>
+    <audio id="sfx-wrong" src="https://george-stone-pax.github.io/my-game-assets/dodgeball.mp3"></audio>
+    <audio id="sfx-correct" src="https://george-stone-pax.github.io/my-game-assets/rightanswer-95219.mp3"></audio>
+    <audio id="voice-player"></audio>
+
+    <script>
+        // Game State
+        let currentLevel = 'easy';
+        let currentTarget = null;
+        let score = 0;
+        let isPlaying = false;
+        let isMusicPlaying = false;
+        let canGuess = false;
+        let availableTargets = []; // Pool of remaining characters
+        
+        // Constants
+        const BASE_MUSIC_VOLUME = 0.12; 
+        const DUCKED_MUSIC_VOLUME = BASE_MUSIC_VOLUME * 0.2; 
+        const MAX_ROUNDS = 6;
+        const POINTS_PER_WIN = 10;
+        const MAX_POSSIBLE_SCORE = MAX_ROUNDS * POINTS_PER_WIN; // 60
+
+        // Audio Data Mapping
+        const audioData = {
+            easy: {
+                1: "https://george-stone-pax.github.io/my-game-assets/p1v1.wav",
+                2: "https://george-stone-pax.github.io/my-game-assets/p2v1.wav",
+                3: "https://george-stone-pax.github.io/my-game-assets/p3v1.wav",
+                4: "https://george-stone-pax.github.io/my-game-assets/p4v1.wav",
+                5: "https://george-stone-pax.github.io/my-game-assets/p5v1.wav",
+                6: "https://george-stone-pax.github.io/my-game-assets/p6v1.wav"
+            },
+            hard: {
+                1: "https://george-stone-pax.github.io/my-game-assets/p1v2.wav",
+                2: "https://george-stone-pax.github.io/my-game-assets/p2v2.wav",
+                3: "https://george-stone-pax.github.io/my-game-assets/p3v2.wav",
+                4: "https://george-stone-pax.github.io/my-game-assets/p4v2.wav",
+                5: "https://george-stone-pax.github.io/my-game-assets/p5v2.wav",
+                6: "https://george-stone-pax.github.io/my-game-assets/p6v2.wav"
+            }
+        };
+
+        // DOM Elements
+        const voicePlayer = document.getElementById('voice-player');
+        const visualizer = document.getElementById('visualizer');
+        const bgMusic = document.getElementById('bg-music');
+        const startModal = document.getElementById('start-modal');
+        const resultModal = document.getElementById('result-modal');
+        const messageOverlay = document.getElementById('message-overlay');
+        const messageText = document.getElementById('message-text');
+
+        // Initialization
+        function startGame() {
+            startModal.classList.add('hidden');
+            resultModal.classList.add('hidden');
+            
+            // Reset Game State
+            score = 0;
+            availableTargets = [1, 2, 3, 4, 5, 6]; // Fill pool
+            updateScore();
+            
+            isPlaying = true;
+            toggleMusic(true);
+            nextRound();
+        }
+
+        function restartGame() {
+            resultModal.classList.add('hidden');
+            startGame();
+        }
+
+        // Level Switching
+        function setLevel(level) {
+            currentLevel = level;
+            
+            const btnEasy = document.getElementById('btn-easy');
+            const btnHard = document.getElementById('btn-hard');
+            
+            // Theme Elements
+            const gameBody = document.getElementById('game-body');
+            const gameHeader = document.getElementById('game-header');
+            const gameBoard = document.getElementById('game-board');
+            const remainingCount = document.getElementById('remaining-count');
+            const sourceLabel = document.getElementById('source-label');
+            const gameTitle = document.getElementById('game-title');
+            
+            if (level === 'easy') {
+                // EASY THEME (Indigo/Blue/Yellow)
+                btnEasy.className = "px-4 py-1 rounded bg-indigo-600 text-white text-sm transition shadow-lg ring-2 ring-indigo-400";
+                btnHard.className = "px-4 py-1 rounded hover:bg-gray-700 bg-gray-900 text-gray-500 text-sm transition";
+                
+                // Colors
+                gameHeader.className = "w-full max-w-4xl flex flex-col md:flex-row justify-between items-center mb-4 bg-gray-800 p-4 rounded-lg shadow-lg border-b-4 border-indigo-900 transition-colors duration-500";
+                gameBoard.classList.remove('border-red-900');
+                gameBoard.classList.add('border-yellow-900');
+                remainingCount.className = "text-xl font-bold text-indigo-400 transition-colors duration-300";
+                sourceLabel.className = "text-xs text-indigo-300 mb-1 uppercase tracking-widest transition-colors duration-300";
+                gameTitle.className = "text-2xl text-yellow-500 fantasy-font transition-colors duration-300";
+                
+                document.body.classList.remove('hard-mode');
+
+            } else {
+                // HARD THEME (Red/Dark/Danger)
+                btnHard.className = "px-4 py-1 rounded bg-red-700 text-white text-sm transition shadow-lg ring-2 ring-red-500";
+                btnEasy.className = "px-4 py-1 rounded hover:bg-gray-700 bg-gray-900 text-gray-500 text-sm transition";
+
+                // Colors
+                gameHeader.className = "w-full max-w-4xl flex flex-col md:flex-row justify-between items-center mb-4 bg-gray-900 p-4 rounded-lg shadow-lg border-b-4 border-red-900 transition-colors duration-500";
+                gameBoard.classList.remove('border-yellow-900');
+                gameBoard.classList.add('border-red-900');
+                remainingCount.className = "text-xl font-bold text-red-500 transition-colors duration-300";
+                sourceLabel.className = "text-xs text-red-400 mb-1 uppercase tracking-widest transition-colors duration-300";
+                gameTitle.className = "text-2xl text-red-500 fantasy-font transition-colors duration-300";
+                
+                document.body.classList.add('hard-mode');
+            }
+
+            // Optional: Replay sound if in game to hear new difficulty
+            /*
+            if (isPlaying && canGuess && currentTarget) {
+                 // do nothing, wait for user to click replay
+            }
+            */
+        }
+
+        // Game Logic
+        function nextRound() {
+            // Check if game over
+            if (availableTargets.length === 0) {
+                endGame();
+                return;
+            }
+
+            // Fixed: removed the +1 so it shows actual remaining count
+            updateRemaining();
+            
+            canGuess = true;
+            
+            // Clear previous UI states
+            document.querySelectorAll('.portrait-zone').forEach(el => {
+                el.classList.remove('correct', 'wrong');
+            });
+
+            // Pick random target from AVAILABLE pool
+            const randomIndex = Math.floor(Math.random() * availableTargets.length);
+            currentTarget = availableTargets[randomIndex];
+            
+            // Remove from pool so they don't speak again
+            availableTargets.splice(randomIndex, 1);
+            
+            // Play Sound with delay to let UI settle
+            setTimeout(() => {
+                 playSound(currentTarget);
+            }, 500);
+        }
+
+        function endGame() {
+            isPlaying = false;
+            canGuess = false;
+            
+            let percentage = Math.round((score / MAX_POSSIBLE_SCORE) * 100);
+            if (percentage < 0) percentage = 0;
+            if (percentage > 100) percentage = 100;
+
+            let grade = "";
+            let gradeColor = "";
+            let comment = "";
+
+            if (percentage >= 85) {
+                grade = "«5» (Отлично)";
+                gradeColor = "text-green-400";
+                comment = "Потрясающий слух! Вы настоящий детектив.";
+            } else if (percentage >= 70) {
+                grade = "«4» (Хорошо)";
+                gradeColor = "text-blue-400";
+                comment = "Хорошая работа, но можно еще лучше.";
+            } else if (percentage >= 50) {
+                grade = "«3» (Удовлетворительно)";
+                gradeColor = "text-yellow-400";
+                comment = "Вы справились, но было много ошибок.";
+            } else {
+                grade = "«2» (Неудовлетворительно)";
+                gradeColor = "text-red-500";
+                comment = "Попробуйте еще раз, внимательнее!";
+            }
+
+            document.getElementById('final-score').innerText = percentage + "%";
+            const gradeEl = document.getElementById('final-grade');
+            gradeEl.innerText = grade;
+            gradeEl.className = `text-2xl font-bold ${gradeColor}`;
+            document.getElementById('final-comment').innerText = comment;
+
+            resultModal.classList.remove('hidden');
+        }
+
+        function playSound(id) {
+            const src = audioData[currentLevel][id];
+            voicePlayer.src = src;
+
+            if (isMusicPlaying) {
+                bgMusic.volume = DUCKED_MUSIC_VOLUME;
+            }
+
+            voicePlayer.play().catch(e => console.log("Audio play failed:", e));
+            
+            visualizer.classList.add('active');
+            voicePlayer.onended = () => {
+                visualizer.classList.remove('active');
+                if (isMusicPlaying) {
+                    bgMusic.volume = BASE_MUSIC_VOLUME;
+                }
+            };
+        }
+
+        function replaySound() {
+            if (currentTarget && canGuess) {
+                playSound(currentTarget);
+            }
+        }
+
+        function guess(id) {
+            if (!canGuess) return;
+
+            const zone = document.getElementById(`zone-${id}`);
+
+            if (id === currentTarget) {
+                // Correct
+                canGuess = false; 
+                zone.classList.add('correct');
+                
+                const sfx = document.getElementById('sfx-correct');
+                sfx.currentTime = 0;
+                sfx.play();
+                
+                score += POINTS_PER_WIN;
+                updateScore();
+                
+                visualizer.classList.remove('active');
+                voicePlayer.pause();
+                if (isMusicPlaying) {
+                    bgMusic.volume = BASE_MUSIC_VOLUME;
+                }
+                
+                showMessage("Верно!", "text-green-400");
+                
+                setTimeout(() => {
+                    hideMessage();
+                    nextRound();
+                }, 1500);
+
+            } else {
+                // Wrong
+                zone.classList.add('wrong');
+                
+                const sfx = document.getElementById('sfx-wrong');
+                sfx.currentTime = 0;
+                sfx.play();
+                
+                score = Math.max(0, score - 5);
+                updateScore();
+                
+                setTimeout(() => {
+                    zone.classList.remove('wrong');
+                }, 500);
+            }
+        }
+
+        // UI Helpers
+        function updateScore() {
+            document.getElementById('score').innerText = score;
+        }
+        
+        function updateRemaining() {
+            // Fixed: removed +1
+            document.getElementById('remaining-count').innerText = availableTargets.length;
+        }
+
+        function showMessage(text, colorClass) {
+            messageText.innerText = text;
+            messageText.className = `text-5xl font-bold drop-shadow-lg fantasy-font transform scale-100 transition-transform duration-300 ${colorClass}`;
+            messageOverlay.classList.remove('opacity-0', 'pointer-events-none');
+        }
+
+        function hideMessage() {
+            messageOverlay.classList.add('opacity-0', 'pointer-events-none');
+            messageText.classList.remove('scale-100');
+            messageText.classList.add('scale-0');
+        }
+
+        function toggleMusic(forceStart = false) {
+            if (forceStart || !isMusicPlaying) {
+                bgMusic.volume = BASE_MUSIC_VOLUME;
+                bgMusic.play().then(() => {
+                    isMusicPlaying = true;
+                    document.getElementById('music-btn').innerHTML = "🔊";
+                    document.getElementById('music-btn').classList.add('bg-green-600');
+                }).catch(e => console.log("Music blocked"));
+            } else {
+                bgMusic.pause();
+                isMusicPlaying = false;
+                document.getElementById('music-btn').innerHTML = "🔇";
+                document.getElementById('music-btn').classList.remove('bg-green-600');
+            }
+        }
+    </script>
+</body>
+</html>

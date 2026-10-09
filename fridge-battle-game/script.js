@@ -112,7 +112,7 @@ function setupSettingsListeners() {
     setBtnActive(".mode-btn", e.currentTarget);
     isAiMode = true;
     const label = document.getElementById("p2-name-label");
-    if (label) label.textContent = "🤖 Teacher AI's Fridge";
+    if (label) label.textContent = "🤖 AI's Fridge";
   });
 
   document.getElementById("size-4")?.addEventListener("click", (e) => {
@@ -466,11 +466,7 @@ function animateItemFly(sourceEl, item, targetType, callback) {
 
 // Special Actions
 function handleSpecialAction(item) {
-  const curPlayer = isPlayerTurn
-    ? "Student"
-    : isAiMode
-      ? "Teacher AI"
-      : "Teacher";
+  const curPlayer = isPlayerTurn ? "Student" : isAiMode ? "AI" : "AI";
   const myFridge = isPlayerTurn ? playerFridge : teacherFridge;
   const oppFridge = isPlayerTurn ? teacherFridge : playerFridge;
 
@@ -760,7 +756,7 @@ function updateTurnIndicator() {
   );
 
   if (isPlayerTurn) {
-    btn.textContent = "Student's Turn: Roll! 🎲";
+    btn.textContent = "1 Player's Turn: Roll! 🎲";
     btn.classList.add(
       "bg-emerald-500",
       "hover:bg-emerald-600",
@@ -778,8 +774,8 @@ function updateTurnIndicator() {
     if (p2Status) p2Status.classList.add("hidden");
   } else {
     btn.textContent = isAiMode
-      ? "Teacher AI Thinking... 🤖"
-      : "Teacher's Turn: Roll! 🎲";
+      ? "AI Thinking... 🤖"
+      : "2 Player's Turn: Roll! 🎲";
     btn.classList.add("bg-rose-500", "hover:bg-rose-600", "border-rose-700");
     if (p1Panel) {
       p1Panel.classList.add("bg-slate-50");
@@ -826,7 +822,7 @@ function endGame() {
   const teacherTitle = document.getElementById("final-teacher-title");
   if (teacherTitle) {
     teacherTitle.textContent = isAiMode
-      ? "🤖 Teacher AI's Items"
+      ? "🤖 AI's Items"
       : "👓 2 Player's Items";
   }
 
@@ -912,7 +908,7 @@ function checkAnswers() {
         </div>
 
         <div class="bg-white p-2.5 rounded-lg border border-slate-200 shadow-sm">
-          <p class="font-bold text-rose-700 text-xs md:text-sm mb-1">${isAiMode ? "🤖 Teacher AI's Fridge" : "👓 2 Player's Fridge"}:</p>
+          <p class="font-bold text-rose-700 text-xs md:text-sm mb-1">${isAiMode ? "🤖 AI's Fridge" : "👓 2 Player's Fridge"}:</p>
           <p>• <b>Countable (${tStats.cCount}):</b> ${tStats.cNames}</p>
           <p>• <b>Uncountable (${tStats.uCount}):</b> ${tStats.uNames}</p>
         </div>
