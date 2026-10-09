@@ -1,4 +1,5 @@
 /* === БАЗА ДАННЫХ === */
+
 const questionsData = [
   {
     text: "My car is ____ than yours. (fast)",
@@ -112,6 +113,9 @@ let gameActive = false,
   isPaused = false,
   previousScreen = "menu";
 let speedInterval, timerInterval;
+let mistakes = 0;
+let runStartedAt = 0;
+let resultSubmitted = false;
 let enemyScaleEnd = 0.5,
   enemyScaleOvertake = 1.5;
 
@@ -206,6 +210,9 @@ function startGame() {
 
   currentQIndex = 0;
   score = 0;
+  mistakes = 0;
+  runStartedAt = Date.now();
+  resultSubmitted = false;
   currentRank = 10;
   gameActive = true;
   isPaused = false;
@@ -337,6 +344,7 @@ function handleAnswer(isCorrect) {
     ui.enemyCar.style.left = Math.random() > 0.5 ? "20%" : "80%";
     ui.speed.innerText = 300 + Math.floor(Math.random() * 20);
   } else {
+    mistakes++;
     audio.wrong.play();
     ui.feedback.innerText = "SPIN OUT!";
     ui.feedback.style.color = "#ff003c";
@@ -381,6 +389,10 @@ function updateHUD() {
 }
 
 function endGame() {
+  if (!gameActive) return;
+  gameActive = false;
+  clearInterval(timerInterval);
+  clearInterval(speedInterval);
   document.getElementById("question-overlay").style.display = "none";
   document.getElementById("hud").style.display = "none";
 
@@ -414,7 +426,139 @@ function endGame() {
   if (typeof startFireworks === "function") {
     startFireworks();
   }
+  showRaceResult();
 }
+
+function raceScore(correctAnswers, errorCount, seconds) {
+  return Math.max(
+    0,
+    correctAnswers * 100 + Math.max(0, 300 - seconds) - errorCount * 150,
+  );
+}
+
+function formatRaceTime(seconds) {
+  return `${Math.floor(seconds / 60)
+    .toString()
+    .padStart(2, "0")}:${(seconds % 60).toString().padStart(2, "0")}`;
+}
+
+const raceSupabaseConfig = window.NUMBERS_SUPABASE_CONFIG || {};
+const raceSupabaseReady =
+  raceSupabaseConfig.url &&
+  raceSupabaseConfig.anonKey &&
+  !raceSupabaseConfig.url.includes("YOUR-PROJECT") &&
+  !raceSupabaseConfig.anonKey.includes("YOUR_SUPABASE");
+const raceLeaderboardUrl = raceSupabaseReady
+  ? `${new URL(raceSupabaseConfig.url).origin}/rest/v1/race_leaderboard`
+  : null;
+const raceLeaderboardBody = document.getElementById("race-leaderboard-body");
+const raceLeaderboardStatus = document.getElementById(
+  "race-leaderboard-status",
+);
+const racePlayerName = document.getElementById("race-player-name");
+const raceSubmitButton = document.getElementById("race-submit-score");
+const raceSubmitStatus = document.getElementById("race-submit-status");
+let raceResult = null;
+
+async function loadRaceLeaderboard() {
+  if (!raceLeaderboardUrl) {
+    raceLeaderboardStatus.textContent = "Рейтинг не настроен";
+    return;
+  }
+  raceLeaderboardStatus.textContent = "Загрузка...";
+  try {
+    const response = await fetch(
+      `${raceLeaderboardUrl}?select=player_name,score,elapsed_seconds,correct_answers,mistakes,final_rank&order=score.desc,elapsed_seconds.asc&limit=10`,
+      {
+        headers: {
+          apikey: raceSupabaseConfig.anonKey,
+          Authorization: `Bearer ${raceSupabaseConfig.anonKey}`,
+        },
+      },
+    );
+    if (!response.ok) throw new Error("Не удалось загрузить рейтинг");
+    const rows = await response.json();
+    raceLeaderboardBody.replaceChildren();
+    rows.forEach((row, index) => {
+      const tr = document.createElement("tr");
+      [
+        String(index + 1),
+        row.player_name,
+        String(row.score),
+        formatRaceTime(row.elapsed_seconds),
+        `${row.correct_answers} / ${row.mistakes}`,
+        `${row.final_rank}/10`,
+      ].forEach((value) => {
+        const td = document.createElement("td");
+        td.textContent = value;
+        tr.appendChild(td);
+      });
+      raceLeaderboardBody.appendChild(tr);
+    });
+    raceLeaderboardStatus.textContent = rows.length
+      ? ""
+      : "Пока нет результатов";
+  } catch (error) {
+    raceLeaderboardStatus.textContent = "Не удалось загрузить рейтинг";
+    console.error(error);
+  }
+}
+
+async function submitRaceResult() {
+  if (!raceResult || resultSubmitted) return;
+  const name = racePlayerName.value.trim().replaceAll("  ", " ").slice(0, 20);
+  if (!name) {
+    raceSubmitStatus.textContent = "Введите имя";
+    racePlayerName.focus();
+    return;
+  }
+  if (!raceLeaderboardUrl) return;
+  raceSubmitButton.disabled = true;
+  raceSubmitStatus.textContent = "Отправка...";
+  try {
+    const response = await fetch(raceLeaderboardUrl, {
+      method: "POST",
+      headers: {
+        apikey: raceSupabaseConfig.anonKey,
+        Authorization: `Bearer ${raceSupabaseConfig.anonKey}`,
+        "Content-Type": "application/json",
+        Prefer: "return=minimal",
+      },
+      body: JSON.stringify({
+        player_name: name,
+        score: raceResult.score,
+        elapsed_seconds: raceResult.seconds,
+        correct_answers: score,
+        mistakes,
+        final_rank: currentRank,
+      }),
+    });
+    if (!response.ok) throw new Error("Не удалось отправить результат");
+    resultSubmitted = true;
+    raceSubmitStatus.textContent = "Результат добавлен";
+    raceSubmitButton.classList.add("hidden");
+    await loadRaceLeaderboard();
+  } catch (error) {
+    raceSubmitButton.disabled = false;
+    raceSubmitStatus.textContent = "Ошибка отправки. Попробуйте ещё раз.";
+    console.error(error);
+  }
+}
+
+function showRaceResult() {
+  const seconds = Math.max(1, Math.floor((Date.now() - runStartedAt) / 1000));
+  raceResult = { seconds, score: raceScore(score, mistakes, seconds) };
+  document.getElementById("race-result-summary").textContent =
+    `${raceResult.score} очков · ${formatRaceTime(seconds)} · ошибок: ${mistakes}`;
+  raceSubmitButton.disabled = !raceLeaderboardUrl;
+  raceSubmitButton.classList.remove("hidden");
+  raceSubmitStatus.textContent = raceLeaderboardUrl
+    ? ""
+    : "Сначала настройте Supabase";
+  loadRaceLeaderboard();
+}
+
+raceSubmitButton.addEventListener("click", submitRaceResult);
 
 function startFireworks() {
   const canvas = document.getElementById("fireworks");

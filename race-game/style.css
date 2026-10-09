@@ -10,7 +10,14 @@
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
-body { background-color: #000; font-family: 'Roboto', sans-serif; color: white; display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; touch-action: none; }
+body { background-color: #000; font-family: 'Roboto', sans-serif; color: white; display: flex; flex-direction: column; justify-content: flex-start; align-items: center; min-height: 100vh; height: auto; overflow-x: hidden; overflow-y: auto; touch-action: manipulation; }
+#game-container { flex: 0 0 auto; }
+.seo-guide { width: min(900px, calc(100% - 24px)); margin: 16px auto; color: #ddd; font: 14px/1.6 'Roboto', sans-serif; }
+.seo-guide summary { cursor: pointer; padding: 10px 14px; border: 1px solid var(--glass-border); border-radius: 5px; color: var(--neon-blue); }
+.seo-guide-content { padding: 14px 4px; }
+.seo-guide-content h2, .seo-guide-content h3 { margin: 14px 0 8px; }
+.seo-guide-content p, .seo-guide-content ul { margin: 0 0 12px; }
+.seo-guide-content li { margin-left: 20px; }
 
 #game-container {
     width: 100vw; height: 100vh; max-width: 1200px; max-height: 800px; position: relative;
@@ -132,8 +139,19 @@ h2 { color: var(--neon-blue); text-shadow: 0 0 10px var(--neon-blue); margin-bot
     text-align: center;
     line-height: 1.4;
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
-    margin-top: 20px; /* Чтобы отделить от текста "Точность:" */
+    margin-top: 20px;
 }
+#end-screen { justify-content: flex-start; overflow-y: auto; }
+#race-leaderboard { width: min(100%, 900px); margin: 12px 0; text-align: left; }
+#race-leaderboard h2 { font-size: 20px; margin: 8px 0; text-align: center; }
+.race-score-entry { display: flex; justify-content: center; flex-wrap: wrap; gap: 8px; margin: 8px 0; }
+.race-score-entry input { min-width: 0; padding: 10px; border: 1px solid var(--neon-blue); border-radius: 4px; background: #050510; color: white; }
+.race-score-entry .big-btn { padding: 10px 14px; font-size: 14px; }
+#race-submit-status, #race-leaderboard-status { min-height: 1.2em; text-align: center; font-size: 13px; }
+.race-table-wrap { overflow-x: auto; }
+#race-leaderboard table { width: 100%; border-collapse: collapse; font-size: 13px; }
+#race-leaderboard th, #race-leaderboard td { padding: 7px 8px; border-bottom: 1px solid var(--glass-border); text-align: left; white-space: nowrap; }
+.end-btns { margin: 10px 0 20px; }
 .glitch-title { font-size: 10vw; max-font-size: 80px; color: white; position: relative; margin-bottom: 40px; text-shadow: 0 0 20px var(--neon-pink); }
 .menu-btn-container { display: flex; flex-direction: column; gap: 20px; width: 100%; max-width: 350px; }
 .big-btn { padding: 15px 30px; font-size: 18px; background: rgba(0,0,0,0.6); border: 2px solid var(--neon-blue); color: var(--neon-blue); font-family: 'Orbitron', sans-serif; font-weight: 700; cursor: pointer; text-transform: uppercase; border-radius: 5px; transition: all 0.2s; }

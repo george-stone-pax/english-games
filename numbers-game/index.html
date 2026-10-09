@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Numbers Freeze — игра-тренажёр английских чисел от 1 до 20</title>
+    <meta name="description" content="Играйте в Numbers Freeze: сопоставляйте английские числа от 1 до 20 с цифрами, тренируйте чтение и скорость. Бесплатный онлайн-тренажёр английского языка для начинающих.">
+    <link rel="canonical" href="https://english-os.ru/numbers-game/">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Numbers Freeze — учим числа на английском">
+    <meta property="og:description" content="Соединяйте цифры и английские слова, проходите уровни и соревнуйтесь за место в таблице лидеров.">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&family=Anton&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen p-2 sm:p-4">
+
+    <div id="game-container" class="w-full max-w-4xl mx-auto p-3 sm:p-6 bg-white rounded-2xl shadow-xl relative overflow-hidden">
+        <div id="header" class="flex flex-row justify-between items-center mb-2 sm:mb-4 gap-2">
+            <div class="flex items-center gap-2 min-w-0 text-left">
+                <img src="../games_logo/numbers-game_logo.png" alt="" class="w-10 h-10 sm:w-14 sm:h-14 object-contain flex-shrink-0">
+                <div class="min-w-0">
+                    <h1 id="title" class="ice-title text-xl sm:text-3xl md:text-5xl font-bold leading-tight">Numbers Freeze — числа на английском</h1>
+                    <p id="instruction" class="text-gray-600 mt-0 text-xs sm:text-base">Соедини слово и цифру!</p>
+                </div>
+            </div>
+            <div id="timer" class="bg-gray-200 text-gray-800 text-lg sm:text-2xl font-bold py-1 px-3 sm:py-2 sm:px-4 rounded-lg transition-all duration-300 flex-shrink-0">
+                02:00
+            </div>
+        </div>
+
+        <div id="message-box" class="text-center mb-2 h-6 sm:h-10 flex items-center justify-center">
+            <span id="message-text" class="text-lg sm:text-2xl font-semibold transition-opacity duration-300 opacity-0"></span>
+        </div>
+
+        <div class="flex flex-col lg:flex-row gap-4 sm:gap-8 justify-center items-stretch lg:items-start">
+            <div id="words-container" class="flex flex-wrap justify-center gap-2 sm:gap-4 p-3 sm:p-4 bg-green-50 rounded-xl w-full lg:w-1/2 order-2 lg:order-1">
+                <!-- Word cards will be injected here -->
+            </div>
+            <div id="numbers-container" class="flex flex-wrap justify-center gap-2 sm:gap-4 p-3 sm:p-4 bg-blue-50 rounded-xl w-full lg:w-1/2 order-1 lg:order-2">
+                <!-- Number cards will be injected here -->
+            </div>
+        </div>
+
+        <div id="controls" class="text-center mt-4 sm:mt-8 flex flex-row justify-center gap-2">
+            <button id="restart-button" class="bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 px-4 sm:px-6 rounded-lg shadow-md text-sm sm:text-base active:scale-95">Заново</button>
+            <button id="next-level-button" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 sm:px-6 rounded-lg shadow-md text-sm sm:text-base active:scale-95 hidden">Далее</button>
+        </div>
+        
+        <section id="result-panel" class="hidden mt-4 border-t border-gray-200 pt-4">
+            <h2 class="text-lg font-bold text-center">Итог игры</h2>
+            <p id="result-summary" class="text-center text-gray-700 my-2"></p>
+            <div class="flex justify-center gap-2 mb-2">
+                <input id="player-name" type="text" maxlength="20" autocomplete="nickname" placeholder="Ваше имя" aria-label="Ваше имя" class="border border-gray-300 rounded px-3 py-2 min-w-0">
+                <button id="submit-score" class="bg-green-600 hover:bg-green-700 text-white font-bold px-4 py-2 rounded">В рейтинг</button>
+            </div>
+            <p id="submit-status" role="status" class="text-center text-sm text-gray-600 mb-3"></p>
+            <h3 class="font-bold mb-1">Лучшие игроки</h3>
+            <p id="leaderboard-status" role="status" class="text-sm text-gray-600"></p>
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm text-left">
+                    <thead><tr><th>№</th><th>Имя</th><th>Очки</th><th>Время</th><th>Ошибки</th></tr></thead>
+                    <tbody id="leaderboard-body"></tbody>
+                </table>
+            </div>
+        </section>
+
+        <div id="freeze-overlay" class="hidden">
+            <div class="freeze-content">
+                <svg class="snowflake" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path>
+                </svg>
+                <p class="text-white text-2xl font-bold mt-4">ЗАМОРОЗКА!</p>
+            </div>
+        </div>
+    </div>
+    
+    <details class="seo-guide">
+        <summary>Об игре и правилах английского</summary>
+        <div class="seo-guide-content">
+            <h2 id="numbers-guide-title">Онлайн-игра Numbers Freeze: числа от 1 до 20 на английском</h2>
+            <p>Numbers Freeze — бесплатный игровой тренажёр для знакомства с английскими числительными. Он подойдёт начинающим ученикам и детям, которые учатся узнавать числа на слух и в тексте. В игре два этапа: сначала нужно соединить цифры от 1 до 10 с английскими словами, затем пройти числа от 11 до 20.</p>
+            <h3>Как играть</h3>
+            <p>Выберите английское слово и соответствующую цифру или сначала цифру, а затем слово. На компьютере также можно перетаскивать карточки мышью. За ошибочный ответ включается короткая заморозка, поэтому внимательность помогает пройти игру быстрее. Нажмите «Далее», чтобы перейти ко второму уровню; кнопка «Заново» начинает прохождение сначала.</p>
+            <h3>Какие числа тренируются</h3>
+            <p>Первый уровень закрепляет написание one, two, three, four, five, six, seven, eight, nine и ten. Во втором встречаются eleven, twelve, thirteen, fourteen, fifteen, sixteen, seventeen, eighteen, nineteen и twenty. Обратите внимание на необычные формы thirteen, fifteen и eighteen: их написание полезно запомнить отдельно. Сопоставление слова с цифрой помогает связать английское написание с числовым значением.</p>
+            <p>После прохождения обоих уровней можно сохранить результат в таблице лидеров. Очки зависят от времени и количества ошибок: точные и быстрые ответы дают преимущество.</p>
+        </div>
+    </details>
+
+    <div id="confetti-container" class="confetti-container"></div>
+
+    <script src="supabase-config.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>

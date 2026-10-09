@@ -25,7 +25,7 @@ const bgMusicList = [
 
 let bgAudio = new Audio();
 bgAudio.loop = true;
-bgAudio.volume = 0.2;
+bgAudio.volume = 0.05;
 
 // --- DATABASE OF FOOD & SPECIAL CELLS ---
 const foodDatabase = [
@@ -229,7 +229,7 @@ function toggleSound() {
 
   const volumeSlider = document.getElementById("volume-slider");
   if (soundEnabled) {
-    bgAudio.volume = volumeSlider ? parseFloat(volumeSlider.value) : 0.2;
+    bgAudio.volume = volumeSlider ? parseFloat(volumeSlider.value) : 0.05;
   } else {
     bgAudio.volume = 0;
   }

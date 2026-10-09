@@ -213,7 +213,7 @@ document.addEventListener("DOMContentLoaded", () => {
       setVolume(0);
       muteBtn.textContent = "🔇";
     } else {
-      const restoreVol = bgMusic.dataset.lastVol || 0.3;
+      const restoreVol = bgMusic.dataset.lastVol || 0.05;
       volumeSlider.value = restoreVol;
       setVolume(restoreVol);
       muteBtn.textContent = "🔊";

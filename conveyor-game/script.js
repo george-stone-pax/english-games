@@ -749,8 +749,8 @@ function findZoneWithBox(box) {
 function animate() {
   requestAnimationFrame(animate);
 
-  const speed = 0.05;
-  const reverseSpeed = 0.25;
+  const speed = 0.04;
+  const reverseSpeed = 0.2;
 
   if (conveyor && conveyor.material.map) {
     if (isReversing) {

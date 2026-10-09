@@ -3,7 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cyber-Drift: Pursuit</title>
+    <title>Race of Comparisons — игра-гонка на степени сравнения прилагательных в английском</title>
+    <meta name="description" content="Пройдите гонку Race of Comparisons: вставляйте правильные формы сравнительной и превосходной степени прилагательных в предложения. Интерактивный онлайн-тренажёр английской грамматики.">
+    <link rel="canonical" href="https://english-os.ru/race-game/">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Race of Comparisons — гонка по английским сравнениям">
+    <meta property="og:description" content="Ускоряйся за счёт правильных ответов по грамматике Comparatives и Superlatives и попади в мировой рейтинг.">
     <link rel="stylesheet" href="style.css">
     <link rel="icon" type="image/png" href="../logo.png?v=2">
     <!-- Yandex.Metrika counter -->
@@ -92,7 +97,7 @@
 
     <!-- === ГЛАВНОЕ МЕНЮ === -->
     <section id="main-menu" class="screen">
-        <h1 class="glitch-title" data-text="CYBER RACING">CYBER RACING</h1>
+        <h1 class="glitch-title" data-text="CYBER RACING">Race of Comparisons</h1>
         <div class="menu-btn-container">
             <button class="big-btn" id="btn-theory">📖 ТЕОРИЯ</button>
             <!-- ТЕПЕРЬ КНОПКА ОТКРЫТА СРАЗУ -->
@@ -108,8 +113,8 @@
             <div class="settings-row">
                 <label for="volume-slider">🔊 Громкость:</label>
                 <div class="settings-control">
-                    <input type="range" id="volume-slider" min="0" max="1" step="0.1" value="0.5">
-                    <span id="volume-display">50%</span>
+                    <input type="range" id="volume-slider" min="0" max="1" step="0.05" value="0.05">
+                    <span id="volume-display">5%</span>
                 </div>
             </div>
             <div class="settings-row">
@@ -191,14 +196,44 @@
             <p>Точность: <span id="final-percent">0</span>%</p>
             <h2 id="final-grade"></h2>
         </div>
+        <section id="race-leaderboard" aria-label="Таблица лучших результатов">
+            <h2>РЕЙТИНГ ГОНКИ</h2>
+            <p id="race-result-summary"></p>
+            <div class="race-score-entry">
+                <input id="race-player-name" type="text" maxlength="20" autocomplete="nickname" placeholder="Ваше имя" aria-label="Ваше имя">
+                <button id="race-submit-score" class="big-btn">В РЕЙТИНГ</button>
+            </div>
+            <p id="race-submit-status" role="status"></p>
+            <p id="race-leaderboard-status" role="status"></p>
+            <div class="race-table-wrap">
+                <table>
+                    <thead><tr><th>№</th><th>Имя</th><th>Очки</th><th>Время</th><th>Верно / ошибки</th><th>Место</th></tr></thead>
+                    <tbody id="race-leaderboard-body"></tbody>
+                </table>
+            </div>
+        </section>
         <div class="end-btns">
             <button class="big-btn" onclick="location.reload()">В МЕНЮ</button>
         </div>
     </section>
-    
+
     <canvas id="fireworks"></canvas>
 </main>
 
+<details class="seo-guide">
+    <summary>Об игре и правилах английского</summary>
+    <div class="seo-guide-content">
+        <h2>Race of Comparisons: степени сравнения прилагательных</h2>
+        <p>Race of Comparisons — интерактивный тренажёр английской грамматики, посвящённый степеням сравнения прилагательных (Degrees of Comparison). Игра предназначена для учеников уровней A1 и A2, а также для школьников, желающих закрепить правила употребления Comparative и Superlative.</p>
+        <h3>Инструкция к гонке</h3>
+        <p>Ваша цель — подняться с 10-го места на 1-е, обгоняя соперников. Для ускорения (Nitro) нужно выбрать правильный вариант дополнения предложения. Каждый верный ответ приближает вас к победе. Ошибка приводит к заносу (Spin out), при котором соперник отдаляется, а скорость падает. Игра учитывает время прохождения, количество ошибок и итоговое место.</p>
+        <h3>Грамматическая справка</h3>
+        <p>В английском языке короткие прилагательные обычно образуют сравнительную степень с помощью окончания <em>-er</em> (fast — faster), а превосходную — с окончанием <em>-est</em> и артиклем the (the fastest). В некоторых словах конечная согласная удваивается: big — bigger — the biggest.</p>
+        <p>Для многих длинных прилагательных используются слова <em>more</em> и <em>the most</em>: beautiful — more beautiful — the most beautiful. Есть и неправильные формы, которые нужно запомнить: good — better — the best; bad — worse — the worst. Вопросы игры помогают выбирать подходящую форму в контексте предложения.</p>
+    </div>
+</details>
+
+<script src="../numbers-game/supabase-config.js"></script>
 <script src="script.js"></script>
 </body>
 </html>
