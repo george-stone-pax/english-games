@@ -329,6 +329,25 @@ const questPrompts = [
   },
 ];
 
+const QUEST_REWARDS = [
+  {
+    days: 5,
+    badge: "🎁 Награда за 5 дней",
+    title: "Английский язык: 3 класс - Игровой курс",
+    discount: "Скидка 50%",
+    promoCode: "SECRET-CODE-19",
+    url: "https://stepik.org/a/271349",
+  },
+  {
+    days: 10,
+    badge: "🏆 Суперприз за 10 дней",
+    title: "English OS: Погружение в язык",
+    discount: "Скидка 50%",
+    promoCode: "50%-SALE-FOR-U",
+    url: "https://stepik.org/a/235360",
+  },
+];
+
 const questRoot = document.getElementById("daily-quest");
 if (questRoot) {
   const promptNode = document.getElementById("quest-prompt");
@@ -337,6 +356,18 @@ if (questRoot) {
   const streakNode = document.getElementById("quest-streak");
   const dateNode = document.getElementById("quest-date");
   const progressNode = document.getElementById("quest-progress-bar");
+  const titleNode = document.getElementById("quest-title");
+  const soundCorrect = document.getElementById("sound-correct");
+  const soundWrong = document.getElementById("sound-wrong");
+
+  const playSound = (audioEl) => {
+    if (!audioEl) return;
+    try {
+      audioEl.currentTime = 0;
+      audioEl.play().catch(() => {});
+    } catch (_) {}
+  };
+
   const now = new Date();
   const today = now.toISOString().slice(0, 10);
   const yesterdayDate = new Date(now.getTime() - 86400000)
@@ -353,16 +384,164 @@ if (questRoot) {
     progress = {};
   }
 
-  const answeredToday = progress.lastDate === today;
-  const activeStreak =
+  let answeredToday = progress.lastDate === today;
+  let activeStreak =
     answeredToday || progress.lastDate === yesterdayDate
       ? progress.streak || 0
       : 0;
+
   const streakLabel = (value) =>
-    `${value} ${value === 1 ? "день" : value > 1 && value < 5 ? "дня" : "дней"}`;
-  dateNode.textContent = `ЗАДАНИЕ НА СЕГОДНЯ · ${now.toLocaleDateString("ru-RU", { day: "numeric", month: "long" }).toUpperCase()}`;
+    `${value} ${
+      value % 10 === 1 && value % 100 !== 11
+        ? "день"
+        : value % 10 >= 2 &&
+            value % 10 <= 4 &&
+            (value % 100 < 10 || value % 100 >= 20)
+          ? "дня"
+          : "дней"
+    }`;
+
+  dateNode.textContent = `ЗАДАНИЕ НА СЕГОДНЯ · ${now
+    .toLocaleDateString("ru-RU", { day: "numeric", month: "long" })
+    .toUpperCase()}`;
   promptNode.textContent = challenge.prompt;
-  streakNode.textContent = `🔥 Серия: ${streakLabel(activeStreak)}`;
+
+  // Создаём расширенную шкалу прогресса и блок наград
+  const progressContainer = progressNode?.parentElement;
+  let trackHeaderNode = document.getElementById("quest-track-header");
+  let rewardsContainerNode = document.getElementById("quest-rewards");
+
+  if (progressContainer && !trackHeaderNode) {
+    trackHeaderNode = document.createElement("div");
+    trackHeaderNode.id = "quest-track-header";
+    trackHeaderNode.className = "quest-track-header";
+    progressContainer.parentNode.insertBefore(trackHeaderNode, progressContainer);
+
+    const milestonesNode = document.createElement("div");
+    milestonesNode.className = "quest-milestones";
+    milestonesNode.innerHTML = `
+      <span class="quest-milestone" data-milestone="5" style="left: 50%">
+        <i class="quest-milestone-dot"></i>
+        <b>5 дн. · -50%</b>
+      </span>
+      <span class="quest-milestone" data-milestone="10" style="left: 100%">
+        <i class="quest-milestone-dot"></i>
+        <b>10 дн. · -50%</b>
+      </span>
+    `;
+    progressContainer.appendChild(milestonesNode);
+  }
+
+  if (!rewardsContainerNode) {
+    rewardsContainerNode = document.createElement("div");
+    rewardsContainerNode.id = "quest-rewards";
+    rewardsContainerNode.className = "quest-rewards-grid";
+    questRoot.appendChild(rewardsContainerNode);
+  }
+
+  const renderStreakAndRewards = (streakCount) => {
+    streakNode.textContent = `🔥 Серия: ${streakLabel(streakCount)}`;
+
+    const clampedStreak = Math.min(10, Math.max(0, streakCount));
+    const percent = Math.round((clampedStreak / 10) * 100);
+    if (progressNode) {
+      progressNode.style.width = `${percent}%`;
+    }
+
+    if (trackHeaderNode) {
+      let nextGoalText = "";
+      if (streakCount < 5) {
+        const left = 5 - streakCount;
+        nextGoalText = `До скидки 50% на курс 3 класса: ещё ${streakLabel(left)}`;
+      } else if (streakCount < 10) {
+        const left = 10 - streakCount;
+        nextGoalText = `Первая награда открыта! До курса English OS: ещё ${streakLabel(left)}`;
+      } else {
+        nextGoalText = `🎉 Все награды серии 10 дней разблокированы!`;
+      }
+
+      trackHeaderNode.innerHTML = `
+        <span class="quest-track-title">Шкала наград: <strong>${clampedStreak} / 10 дней</strong></span>
+        <span class="quest-track-next">${nextGoalText}</span>
+      `;
+    }
+
+    questRoot.querySelectorAll(".quest-milestone").forEach((el) => {
+      const targetDays = Number(el.getAttribute("data-milestone"));
+      el.classList.toggle("is-reached", streakCount >= targetDays);
+    });
+
+    if (rewardsContainerNode) {
+      rewardsContainerNode.innerHTML = "";
+      QUEST_REWARDS.forEach((reward) => {
+        const isUnlocked =
+          streakCount >= reward.days ||
+          (progress.unlockedRewards &&
+            progress.unlockedRewards.includes(reward.days));
+
+        const card = document.createElement("div");
+        card.className = `quest-reward-card ${
+          isUnlocked ? "is-unlocked" : "is-locked"
+        }`;
+
+        const daysLeft = Math.max(0, reward.days - streakCount);
+
+        if (isUnlocked) {
+          card.innerHTML = `
+            <div class="quest-reward-top">
+              <span class="quest-reward-badge">${reward.badge} · ОТКРЫТО</span>
+              <span class="quest-reward-discount">${reward.discount}</span>
+            </div>
+            <h3 class="quest-reward-title">${reward.title}</h3>
+            <div class="quest-promo-box">
+              <div class="quest-promo-code-wrap">
+                <span class="quest-promo-label">Промокод:</span>
+                <code class="quest-promo-code">${reward.promoCode}</code>
+              </div>
+              <button type="button" class="quest-copy-btn" data-code="${reward.promoCode}">
+                Скопировать
+              </button>
+            </div>
+            <a href="${reward.url}" target="_blank" rel="noopener noreferrer" class="quest-reward-link">
+              Перейти к курсу на Stepik ↗
+            </a>
+          `;
+        } else {
+          card.innerHTML = `
+            <div class="quest-reward-top">
+              <span class="quest-reward-badge">🔒 ${reward.badge}</span>
+              <span class="quest-reward-discount">${reward.discount}</span>
+            </div>
+            <h3 class="quest-reward-title">${reward.title}</h3>
+            <p class="quest-reward-lock-note">
+              Выполняй задание ещё <strong>${streakLabel(daysLeft)}</strong> подряд, чтобы открыть промокод на скидку 50%.
+            </p>
+            <a href="${reward.url}" target="_blank" rel="noopener noreferrer" class="quest-reward-link is-preview">
+              Посмотреть курс на Stepik ↗
+            </a>
+          `;
+        }
+
+        rewardsContainerNode.appendChild(card);
+      });
+
+      rewardsContainerNode.querySelectorAll(".quest-copy-btn").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const code = btn.getAttribute("data-code") || "";
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(code).catch(() => {});
+          }
+          const originalText = btn.textContent;
+          btn.textContent = "Скопировано ✓";
+          btn.classList.add("is-copied");
+          window.setTimeout(() => {
+            btn.textContent = originalText;
+            btn.classList.remove("is-copied");
+          }, 1800);
+        });
+      });
+    }
+  };
 
   challenge.options.forEach((option, index) => {
     const button = document.createElement("button");
@@ -372,6 +551,7 @@ if (questRoot) {
     button.addEventListener("click", () => {
       if (button.disabled || answeredToday) return;
       if (index !== challenge.answer) {
+        playSound(soundWrong);
         button.classList.add("is-wrong");
         feedbackNode.textContent = "Почти! Попробуй ещё раз.";
         feedbackNode.classList.add("is-wrong");
@@ -379,21 +559,43 @@ if (questRoot) {
         return;
       }
 
+      playSound(soundCorrect);
+      answeredToday = true;
       button.classList.add("is-correct");
       optionsNode.querySelectorAll("button").forEach((answerButton) => {
         answerButton.disabled = true;
       });
+
       const streak =
         progress.lastDate === yesterdayDate ? (progress.streak || 0) + 1 : 1;
-      progress = { lastDate: today, streak };
+      const prevUnlocked = Array.isArray(progress.unlockedRewards)
+        ? progress.unlockedRewards
+        : [];
+      const unlockedRewards = [...prevUnlocked];
+      if (streak >= 5 && !unlockedRewards.includes(5)) unlockedRewards.push(5);
+      if (streak >= 10 && !unlockedRewards.includes(10)) unlockedRewards.push(10);
+
+      progress = { lastDate: today, streak, unlockedRewards };
       try {
         localStorage.setItem(storageKey, JSON.stringify(progress));
       } catch (_) {}
-      streakNode.textContent = `🔥 Серия: ${streakLabel(streak)}`;
+
+      activeStreak = streak;
       feedbackNode.classList.remove("is-wrong");
-      feedbackNode.textContent = `Верно! ${challenge.note} Возвращайся за новым заданием завтра.`;
-      progressNode.style.width = "100%";
-      document.getElementById("quest-title").textContent = "Отличная работа!";
+
+      if (streak === 5) {
+        feedbackNode.textContent = `🎉 Поздравляем! 5 дней подряд! Тебе открыт промокод SECRET-CODE-19 (скидка 50%) на курс 3 класса ниже!`;
+      } else if (streak === 10) {
+        feedbackNode.textContent = `🏆 Невероятно! 10 дней подряд! Открыт суперприз — промокод 50%-SALE-FOR-U (скидка 50%) на курс «English OS: Погружение в язык»!`;
+      } else {
+        feedbackNode.textContent = `Верно! ${challenge.note} Возвращайся за новым заданием завтра.`;
+      }
+
+      if (titleNode) {
+        titleNode.textContent = "Отличная работа!";
+      }
+
+      renderStreakAndRewards(streak);
     });
     optionsNode.appendChild(button);
   });
@@ -407,7 +609,10 @@ if (questRoot) {
       [challenge.answer]?.classList.add("is-correct");
     feedbackNode.textContent =
       "Сегодняшнее задание уже выполнено. Загляни завтра за новым!";
-    progressNode.style.width = "100%";
-    document.getElementById("quest-title").textContent = "Ты уже в деле!";
+    if (titleNode) {
+      titleNode.textContent = "Ты уже в деле!";
+    }
   }
-}
+
+  renderStreakAndRewards(activeStreak);
+              }
