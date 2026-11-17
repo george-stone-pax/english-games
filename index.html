@@ -24,6 +24,8 @@
 </script>
 <noscript><div><img src="https://mc.yandex.ru/watch/113352927" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
 <!-- /Yandex.Metrika counter -->
+    <!-- Скрипт Yandex SmartCaptcha -->
+    <script src="https://smartcaptcha.yandexcloud.net/captcha.js" async defer></script>
 </head>
 <body>
 
@@ -566,7 +568,9 @@
                     <label for="comment">Комментарий (необязательно)</label>
                     <textarea id="comment" name="comment" placeholder="Ваш уровень, класс или пожелания"></textarea>
                 </div>
-                
+                <!-- Виджет капчи (слайдер) -->
+                <div id="captcha-container" style="margin-bottom: 15px;"></div>
+                <div id="captcha-error" style="color: #ff8377; font-size: 12.5px; margin-bottom: 10px;"></div>
                 <button type="submit" class="submit-btn" id="submit-btn">Отправить заявку</button>
                 
                 <!-- Место для сообщения об успехе или ошибке -->
