@@ -556,17 +556,57 @@ if (modalOverlay) {
 }
 
 // =========================================
-// ОТПРАВКА ФОРМЫ ЧЕРЕЗ ПРОКСИ YANDEX CLOUD
+// ОТПРАВКА ФОРМЫ С YANDEX SMARTCAPTCHA
 // =========================================
-const PROXY_URL = "https://tg-lead-proxy.kadoshnikov-pasha228.workers.dev";
+// Вставьте сюда вашу актуальную ссылку на Яндекс Функцию, которую вы скопировали из консоли:
+const PROXY_URL = "https://functions.yandexcloud.net/d4ed2tnbaoq72qbierrq";
 
 const bookingForm = document.getElementById("booking-form");
 const submitBtn = document.getElementById("submit-btn");
 const formStatus = document.getElementById("form-status");
+const captchaError = document.getElementById("captcha-error");
+
+let captchaToken = null;
+let captchaWidgetId = null;
+
+// Инициализация виджета SmartCaptcha (слайдер)
+function initSmartCaptcha() {
+  const container = document.getElementById("captcha-container");
+  if (container && window.smartCaptcha && captchaWidgetId === null) {
+    container.innerHTML = "";
+    captchaWidgetId = window.smartCaptcha.render("captcha-container", {
+      sitekey: "ysc1_iRQTJoGbq4o1GvzG9FY4KmyUbFUjW9CJbvBInfZO49e9ee28", // Ваш клиентский ключ
+      callback: (token) => {
+        captchaToken = token;
+        if (captchaError) captchaError.textContent = "";
+      },
+      "expired-callback": () => {
+        captchaToken = null;
+      },
+      "error-callback": () => {
+        captchaToken = null;
+      }
+    });
+  }
+}
+
+// Запускаем инициализацию при загрузке страницы
+document.addEventListener("DOMContentLoaded", () => {
+  setTimeout(initSmartCaptcha, 800);
+});
 
 if (bookingForm) {
   bookingForm.addEventListener("submit", async function (e) {
     e.preventDefault();
+    if (captchaError) captchaError.textContent = "";
+
+    // Проверяем, прошел ли пользователь слайдер
+    if (!captchaToken) {
+      if (captchaError) {
+        captchaError.textContent = "Пожалуйста, подтвердите, что вы не робот (продвиньте слайдер).";
+      }
+      return;
+    }
 
     // Визуальная индикация загрузки
     const originalBtnText = submitBtn.textContent;
@@ -574,7 +614,6 @@ if (bookingForm) {
     submitBtn.disabled = true;
     formStatus.className = "form-status";
 
-    // Собираем данные из полей
     const formData = new FormData(this);
     const name = formData.get("name");
     const contact = formData.get("contact");
@@ -582,7 +621,6 @@ if (bookingForm) {
     const comment = formData.get("comment") || "Не указан";
 
     try {
-      // Отправляем данные на прокси-функцию Yandex Cloud
       const response = await fetch(PROXY_URL, {
         method: "POST",
         headers: {
@@ -593,25 +631,33 @@ if (bookingForm) {
           phone: contact,
           format: plan,
           comment: comment,
+          smartToken: captchaToken, // Передаем токен капчи на проверку
         }),
       });
 
-      if (response.ok) {
-        formStatus.textContent =
-          "Заявка успешно отправлена! Мы скоро свяжемся с вами.";
+      const result = await response.json();
+
+      if (response.ok && result.success) {
+        formStatus.textContent = "Заявка успешно отправлена! Мы скоро свяжемся с вами.";
         formStatus.classList.add("success");
         bookingForm.reset();
+
+        // Сбрасываем капчу для следующей отправки
+        if (window.smartCaptcha && captchaWidgetId !== null) {
+          window.smartCaptcha.reset(captchaWidgetId);
+        }
+        captchaToken = null;
 
         setTimeout(() => {
           closeModal();
           formStatus.classList.remove("success");
+          formStatus.textContent = "";
         }, 3000);
       } else {
-        throw new Error("Ошибка сервера при отправке");
+        throw new Error(result.error || "Ошибка сервера при отправке");
       }
     } catch (error) {
-      formStatus.textContent =
-        "Произошла ошибка при отправке. Пожалуйста, попробуйте позже.";
+      formStatus.textContent = "Произошла ошибка проверки или отправки. Попробуйте ещё раз.";
       formStatus.classList.add("error");
     } finally {
       submitBtn.textContent = originalBtnText;
